@@ -42,7 +42,7 @@ prob_C=matrix(nrow=num_C, ncol=cells)
 #pdI<-array(0,dim=c(num_I,cells,2), dimnames=list(paste0("I_",1:num_I),paste0("cell_",1:cells),c("dist","prob")))
 #pdC<-array(0,dim=c(num_C,cells,2), dimnames=list(paste0("I_",1:num_I),paste0("cell_",1:cells),c("dist","prob")))
 
-print(paste0("nrow Imat:",nrow(Imat)))
+#print(paste0("nrow Imat:",nrow(Imat)))
 #dist = sqrt((CT(:,1)-X1).^2 + (CT(:,2)-Y1).^2)
 if(nrow(Imat)>0){
 dimnames_I=list(paste0("I_",1:num_I),paste0("cell_",1:cells),c("dist","prob"))
@@ -56,7 +56,7 @@ pdI[i,,2]=exp(predict(F2,newdata=data.frame(xx=pdI[i,,1])))
 }
 
 #C matrix###############3
-print(paste0("nrow Cmat:",nrow(Cmat)))
+#print(paste0("nrow Cmat:",nrow(Cmat)))
 if(nrow(Cmat)>0){
 dimnames_C=list(paste0("C_",1:num_C),paste0("cell_",1:cells),c("dist","prob"))
 #print(dimnames_C)
@@ -158,7 +158,7 @@ Pse=1-exp(-Bsum)
 } else {Pse<-matrix(0,nrow=cells,ncol=1)} 	#if any infectious closing bracket
 #which(Pse>0.001)
 #which(Pse>0.01)
-print("any FOI 1?")
+#print("any FOI 1?")
 #print(any(is.na(Pse)))
 #print(any(is.na(Pse)))
 

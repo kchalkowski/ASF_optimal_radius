@@ -5,13 +5,14 @@
 ######################
 ####Set directories
 #####################
-home<-"/Users/kchalkowski/Desktop/USDA_Pigs/Projects/ASF_simulation_model/Rcpp_ASF"
+home<-"/Users/kchalkowski/Desktop/USDA_Pigs/Projects/ASF_simulation_model/Rcpp_ASF/ASF_optimal_radius"
 setwd(home)
 
 ######################
 ####Set libraries
 #####################
 library(Rcpp)
+library(profvis)
 library(R.matlab)
 library(pracma)
 library(rdist)
@@ -147,5 +148,10 @@ pop<-InitializeSounders(N0,ss,cells,centroids,0,0,0)
 ######################
 ####RunModel
 #####################
-
-pop<-SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)
+#for profiling
+#detectday = 10
+#thyme=20
+#?profvis
+profvis({SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)})
+#SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)
+rlimit_as(1e14)

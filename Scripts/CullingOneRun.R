@@ -2,7 +2,7 @@
 CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
 if(length(idNEW)>0){
 #idout = []; ids = []; Plive = []; Pdead = []; culled = []; #initiating objects
-print("starting CullingOneRun")
+#print("starting CullingOneRun")
 print(POSlive[i])
 print(NEGdead[i])
 #get list of each infected grid cell ID paired with every other cell ID
@@ -30,7 +30,7 @@ idout<-pairedIDs[pairedIDs[,3]<=10,]
 
 } else{idout<-matrix(nrow=0,ncol=3)}
 
-print("starting Cull")
+#print("starting Cull")
 #% full set of ids in culling zone with distances to detections (newly infected ID, ID of all others in zone, distance)
 #essentially binding idout from above with idZONE
 #fullZONE = [idZONE; idout]; 
@@ -208,12 +208,12 @@ idZONE=fullZONE
 #assuming removing all pigs in those cells
 #find rows in pop equal to those grid cells
 #remove those rows from the population
-print(paste("number culled:",culled))
-print(paste("nrow pop before removals:",nrow(pop)))
+#print(paste("number culled:",culled))
+#print(paste("nrow pop before removals:",nrow(pop)))
 
 removalrows<-which(pop[,3] %in% removalcells)
 removedpop<-pop[-removalrows,,drop=FALSE]
-print(paste("nrow pop after removals:",nrow(removedpop)))
+#print(paste("nrow pop after removals:",nrow(removedpop)))
 
 
 output.list<-vector(mode="list",length=11)

@@ -76,10 +76,10 @@ indP=1:length(indWM)
 ##detectday=i
 for(i in 1:thyme){
 if (any(pop[,9]!=0|pop[,10]!=0|pop[,12]!=0)){
-print("top of loop")
-print(i)
-print(pop[rowSums(is.na(pop)) > 0,])
-print(pop[pop[,3]==0,])
+#print("top of loop")
+#print(i)
+#print(pop[rowSums(is.na(pop)) > 0,])
+#print(pop[pop[,3]==0,])
 #print(head(pop))	
 #print(paste0("any infections?:",any(pop[,10]!=0|pop[,12]!=0)))
 
@@ -92,9 +92,9 @@ print(pop[pop[,3]==0,])
 #print(unique(sapply(pop,class)))
 #pop<-Movement(pop,centroids,shift,inc) #This function will be translated to RCPP
 pop<-FastMovement(pop,centroids,shift,inc)
-print("after movement")
-print(pop[rowSums(is.na(pop)) > 0,])
-print(pop[pop[,3]==0,])
+#print("after movement")
+#print(pop[rowSums(is.na(pop)) > 0,])
+#print(pop[pop[,3]==0,])
 #print(unique(sapply(pop,class)))
 #print(unique(sapply(pop, anyNA)))
 #print(pop[anyNA(pop),])
@@ -120,7 +120,7 @@ print(pop[pop[,3]==0,])
 #print(pop[pop[,12]>0,,drop=FALSE])
 #print(pop[pop[,12]>0,][7])
 #print(pop[pop[,12]>0,7,drop=FALSE])
-print(nrow(pop[pop[,10]>0,,drop=FALSE]))
+#print(nrow(pop[pop[,10]>0,,drop=FALSE]))
 if(nrow(pop[pop[,10]>0,,drop=FALSE])>0){
 Isums[i]<-nrow(pop[pop[,10]>0,,drop=FALSE])
 } else{Isums[i]=0}
@@ -231,19 +231,19 @@ Rdpd[,1]=0
 #Pei = 1-exp(-1./(poissrnd(4,1,cells)./7)); %weekly scale %1-exp(-1./max(1,poissrnd(4,1,cells))); % incubation period (fix as mean of truncated Poisson)
 #Pic = 1-exp(-1./(poissrnd(5,1,cells)./7)); %weekly scale % infectious period until death (fix as mean of truncated Poisson)
 #QUESTION: say in notes truncated poisson. is this old? poissrnd is regular poisson right?
-print("which is na pop2")
-print(pop[which(is.na(pop)),])
+#print("which is na pop2")
+#print(pop[which(is.na(pop)),])
 
-print("any infectious individuals?:")
-print(length(pop[pop[,10]>0|pop[,12]>0,1])>0)
+#int("any infectious individuals?:")
+#print(length(pop[pop[,10]>0|pop[,12]>0,1])>0)
 Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi)
-print("after FOI")
-print(pop[rowSums(is.na(pop)) > 0,])
-print(which(Pse==1))
-print(pop[which(Pse==1),])
+#print("after FOI")
+#print(pop[rowSums(is.na(pop)) > 0,])
+#print(which(Pse==1))
+#print(pop[which(Pse==1),])
 Pei=1-exp(-1/rpois(nrow(pop),4)/7)
 Pic=1-exp(-1/rpois(nrow(pop),5)/7)
-print(head(Pse))
+#print(head(Pse))
 #Disease transitions
 #    Eep = binornd(S(i-1,:),Pse); % Exposure
 #    Iep = binornd(E(i-1,:),Pei); % transitions from E to I
@@ -314,12 +314,12 @@ Zcd<-sum(rbinom(pop[k,13],1,Pcr))
 }
 
 Incidence[i]<-Incidence[i]+sum(Eep)
-print("after assignments")
-print(pop[rowSums(is.na(pop)) > 0,])
+#print("after assignments")
+#print(pop[rowSums(is.na(pop)) > 0,])
 #############################
 ####Update States based on Demographic and Epidemiological Processes
 #############################
-print(paste0("new exposures:",any(Eep>0)))
+#print(paste0("new exposures:",any(Eep>0)))
 
 pop[,8]=pop[,8]-Eep+Sdpb-Sdpd #S
 pop[,9]=pop[,9]-Iep+Eep-Edpd #E
@@ -362,7 +362,7 @@ idNEW<-idNEW[uniqueidNEW]
 output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
 #    if isempty(culled) == 0; Tculled(i) = culled; else; Tculled(i) = 0; end
 #    if isempty(areaC) == 0; Carea(i) = areaC; else; Carea(i) = 0; end
-print("exited CullingOneRun")
+#print("exited CullingOneRun")
 
 #############################
 ####Update surveillance from culling zone
@@ -379,14 +379,14 @@ removalcells<-output.list[[8]]
 culled<-output.list[[9]]
 ZONEkm2<-output.list[[10]]
 
-print("after update surveillance")
-print(pop[rowSums(is.na(pop)) > 0,])
+#print("after update surveillance")
+#print(pop[rowSums(is.na(pop)) > 0,])
 #############################
 ####Update States based on Management Processes
 #############################
-print(paste("nrow pop before removals:",nrow(pop)))
+#print(paste("nrow pop before removals:",nrow(pop)))
 pop<-output.list[[11]]
-print(paste("nrow pop after removals:",nrow(pop)))
+#print(paste("nrow pop after removals:",nrow(pop)))
 
 
 #Total number culled at each timestep
@@ -445,8 +445,8 @@ if(pop[detection,1]==0){pop<-pop[-detection,]}
 #############################
 ####Track true spatial spread
 #############################
-print("before aoi")
-print(pop[rowSums(is.na(pop)) > 0,])
+#print("before aoi")
+#print(pop[rowSums(is.na(pop)) > 0,])
 #if any infected individuals
 #areaOfinfection()
 if(nrow(pop[pop[,9]>0|pop[,10]>0|pop[,12]>0,,drop=FALSE])>0){
