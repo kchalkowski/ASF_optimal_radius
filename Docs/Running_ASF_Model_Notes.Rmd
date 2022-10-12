@@ -1,0 +1,85 @@
+---
+title: "Running ASF Model"
+output: html_document
+---
+Notes structure:
+-Scripts > Functions > summary of function; inputs; outputs
+-Data Files > descriptions
+-Description of Pipeline
+
+## Scripts:
+**areaOFinfection.m**
+Calculate: 1) number of current infectious individuals, 2) area of polygon around them, 3) max linear distance between them
+
+**CullingOneRun.m**
+Function to determine how many hosts will be culled from each grid cell. Identifies detected positive individuals, and determines culling radii around those positives. At each time step, list updated with new identified positives, and keep list of distance between all grid cells with pigs within all infected cases 
+
+**FixedParameters.m** 
+List of parameters
+
+**FOI.m**
+I think this is script that Kim mentioned does some hefty matrix multiplication
+Function determines the force of infection to susceptibles at each grid cell
+
+**movement.m**
+find cells with pigs, determine how far they will move, and move them according to some things as long as their mvmt distance is >200m
+
+**OneRunWeekly.m**
+??
+
+**SimulateOneRun.m**
+Runs the simulation
+
+## Data files:
+Grid_80x80_0pt4km.mat
+TPbyDistC_WeeklyFL.mat
+TPbyDistC_WeeklySC.mat
+TPbyDistWeekly_FL.mat
+TPbyDistWeekly_SC.mat
+WeeklyM.mat
+
+**15 Aug 22 End of Day notes**
+-read through ASF optimization scripts
+-installed matlab
+-ran simulation
+-familiarized self with Matlab interface
+*Next steps:* 
+-run through each of scripts in more detail, identify how each of the functions works with detailed comments
+-how to look at outputs in matlab? how to identify outputs in code? only saw figure 10 output
+-read through manuscript again, including supplements
+
+**16 Aug 22 End of Day notes**
+-read through process in optimal control radius manuscript
+-worked through code in Matlab, got up through the FOI function.. some lines in here can't get to work/don't understand workings
+-tested another idea for optimization by having matrices indexed instead of populating matrices themselves... definitely faster but need to understand FOI function and the rest to make sure there isn't something I'm missing for why this alternate approach wouldn't work
+-started going through the MO data matlab functions, seeing what is there
+*Next steps:* 
+-finish going through ASF model matlab code, identify portions can't get to work or dont understand
+-go through rest of MO code and data, start getting requested outputs
+
+**17 Aug 22 End of Day notes**
+-went through MO data more, got a handle of what data is where, what we need, what's missing.. have a lot of questions about the data for Kim/collaborators. Would like to explore matching what I can of the location data with take to the effort/hours data
+-continued going through the ASF optimal radius matlab script... worked through some of FOI function, makes more sense now but need to parse out the rest of the function to understand every line of code
+-attended meeting for ASF movement modeling
+*Next steps*
+-finish going through optimal radius Matlab code
+-think about statistical movement modeling challenges, and how to get results that can be input into the model
+
+**18 Aug 22 End of Day notes**
+-thought about statistical movement modeling strategies, how to get around possibility of different parameters being important through different regions of the U.S. Found a couple options
+-continued working through ASF optimal radius code
+-met with Ryan/Kim with updates/questions
+-drafted starting powerpoint for next week's meeting, with today's meeting notes
+*Next steps*
+-got some clarity on MO data, need to go back to working with that-- do joins by county/week
+-come up with questions on MO data as I go along, to send to collaborators for clarification needed
+-continue going through ASF optimal radius code: finish FOI script read-through
+-download IDE for C++!
+
+**19 Aug 22 End of Day notes**
+-continued with MO data by tidying, summarizing, and checking them against each other. Noticed many inconsistencies that we may need to resolve. Emailed Kim/Ryan with the details and some questions for the folks in MO.
+
+**22 Aug 22 Day notes**
+-sent email to Lexi with summary of info found on the mvmt modeling, handling regional differences
+-sent email to Kim with pared down request for info on the MO data
+
