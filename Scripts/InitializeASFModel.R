@@ -152,6 +152,8 @@ pop<-InitializeSounders(N0,ss,cells,centroids,0,0,0)
 #detectday = 10
 #thyme=20
 #?profvis
-profvis({SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)})
+#library(microbenchmark)
+#?microbenchmarkx
+microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
 #SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)
-rlimit_as(1e14)
+

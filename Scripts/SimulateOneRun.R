@@ -15,27 +15,38 @@ BB=matrix(nrow=thyme) #track births
 ####Initialize Disease Surveillance/Culling Variables
 #############################
 
-POSlive=matrix(0, nrow=thyme,ncol=1) #Positive cases observed and removed from landscape
-POSdead=matrix(0, nrow=thyme,ncol=1) #Positive carcasses observed and removed from landscape
-NEGlive=matrix(0, nrow=thyme,ncol=1) #Negative tests of hunted carcasses that are removed from landscape
-NEGdead=matrix(0, nrow=thyme,ncol=1) #Negative tests of carcasses that are removed from landscape
+#POSlive=matrix(0, nrow=thyme,ncol=1) #Positive cases observed and removed from landscape
+#POSdead=matrix(0, nrow=thyme,ncol=1) #Positive carcasses observed and removed from landscape
+#NEGlive=matrix(0, nrow=thyme,ncol=1) #Negative tests of hunted carcasses that are removed from landscape
+#NEGdead=matrix(0, nrow=thyme,ncol=1) #Negative tests of carcasses that are removed from landscape
+
+POSlive=as.list(rep(0,thyme)) #Positive cases observed and removed from landscape
+POSdead=as.list(rep(0,thyme))#Positive carcasses observed and removed from landscape
+NEGlive=as.list(rep(0,thyme)) #Negative tests of hunted carcasses that are removed from landscape
+NEGdead=as.list(rep(0,thyme))#Negative tests of carcasses that are removed from landscape
+
 
 #empty_list <- vector(mode = "list", length = desired_length)
-POSlive_locs<-vector(mode="list",length=thyme) #put this in beginning at initialization
-POSdead_locs<-vector(mode="list",length=thyme) #put this in beginning at initialization
+#POSlive_locs<-vector(mode="list",length=thyme) #put this in beginning at initialization
+#POSdead_locs<-vector(mode="list",length=thyme) #put this in beginning at initialization
 
+POSlive_locs<-as.list(rep(0,thyme))
+POSdead_locs<-as.list(rep(0,thyme))
 
 #############################
 ####Initialize Data Recording
 #############################
 
-idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
+#idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
+idZONE<-as.list(rep(0,thyme))
 Tculled=matrix(0,nrow=thyme) #total number culled at each time step
+ZONEkm2=matrix(0,nrow=thyme) 
 Carea=matrix(0,nrow=thyme) #area of culling zone at each time step
 Spread=matrix(0,nrow=thyme, ncol=3) #number of infectious individuals, area of infection, max distance between any two cases
 Incidence=matrix(0,nrow=thyme) #store new cases for each time step
 I_locs=vector("list",thyme)
 C_locs=vector("list",thyme)
+removalcells=vector("list",thyme)
 I_locs[1:thyme]<-0
 C_locs[1:thyme]<-0
 Isums<-matrix(0,nrow=thyme)
@@ -75,7 +86,11 @@ indP=1:length(indWM)
 ##i=1
 ##detectday=i
 for(i in 1:thyme){
-if (any(pop[,9]!=0|pop[,10]!=0|pop[,12]!=0)){
+if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
+print(i)
+#print(dim(pop))
+#print(pop[,9])
+#print(head(pop))
 #print("top of loop")
 #print(i)
 #print(pop[rowSums(is.na(pop)) > 0,])
@@ -140,9 +155,9 @@ C_locs[[i]]<-pop[pop[,12]>0,7]
 #    N = sum([S(i-1,:); E(i-1,:); R(i-1,:)],1);
 #N=nrow(pop) 
 ########
-idN=pop[pop[,8]>0|pop[,9]>0|pop[,10]>0|pop[,11]>0,] #get all sounder sets with live individuals; subset
+idN=pop[pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0,] #get all sounder sets with live individuals; subset
 liveind<-sum(colSums(pop)[8:11]) #N live individuals
-liverows<-which(pop[,8]>0|pop[,9]>0|pop[,10]>0|pop[,11]>0) #rownums with live indiv
+liverows<-which(pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0) #rownums with live indiv
 
 #        if id <= length(idN)
 ########
@@ -346,20 +361,40 @@ pop[which(pop[,13]<0),13]<-0
 if(i > detectday & Rad > 0){
 ##    idNEW = find(POSlive(i-1,:) + POSdead(i-1,:) > 0); % find cells that had positives in the previous time step from detectday(assume 1-day lag between sampling and test results)
 #idNEW=c(POSlive[i-1,2],POSdead[i-1,2])
+#rint(paste("POSlive_locs:",POSlive_locs[[i-1]]))
+#print(paste("POSdead_locs:",POSdead_locs[[i-1]]))
+
+#print(paste("POSlive_locs:",POSlive_locs[i-1]))
+#print(paste("POSdead_locs:",POSdead_locs[i-1]))
+
+#print(paste("POSlive_locs:",!is.na(POSlive_locs[i-1])))
+#print(paste("POSdead_locs:",!is.na(POSdead_locs[i-1])))
+
 idNEW=c(POSlive_locs[[i-1]],POSdead_locs[[i-1]])
+#print("after idNEW")
 #POSlivei
+
+
 idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
+#print("after idNEW2")
+
 #% determine which are newly identified grid cells
 #    [~,temp] = intersect(idNEW, unique(idZONE(:,1))); % gives IDs in idNEW that overlap with pre-existing positive IDs
 #    idNEW(temp) = []; % remove the id's that overlap so we are just looking at the unique ids
 #idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-uniqueidNEW<-which(!(idNEW %in% idZONE[,1]))
+#print(idZONE[[i - 1]])
+#print(idZONE)
+if(any(idZONE[[i]])!=0){uniqueidNEW<-which(!(idNEW %in% idZONE[[i-1]][,1]))
 idNEW<-idNEW[uniqueidNEW]
+} else{idNEW=idNEW}
+#print("after idNEW3")
 #    X = [S(i,:);E(i,:);I(i,:);R(i,:);C(i,:);Z(i,:)]; % get current status 
 #    [idZONE,ids,Plive,Pdead,culled,areaC] = CullingOneRun(X,idNEW,idZONE,Intensity,alphaC,centroids,Rad,cullstyle,inc,i,stplot,enplot); % update numbers that were culled and tested, 
+###if statement needed here
+#if....
 
 #CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected)
-output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
+output.list<-CullingOneRun(pop,idNEW,idZONE[[i-1]],Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
 #    if isempty(culled) == 0; Tculled(i) = culled; else; Tculled(i) = 0; end
 #    if isempty(areaC) == 0; Carea(i) = areaC; else; Carea(i) = 0; end
 #print("exited CullingOneRun")
@@ -368,16 +403,16 @@ output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i
 ####Update surveillance from culling zone
 #############################
 
-POSlive<-output.list[[1]]
-POSdead<-output.list[[2]]
-POSlive_locs<-output.list[[3]]
-POSdead_locs<-output.list[[4]]
-NEGlive<-output.list[[5]]
-NEGdead<-output.list[[6]]
-idZONE<-output.list[[7]]
-removalcells<-output.list[[8]]
+POSlive[[i]]<-output.list[[1]]
+POSdead[[i]]<-output.list[[2]]
+POSlive_locs[[i]]<-output.list[[3]]
+POSdead_locs[[i]]<-output.list[[4]]
+NEGlive[[i]]<-output.list[[5]]
+NEGdead[[i]]<-output.list[[6]]
+idZONE[[i]]<-output.list[[7]]
+removalcells[[i]]<-output.list[[8]]
 culled<-output.list[[9]]
-ZONEkm2<-output.list[[10]]
+ZONEkm2[i,]<-output.list[[10]]
 
 #print("after update surveillance")
 #print(pop[rowSums(is.na(pop)) > 0,])
@@ -391,6 +426,7 @@ pop<-output.list[[11]]
 
 #Total number culled at each timestep
 Tculled[i]=culled
+#print("after cullingonerun")
 
 } #if greater than detectday closing bracket
 
@@ -407,15 +443,20 @@ Tculled[i]=culled
 #POSlive is a matrix with a row for each timestep
 #column one of poslive is the number of infected pigs detected at that timestep
 #remov this column? column two of poslive is the grid cell ID of the infected pigs
+######################################################################################################
 if((i==detectday)&(sum(pop[,9]+pop[,10]+pop[,12])>0)){
 detection<-as.integer(sample(as.character(which(pop[,9]>0|pop[,10]>0|pop[,12]>0)),1))
-POSlive[i,1]<-min(pop[detection,9]+pop[detection,10],1)
-POSdead[i,1]<-min(pop[detection,12],0)
+#POSlive[i,1]<-min(pop[detection,9]+pop[detection,10],1)
+#POSdead[i,1]<-min(pop[detection,12],0)
+POSlive[[i]]<-min(pop[detection,9]+pop[detection,10],1)
+POSdead[[i]]<-min(pop[detection,12],0)
+
+
 #update the surveillance data
 #instead of second column of POSlive/POSdead, create a list with vector for each timestep
 
-if(POSlive[i,1]>0){POSlive_locs[[i]]<-pop[detection,3]}
-if(POSdead[i,1]>0){POSdead_locs[[i]]<-pop[detection,3]}
+if(POSlive[[i]]>0){POSlive_locs[[i]]<-pop[detection,3]}
+if(POSdead[[i]]>0){POSdead_locs[[i]]<-pop[detection,3]}
 
 #Store the pop rows of the detected pigs
 detected<-pop[detection,,drop=FALSE]
@@ -440,8 +481,10 @@ pop[detection,11]<-max(pop[detection,11]-1,0)
 
 #if every pig in cell with infected pigs removed, remove the row from the population
 if(pop[detection,1]==0){pop<-pop[-detection,]}
-
+#print("after initiate response")
 } 
+############################################################################
+
 #############################
 ####Track true spatial spread
 #############################
@@ -449,10 +492,13 @@ if(pop[detection,1]==0){pop<-pop[-detection,]}
 #print(pop[rowSums(is.na(pop)) > 0,])
 #if any infected individuals
 #areaOfinfection()
-if(nrow(pop[pop[,9]>0|pop[,10]>0|pop[,12]>0,,drop=FALSE])>0){
+#print("before area of infection")
+if(nrow(pop[pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,12,drop=FALSE]>0,,drop=FALSE])>0){
+#print("inside if statement")
 out[i,]<-areaOfinfection(pop,centroids,inc)
+#print("after area of infection output")
 } else{out[i,]=c(0,0,0)}
-
+#print("after area of infection")
 #Plotting function in matlab goes here
 
 #############################
@@ -502,7 +548,8 @@ TincFromDD<-sum(Incidence[(detectday+1):length(Incidence)])
 #TincToDD = sum(IncOverTime(1:detectday));
 TincToDD<-sum(Incidence[1:detectday])
 	
-	
+#print("after TinctoDD")
+
 #find last day there was an infectious individual
 #idT = find(ICtrue > 0,1,'last'); % find the last day there was an infectious individual
 idT=0
@@ -520,7 +567,10 @@ idT=idT-1
 #% how many detections?
 #total number of detections made
 #DET = sum(sum(POSlive+POSdead));
-DET=sum(POSlive,POSdead)
+#print(POSlive[[i]])
+#print(POSdead[[i]])
+DET=sum(POSlive[[i]],POSdead[[i]])
+#print("after DET")
 
 #Spread = zeros(time,3); % number of infectious individuals, area of infection, max distance between any two cases
 #%Mspread = [max(Spread(:,1)) max(Spread(:,2)) max(Spread(:,3))];
@@ -528,6 +578,7 @@ DET=sum(POSlive,POSdead)
 Mspread<-max(out[,2])
 
 iCatEnd=sum(colSums(pop)[c(9,10,12)])
+#print("after iCatEnd")
 
 #% Reduced version as this is all we are tracking for now
 #All = [Tinc, sum(Tculled), idT, max(Spread(:,2)), IConDD, ICatEnd, TincFromDD, TincToDD, DET];
@@ -545,7 +596,7 @@ list.all[[10]]=I_locs
 list.all[[11]]=C_locs
 list.all[[12]]=Isums
 list.all[[13]]=Csums
-
+#print("after create outputs")
 } else{print("Exiting function, no infections")} #if any infected closing bracket/else
 	} #for timestep closing bracket
 
@@ -555,8 +606,8 @@ list.all[[13]]=Csums
 #ICatEnd = sum(I(time,:),2)+sum(C(time,:),2)+sum(E(time,:),2);
 
 
-#return(list.all)
-return(pop)
+return(list.all)
+#return(pop)
 
 	} #function closing bracket
 

@@ -1,19 +1,40 @@
 #CullingOneRun<-function(X,idNEW,idZONE,Intensity,alphaC,CT,Rad,inc,i){
 CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
+#print("inside cullingonerun")
+#print(length(idNEW))
 if(length(idNEW)>0){
 #idout = []; ids = []; Plive = []; Pdead = []; culled = []; #initiating objects
 #print("starting CullingOneRun")
-print(POSlive[i])
-print(NEGdead[i])
+#print(POSlive[i])
+#print(NEGdead[i])
+#print(idNEW)
 #get list of each infected grid cell ID paired with every other cell ID
 #pairedIDs = [reshape(repelem(idNEW,size(CT,1),1),length(idNEW)*size(CT,1),1) repmat((1:size(CT,1))',length(idNEW),1)];
 pairedIDs<-matrix(nrow=cells*length(idNEW),ncol=3)
+if(length(idNEW)==1){
 pairedIDs[1:cells,1]<-idNEW
 pairedIDs[1:cells,2]<-1:cells
+}
 
 if(length(idNEW)>1){
-	pairedIDs[(cells+1):nrow(pairedIDs),1]<-idNEW[2]
-	pairedIDs[(cells+1):nrow(pairedIDs),2]<-1:cells
+for(i in 1:length(idNEW)){
+if(i==1){
+pairedIDs[1:cells,1]<-idNEW[i]	
+pairedIDs[1:cells,2]<-1:cells
+	}
+if(i>1){
+	cells=nrow(centroids)
+#pairedIDs[(cells+1):nrow(pairedIDs),1]<-idNEW[2]
+#pairedIDs[(cells+1):nrow(pairedIDs),2]<-1:cells
+	#print(i)
+	#print(length(((1)+((i-1)*cells)):((i*cells))))
+	#print(dim(pairedIDs))
+	#print(paste("length paired id subset:",length(pairedIDs[((1)+((i-1)*cells)):((i*cells)),1])))
+	#print(paste("length 1:cells:",length(1:cells)))
+pairedIDs[((1)+((i-1)*cells)):((i*cells)),1]<-idNEW[i]
+pairedIDs[((1)+((i-1)*cells)):((i*cells)),2]<-1:cells
+}
+	}
 	}
 
 #get distance between each infected grid cell ID paired with every other cell ID
@@ -27,7 +48,6 @@ pairedIDs[,3]<-sqrt((centroids[pairedIDs[,1],1]-centroids[pairedIDs[,2],1])^2 + 
 #idout =[pairedIDs(temp,1) pairedIDs(temp,2) dist(temp,2)]; % Store: grid cell id for infection, each grid cell id in the zone, distance of each grid cell id in the zone from the infection
 idout<-pairedIDs[pairedIDs[,3]<=10,]
 
-
 } else{idout<-matrix(nrow=0,ncol=3)}
 
 #print("starting Cull")
@@ -36,7 +56,7 @@ idout<-pairedIDs[pairedIDs[,3]<=10,]
 #fullZONE = [idZONE; idout]; 
 fullZONE=rbind(idZONE,idout)
 #remove NAs
-fullZONE<-fullZONE[!is.na(fullZONE[,1]),]
+fullZONE<-fullZONE[!is.na(fullZONE[,1]),,drop=FALSE]
 
 #get vector of total pigs in each cell
 #pigs = sum(X,1); % vector of total pigs in each cell
@@ -79,6 +99,8 @@ totalEIC=EICinzone+EICoutzone
 
 ###########Culling algorithm	
 #if EICinzone > 0 #if there are pigs to cull... 
+#print("pigs in zone")
+print(pigsinzone)
 if(pigsinzone>0){
 	
 #get number of pigs for each grid cell in zone
@@ -111,7 +133,7 @@ fullZONEpigs<-as.matrix(arrange(as.data.frame(fullZONEpigs),fullZONEpigs[,3]))
 #tpigs = temp2(:,4); % get total pigs sorted in order of grid cells that are being targeted
 	
 #%density of all live and dead pigs in the zone
-#Dr = TotalPIGS/ZONEkm2; \
+#Dr = TotalPIGS/ZONEkm2; 
 Dr=pigsinzone/ZONEkm2
 
 #determine density-dependent capture probability in this radius  	
@@ -152,48 +174,55 @@ removalpigs<-fullZONEpigs[1:incr,,drop=FALSE]
 
 #outputs needed
 #idZONE,ids,POSlive,POSdead,culled,areaC]
-
+#print(paste("POSlive_locsc174:",POSlive_locs[i-1]))
+#print(paste("POSdead_locsc175:",POSdead_locs[i-1]))
 #POSlive
 #POSlive is a matrix with a row for each timestep
 #column one of poslive is the number of exposed/infected pigs detected at that timestep
 #sum removalpigs column 6,7
-POSlive[i]<-sum(removalpigs[,7],removalpigs[,6])
+POSlive_i<-sum(removalpigs[,7],removalpigs[,6])
 
 #POSdead
 #POSdead is a matrix with a row for each timestep
 #column one of poslive is the number of infected carcasses detected at that timestep
 #sum removalpigs column 9
-POSdead[i]<-sum(removalpigs[,9])
+POSdead_i<-sum(removalpigs[,9])
 
 #POSlive_locs
 #list of length thyme, each timestep is vector of grid cell locations where liive infected pigs detected at that ts
 #removalpigs col 2 where column 6 or 7 >0 (need check that should be E Ior just I)
-if(POSlive[[i]]>0){
-POSlive_locs[[i]]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
-} else {POSlive_locs[[i]]<-NA}
+if(POSlive_i>0){
+lll<-length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])
+POSlive_locs_i=vector(mode="numeric",length=lll)
+POSlive_locs[i]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
+} else {POSlive_locs_i<-0}
 
 #POSdead_locs
 #list of length thyme, each timestep is vector of grid cell locations where dead infected pigs detected at that ts
 #removalpigs col 2 where column 9>0
-if(POSdead[[i]]>0){
+if(POSdead_i>0){
 POSdead_locs[[i]]<-removalpigs[removalpigs[,9]>0,2]
-} else {POSdead_locs[[i]]<-NA}
+
+lld<-length(removalpigs[removalpigs[,9]>0,2])
+POSdead_locs_i=vector(mode="numeric",length=lld)
+POSdead_locs_i[i]<-removalpigs[removalpigs[,9]>0,2]
+} else {POSdead_locs_i<-0}
 
 #% Nlive(ids) = sum(X([1 2 4],ids),1); % count of S,E,R removed
 #vector of nrow timestop, count of total SR removed
 #sum removalpigs column 5,8
-NEGlive[i]<-sum(removalpigs[,5],removalpigs[,8])
+NEGlive_i<-sum(removalpigs[,5],removalpigs[,8])
 
 #% Ndead(ids) = X(6,ids); % count of Z removed
 #vector of nrow timestep, count of total Z removed
 #sum removalpigs column 10
-NEGdead[i]<-sum(removalpigs[,10])
+NEGdead_i<-sum(removalpigs[,10])
 
 #idZONE:
 #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
 #assign fullzone to IDzone, is just without NA
 idZONE=fullZONE
-
+#print(idZONE)
 #ids:
 #removalcells, list of cells where pigs removed from
 
@@ -214,15 +243,16 @@ idZONE=fullZONE
 removalrows<-which(pop[,3] %in% removalcells)
 removedpop<-pop[-removalrows,,drop=FALSE]
 #print(paste("nrow pop after removals:",nrow(removedpop)))
-
+#print(paste("POSlive_locsc236:",POSlive_locs[[i]]))
+#print(paste("POSdead_locsc237:",POSdead_locs[[i]]))
 
 output.list<-vector(mode="list",length=11)
-output.list[[1]]<-POSlive
-output.list[[2]]<-POSdead
-output.list[[3]]<-POSlive_locs
-output.list[[4]]<-POSdead_locs
-output.list[[5]]<-NEGlive
-output.list[[6]]<-NEGdead
+output.list[[1]]<-POSlive_i
+output.list[[2]]<-POSdead_i
+output.list[[3]]<-POSlive_locs_i
+output.list[[4]]<-POSdead_locs_i
+output.list[[5]]<-NEGlive_i
+output.list[[6]]<-NEGdead_i
 output.list[[7]]<-idZONE
 output.list[[8]]<-removalcells
 output.list[[9]]<-culled
@@ -230,17 +260,17 @@ output.list[[10]]<-ZONEkm2
 output.list[[11]]<-removedpop
 } else{
 output.list<-vector(mode="list",length=11)
-output.list[[1]]<-NA
-output.list[[2]]<-NA
-output.list[[3]]<-NA
-output.list[[4]]<-NA
-output.list[[5]]<-NA
-output.list[[6]]<-NA
-output.list[[7]]<-NA
-output.list[[8]]<-NA
-output.list[[9]]<-NA
-output.list[[10]]<-NA
-output.list[[11]]<-NA	
+output.list[[1]]<-0
+output.list[[2]]<-0
+output.list[[3]]<-0
+output.list[[4]]<-0
+output.list[[5]]<-0
+output.list[[6]]<-0
+output.list[[7]]<-0
+output.list[[8]]<-0
+output.list[[9]]<-0
+output.list[[10]]<-0
+output.list[[11]]<-pop	
 	
 	}
 
