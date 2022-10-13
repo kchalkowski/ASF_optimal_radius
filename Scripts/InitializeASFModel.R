@@ -39,8 +39,10 @@ area=80^2 #total area of grid
 N0=density*area #initial population size
 K=N0*1.5 #carrying capacity for whole population
 Rad=10 #culling radius
-detectday = 20
-thyme=52+detectday #using 'time' sometimes gives weird errors with different packages, hence the diff spelling
+#detectday = 20
+#thyme=52+detectday #using 'time' sometimes gives weird errors with different packages, hence the diff spelling
+thyme=72
+detectday=73
 intensity=0.05
 cullstyle="startOUT"
 inc=0.4
@@ -154,6 +156,31 @@ pop<-InitializeSounders(N0,ss,cells,centroids,0,0,0)
 #?profvis
 #library(microbenchmark)
 #?microbenchmarkx
-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
+
+#d5run<-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
 #SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)
+#milliseconds: d5run
+#SimulateOneRun(Pcr, Pir, Pbd, death, F1, F2, F2i, B1, B2, thyme,      cells, N0, K, detectday, Rad, Intensity, alphaC, shift, centroids,      cullstyle, inc, ss, gridlen, midpoint, pop)
+#      min       lq     mean   median       uq      max neval
+# 736.7588 6162.409 9399.209 7379.416 10410.21 33461.68   100
+
+#d3run<-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
+
+#milliseconds: d3run
+#SimulateOneRun(Pcr, Pir, Pbd, death, F1, F2, F2i, B1, B2, thyme,      cells, N0, K, detectday, Rad, Intensity, alphaC, shift, centroids,      cullstyle, inc, ss, gridlen, midpoint, pop)
+#      min       lq     mean   median       uq      max neval
+# 633.4236 3214.817 4414.165 3784.096 4900.627 14767.63   100
+
+#d5ncrun<-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
+
+#milliseconds: d5ncrun
+#SimulateOneRun(Pcr, Pir, Pbd, death, F1, F2, F2i, B1, B2, thyme,      cells, N0, K, detectday, Rad, Intensity, alphaC, shift, centroids,      cullstyle, inc, ss, gridlen, midpoint, pop)
+#      min       lq     mean   median       uq      max neval
+# 498.2024 19000.69 20153.53 21890.09 25064.32 43207.66   100
+
+d3ncrun<-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
+#d3ncrun, milliseconds
+#SimulateOneRun(Pcr, Pir, Pbd, death, F1, F2, F2i, B1, B2, thyme,      cells, N0, K, detectday, Rad, Intensity, alphaC, shift, centroids,      cullstyle, inc, ss, gridlen, midpoint, pop)
+#      min       lq     mean   median       uq      max neval
+# 306.8855 10884.19 12754.69 13818.56 16412.03 25679.11   100
 

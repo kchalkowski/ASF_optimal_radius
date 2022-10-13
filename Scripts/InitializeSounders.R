@@ -42,7 +42,9 @@ pop[,11]=0 #number of R status in sounder
 pop[,12]=0 #number of C status in sounder
 pop[,13]=0 #number of Z status in sounder
 	}
-	
+
+pop=pop[pop[,1]>0,]
+
 return(pop)
 
 }

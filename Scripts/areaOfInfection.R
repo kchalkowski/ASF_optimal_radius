@@ -26,7 +26,7 @@ out=c(2,2*(inc^2),dist)
 #print("start aoi print statement")
 #print(pop[is.na(pop[,3]),])
 #print(infectcells)
-xy<-centroids[infectcells,]	
+xy<-centroids[infectcells,,drop=FALSE]	
 #print(xy)
 #print(anyNA(infected))
 #print(head(infected))
@@ -40,11 +40,11 @@ ch<-chull(xy)
 
 #subset xy point set to boundary points from chull
 #boundary<-xy[ch,]
-boundary<-xy[ch,]
+boundary<-xy[ch,,drop=FALSE]
 
 #get area within boundary
 #abs(polyarea(boundary[,1],boundary[,2]))	
-A<-abs(polyarea(boundary[,1],boundary[,2]))
+A<-abs(polyarea(boundary[,1,drop=FALSE],boundary[,2,drop=FALSE]))
 
 #distmat = max(max(squareform(pdist(CT(id,:)))));
 #pdist- gets pairwise distance between pairs of observations
