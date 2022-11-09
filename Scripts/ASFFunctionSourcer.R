@@ -9,4 +9,6 @@ source(paste(getwd(), "/Scripts/FOI.R", sep = ''))
 
 #cpp Functions
 Rcpp::sourceCpp("./Scripts/Movement_Parallel_Functionsmall.cpp", verbose=TRUE)
+Rcpp::sourceCpp("./Scripts/Fast_FOI_Parallel.cpp", verbose=TRUE)
 
+#Rcpp::sourceCpp("./Scratch/Fast_FOI.cpp", verbose=TRUE)

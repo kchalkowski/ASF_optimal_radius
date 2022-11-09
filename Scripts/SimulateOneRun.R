@@ -25,7 +25,6 @@ POSdead=as.list(rep(0,thyme))#Positive carcasses observed and removed from lands
 NEGlive=as.list(rep(0,thyme)) #Negative tests of hunted carcasses that are removed from landscape
 NEGdead=as.list(rep(0,thyme))#Negative tests of carcasses that are removed from landscape
 
-
 #empty_list <- vector(mode = "list", length = desired_length)
 #POSlive_locs<-vector(mode="list",length=thyme) #put this in beginning at initialization
 #POSdead_locs<-vector(mode="list",length=thyme) #put this in beginning at initialization
@@ -38,7 +37,7 @@ POSdead_locs<-as.list(rep(0,thyme))
 #############################
 
 #idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-idZONE<-as.list(rep(0,thyme))
+idZONE<-as.list(rep(as.integer(0),thyme))
 Tculled=matrix(0,nrow=thyme) #total number culled at each time step
 ZONEkm2=matrix(0,nrow=thyme) 
 Carea=matrix(0,nrow=thyme) #area of culling zone at each time step
@@ -62,17 +61,19 @@ ICatEnd=0
 #############################
 ####Initialize Infection
 #############################
+num_inf_0=1 #how many pigs to infect starting off
 
 #find the midpoint of the grid
 id=which(centroids[,1]>=midpoint[1]&centroids[,2]>=midpoint[2])[1] #location on grid closest to midpoint
 
-infected<-InitializeSounders(N0,ss,cells,centroids,1,id,1)
+#infected<-InitializeSounders(N0,ss,cells,centroids,1,id,1)
+infected<-InitializeSounders(N0,ss,cells,centroids,num_inf_0,id,1)
 infected[,8]<-0
 infected[,10]<-1
 #infected[,9]<-1
 #combine infected pig with pop matrix
 pop<-rbind(pop,infected)
-Incidence[1]<-1
+Incidence[1]<-num_inf_0
 
 #############################
 ####Simulate pop over time
@@ -97,7 +98,6 @@ print(i)
 #print(pop[pop[,3]==0,])
 #print(head(pop))	
 #print(paste0("any infections?:",any(pop[,10]!=0|pop[,12]!=0)))
-
 
 #############################
 ####Movement Function
@@ -251,7 +251,9 @@ Rdpd[,1]=0
 
 #int("any infectious individuals?:")
 #print(length(pop[pop[,10]>0|pop[,12]>0,1])>0)
-Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi)
+#Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi)
+#Pse<-Fast_FOI_function(pop,centroids,cells,B1,B2,F1)
+Pse<-FOIParallelFull(pop,centroids,cells,B1,B2,F1)
 #print("after FOI")
 #print(pop[rowSums(is.na(pop)) > 0,])
 #print(which(Pse==1))
@@ -338,10 +340,10 @@ Incidence[i]<-Incidence[i]+sum(Eep)
 
 pop[,8]=pop[,8]-Eep+Sdpb-Sdpd #S
 pop[,9]=pop[,9]-Iep+Eep-Edpd #E
-pop[,10]=pop[,10]-Rep-Cep+Iep#I
+pop[,10]=pop[,10]-Rep-Cep+Iep-Idpd#I
 pop[,11]=pop[,11]+Rep-Rdpd #R
-pop[,12]=pop[,12]+Cep-Ccd #C
-pop[,13]=pop[,13]+Rdpd+Sdpd+Edpd-Zcd #Z
+pop[,12]=pop[,12]+Idpd+Cep-Ccd #C
+pop[,13]=pop[,13]+Sdpd+Rdpd+Edpd-Zcd #Z
 
 pop[which(pop[,8]<0),8]<-0
 pop[which(pop[,9]<0),9]<-0
@@ -350,7 +352,30 @@ pop[which(pop[,11]<0),11]<-0
 pop[which(pop[,12]<0),12]<-0
 pop[which(pop[,13]<0),13]<-0
 
-#Make Nall output here
+#move dead individuals (C or Z) into their own row
+#pop[,12] and pop[,13] > 0
+deadguys<-pop[pop[,12]>0|pop[,13]>0,,drop=FALSE]
+
+#if there are deadguys....
+if(length(deadguys)!=0){
+	
+#remove abundance and all live guy counts from deadguy set
+deadguys[,1]=0
+deadguys[,8]=0
+deadguys[,9]=0
+deadguys[,10]=0
+deadguys[,11]=0
+
+#set all deadguys in other pop to zero
+pop[which(pop[,12]>0),12]<-0
+pop[which(pop[,13]>0),13]<-0
+pop<-rbind(pop,deadguys)
+
+}
+
+#############################
+#Update abundance numbers (live individuals only count in abundance)
+pop[,1]=rowSums(pop[,8:11])
 
 #############################
 ####Response: Culling Zone
