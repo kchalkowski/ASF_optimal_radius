@@ -1,6 +1,6 @@
 #CullingOneRun<-function(X,idNEW,idZONE,Intensity,alphaC,CT,Rad,inc,i){
 CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
-#print("inside cullingonerun")
+print("entered cullingonerun")
 #print(length(idNEW))
 if(length(idNEW)>0){
 #idout = []; ids = []; Plive = []; Pdead = []; culled = []; #initiating objects
@@ -193,8 +193,11 @@ POSdead_i<-sum(removalpigs[,9])
 #removalpigs col 2 where column 6 or 7 >0 (need check that should be E Ior just I)
 if(POSlive_i>0){
 lll<-length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])
-POSlive_locs_i=vector(mode="numeric",length=lll)
-POSlive_locs[i]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
+POSlive_locs_i=vector(mode="integer",length=lll)
+POSlive_locs[[i]]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
+print(paste("number of removalpigs rows", length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])))
+print(paste("POSlive_locs[i]",POSlive_locs[i]))
+print(paste("removalpigs locations",removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]))
 } else {POSlive_locs_i<-0}
 
 #POSdead_locs
@@ -204,8 +207,8 @@ if(POSdead_i>0){
 POSdead_locs[[i]]<-removalpigs[removalpigs[,9]>0,2]
 
 lld<-length(removalpigs[removalpigs[,9]>0,2])
-POSdead_locs_i=vector(mode="numeric",length=lld)
-POSdead_locs_i[i]<-removalpigs[removalpigs[,9]>0,2]
+POSdead_locs_i=vector(mode="integer",length=lld)
+POSdead_locs_i[[i]]<-removalpigs[removalpigs[,9]>0,2]
 } else {POSdead_locs_i<-0}
 
 #% Nlive(ids) = sum(X([1 2 4],ids),1); % count of S,E,R removed
