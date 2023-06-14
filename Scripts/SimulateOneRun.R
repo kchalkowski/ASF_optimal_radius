@@ -61,7 +61,7 @@ ICatEnd=0
 #############################
 ####Initialize Infection
 #############################
-num_inf_0=1 #how many pigs to infect starting off
+#num_inf_0=1 #how many pigs to infect starting off
 
 #find the midpoint of the grid
 id=which(centroids[,1]>=midpoint[1]&centroids[,2]>=midpoint[2])[1] #location on grid closest to midpoint
@@ -107,6 +107,7 @@ print(i)
 #print(unique(sapply(pop,class)))
 #pop<-Movement(pop,centroids,shift,inc) #This function will be translated to RCPP
 pop<-FastMovement(pop,centroids,shift,inc)
+
 #print("after movement")
 #print(pop[rowSums(is.na(pop)) > 0,])
 #print(pop[pop[,3]==0,])
@@ -251,9 +252,9 @@ Rdpd[,1]=0
 
 #int("any infectious individuals?:")
 #print(length(pop[pop[,10]>0|pop[,12]>0,1])>0)
-#Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi)
+Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi)
 #Pse<-Fast_FOI_function(pop,centroids,cells,B1,B2,F1)
-Pse<-FOIParallelFull(pop,centroids,cells,B1,B2,F1)
+#Pse<-FOIParallelFull(pop,centroids,cells,B1,B2,F1)
 #print("after FOI")
 #print(pop[rowSums(is.na(pop)) > 0,])
 #print(which(Pse==1))
@@ -287,6 +288,7 @@ Zcd=matrix(nrow=nrow(pop),ncol=1)
 Zcd[,1]=0
 #Zcd<-rbinom(nrow(pop),1,Pcr) #prob of removal from landscape
 #print(head(pop))
+
 for(k in 1:nrow(pop)){
 #print(i)
 if(pop[k,8]>0){
@@ -294,7 +296,7 @@ if(pop[k,8]>0){
 #print(pop[k,3])
 #print(pop[k,8])
 Sdpd[k]<-sum(rbinom(pop[k,8],1,death))
-Eep[k]<-sum(rbinom(pop[k,8],1,Pse[pop[k,3]])) #Exposure (S -> E)
+Eep[k]<-sum(rbinom(pop[k,8],1,Pse[pop[k,3]])) #Exposure (S -> E) infection based on probability using their location
 #print("popk")
 #print(pop[k,8])
 #print(Pse[pop[k,3]])

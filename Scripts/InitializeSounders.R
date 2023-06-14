@@ -2,6 +2,12 @@
 #This will replace the various state variable matrices (ie S, I)
 #instead, values will be assigned to indicate statuses and location
 
+#N0-population size, determined in InitializeASFModel using given density and area of grid
+#ss-average sounder size, setting manually
+#centroids-center coordinates of each cell
+#type- if 0, initialize population for start of population; else, use init_locs and total number to initialize new births in population
+#init_locs- used for births
+#n-number of births
 InitializeSounders<-function(N0,ss,cells,centroids,type,init_locs,n){
 if(type==0){
 sn_i<-N0/ss #Get the initializing number of sounders
@@ -10,6 +16,7 @@ sn<-sum(assigns) #generated pop size from random assignment of sounders to cells
 init_locs<-which(assigns==1) #get the locations where sounders have been initialized
 
 #Initialize the sounder population matrix
+#each row is a sounder
 pop<-matrix(nrow=sn,ncol=13)
 pop[,1]=rpois(sn,ss) #sounder size with avg as lambda in a poisson
 pop[,2]=0 #
@@ -43,7 +50,7 @@ pop[,12]=0 #number of C status in sounder
 pop[,13]=0 #number of Z status in sounder
 	}
 
-pop=pop[pop[,1]>0,]
+pop=pop[pop[,1]>0,,drop=FALSE]
 
 return(pop)
 

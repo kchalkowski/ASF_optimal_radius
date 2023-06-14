@@ -5,7 +5,8 @@
 ######################
 ####Set directories
 #####################
-home<-"/Users/kchalkowski/Desktop/USDA_Pigs/Projects/ASF_simulation_model/Rcpp_ASF/ASF_optimal_radius"
+#home<-"/Users/kchalkowski/Desktop/USDA_Pigs/Projects/ASF_simulation_model/Rcpp_ASF/ASF_optimal_radius"
+home<-"/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius"
 setwd(home)
 
 ######################
@@ -39,10 +40,10 @@ area=80^2 #total area of grid
 N0=density*area #initial population size
 K=N0*1.5 #carrying capacity for whole population
 Rad=10 #culling radius
-#detectday = 20
-#thyme=52+detectday #using 'time' sometimes gives weird errors with different packages, hence the diff spelling
-thyme=72
-detectday=73
+detectday = 20
+thyme=72+detectday #using 'time' sometimes gives weird errors with different packages, hence the diff spelling
+#thyme=72
+#detectday=73
 intensity=0.05
 cullstyle="startOUT"
 inc=0.4
@@ -54,8 +55,13 @@ Intensity = 0.05 #proportion of population targeted for removal per day based on
 ####Import grid
 ######################
 
-grid<-readMat("~/Desktop/USDA_Pigs/Projects/ASF_Simulation_model/Matlab_simulation/Grid_80x80_0pt4km.mat")
+#grid is a matrix, with nrow=ncell of landscape grid
+#col 1- sequence 1:ncell
+#col 2-5: X1,Y1; X2,Y2
+#col 6-7: centroid x and y
+grid<-readMat(paste0(home,"/Matlab_ASF_Model/Grid_80x80_0pt4km.mat"))
 grid<-grid$grid
+
 #Need to look at code for making grid in matlab, make function to generate grid in R
 #This will likely be something more complex in future, since grid will be incorporating other landscape/env elements
 #think about settings that would be good to toggle
@@ -100,6 +106,7 @@ alphaC = 1.1 #; % scaling parameter on relationship of effort to capture success
 #########################
 ####Choose State Rules
 #########################
+#define movement characteristics of the population (slow=FL, fast=SC)
 
 if(state == 1){
 	#specify which set if gamma fit parameters to use: xSC or xFL
@@ -150,37 +157,7 @@ pop<-InitializeSounders(N0,ss,cells,centroids,0,0,0)
 ######################
 ####RunModel
 #####################
-#for profiling
-#detectday = 10
-#thyme=20
-#?profvis
-#library(microbenchmark)
-#?microbenchmarkx
 
-#d5run<-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
-#SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)
-#milliseconds: d5run
-#SimulateOneRun(Pcr, Pir, Pbd, death, F1, F2, F2i, B1, B2, thyme,      cells, N0, K, detectday, Rad, Intensity, alphaC, shift, centroids,      cullstyle, inc, ss, gridlen, midpoint, pop)
-#      min       lq     mean   median       uq      max neval
-# 736.7588 6162.409 9399.209 7379.416 10410.21 33461.68   100
+num_inf_0=1 #how many pigs to infect starting off
 
-#d3run<-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
-
-#milliseconds: d3run
-#SimulateOneRun(Pcr, Pir, Pbd, death, F1, F2, F2i, B1, B2, thyme,      cells, N0, K, detectday, Rad, Intensity, alphaC, shift, centroids,      cullstyle, inc, ss, gridlen, midpoint, pop)
-#      min       lq     mean   median       uq      max neval
-# 633.4236 3214.817 4414.165 3784.096 4900.627 14767.63   100
-
-#d5ncrun<-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
-
-#milliseconds: d5ncrun
-#SimulateOneRun(Pcr, Pir, Pbd, death, F1, F2, F2i, B1, B2, thyme,      cells, N0, K, detectday, Rad, Intensity, alphaC, shift, centroids,      cullstyle, inc, ss, gridlen, midpoint, pop)
-#      min       lq     mean   median       uq      max neval
-# 498.2024 19000.69 20153.53 21890.09 25064.32 43207.66   100
-
-d3ncrun<-microbenchmark(SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop))
-#d3ncrun, milliseconds
-#SimulateOneRun(Pcr, Pir, Pbd, death, F1, F2, F2i, B1, B2, thyme,      cells, N0, K, detectday, Rad, Intensity, alphaC, shift, centroids,      cullstyle, inc, ss, gridlen, midpoint, pop)
-#      min       lq     mean   median       uq      max neval
-# 306.8855 10884.19 12754.69 13818.56 16412.03 25679.11   100
-
+                                                                                                                                                                                                                                                                                                                                       
