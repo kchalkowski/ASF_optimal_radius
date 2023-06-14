@@ -10,7 +10,6 @@ using namespace arma;
 
 //this wrapper makes the function available to RcppParallel sort of
 //the function that you want made parallel goes here in void operator
-//this sample function takes the square root of its input and writes it into its output
 //struct SquareRoot : public Worker
 struct MoveLoop : public Worker {
    // source matrix
@@ -87,21 +86,31 @@ void operator()(std::size_t begin, std::size_t end) {
 //for( j = 0; j < np; ++j) {
 for(std::size_t j = begin; j < end; j++) {
 
+//initialize integers for pig movement distance and abundance
+//slightly faster than grabbing the numbers each time
 int pop_j_3=apop3(j,3);
+int pop_j_0=apop3(j,0);
 
-if(pop_j_3 > 0){
 //loop through each element in centroids to get distance, then take the difference
+if(pop_j_3 > 0 & pop_j_0 > 0){
+//initialize distance matrix mask...
 arma::vec mask(diff.n_rows);
-double diffk_0;
+double diffk_0; //initialize diffk_0 double
+//loop through each cell in centroids (acent3)
 for(std::size_t k = 0; k < acent.nrow(); k++) {
+//get distance between current sounder and each cell in centroids, using spatial distance function
+//get difference between assigned movement distance, and calculated distance between present location and each cell
+//shouldn't this be absolute value? otherwise can have negative and won't be picked up by diffk mask
 diffk_0=sqrt(pow((acent3(k,0)-apop3(j,4)),2)+pow((acent3(k,1)-apop3(j,5)),2))-apop3(j,3);
-diff(k,0)=diffk_0;
-if(diffk_0>=0 & diffk_0<=0.1){
+diff(k,0)=diffk_0; //assign distance to distance matrix
+//find diffk_0 closest to assigned movement distance
+if(diffk_0>=0 & diffk_0<=0.1){ //?????
 mask[k]=1;
 } else {
 mask[k]=0;    
 }
-}
+
+} //going through centroids closing bracket
 
 arma::uvec set = find(mask==1);
 
@@ -164,11 +173,11 @@ outpop(j,0)=apoplocs(j,0);
 
 }
 
-}
+} //worker for loop
 
-} //if any distance assigned greater than zero
+} //void operator closing loop
 
-};
+}; //worker closing loop
 
 
 
