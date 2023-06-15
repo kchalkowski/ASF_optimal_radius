@@ -5,8 +5,8 @@
 ######################
 ####Set directories
 #####################
-#home<-"/Users/kchalkowski/Desktop/USDA_Pigs/Projects/ASF_simulation_model/Rcpp_ASF/ASF_optimal_radius"
-home<-"/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius"
+home<-"/Users/kchalkowski/Dropbox/Projects/ASFsim/ASF_optimal_radius/"
+#home<-"/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius"
 setwd(home)
 
 ######################
