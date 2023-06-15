@@ -8,6 +8,10 @@ using namespace Rcpp;
 using namespace RcppParallel;
 using namespace arma;
 
+/////////////////////////////////////////////////////
+///////Set up wrapper to run with RcppParallel//////
+///////////////////////////////////////////////////
+
 //this wrapper makes the function available to RcppParallel sort of
 //the function that you want made parallel goes here in void operator
 //struct SquareRoot : public Worker
@@ -74,6 +78,10 @@ arma::imat convertapoplocs()
     return apoplocs2;
   }
 
+///////////////////////////////////////////
+///////Movement function begins here//////
+/////////////////////////////////////////
+
 void operator()(std::size_t begin, std::size_t end) {
     // rows we will operate on
         arma::mat apop3 = convertpop();
@@ -83,8 +91,13 @@ void operator()(std::size_t begin, std::size_t end) {
         arma::mat diff(acent.nrow(),1);
         //arma::uvec truemin;
 
+
+///////Starting loop through piggy pop matrix//////
+
 //for( j = 0; j < np; ++j) {
 for(std::size_t j = begin; j < end; j++) {
+
+///////Getting distances between sounder and each cell in grid//////
 
 //initialize integers for pig movement distance and abundance
 //slightly faster than grabbing the numbers each time
@@ -103,8 +116,8 @@ for(std::size_t k = 0; k < acent.nrow(); k++) {
 //shouldn't this be absolute value? otherwise can have negative and won't be picked up by diffk mask
 diffk_0=sqrt(pow((acent3(k,0)-apop3(j,4)),2)+pow((acent3(k,1)-apop3(j,5)),2))-apop3(j,3);
 diff(k,0)=diffk_0; //assign distance to distance matrix
-//find diffk_0 closest to assigned movement distance
-if(diffk_0>=0 & diffk_0<=0.1){ //?????
+//find diffk_0 closest to assigned movement distance, set mask to isolate those
+if(diffk_0>=0 & diffk_0<=0.1){
 mask[k]=1;
 } else {
 mask[k]=0;    
@@ -112,60 +125,68 @@ mask[k]=0;
 
 } //going through centroids closing bracket
 
+//get the indices for set of locations with distance nearest to the assigned movement distance
 arma::uvec set = find(mask==1);
 
+//get size of set
 const int setsize = set.n_elem;
 
-if(setsize>0){
 
+///////Decide which cells in set to move to, based on abundance//////
+
+//if some possible cells to move to...
+if(setsize>0){
 //initialize vector for total abundance in each cell in set
 arma::ivec abund(setsize); 
 arma::ivec setmask(apoplocs3.n_rows);
 //loop through each cell in set, get total abundance in each cell in set
 for(std::size_t s = 0; s < setsize; ++s) {
-int set_s = set(s);
-//abund(s) = ArmaSubsetPoplocs(apoplocs3, apopabund3, set_s);
+int set_s = set(s); //get index of current cell in set
+//run through each item in apoplocs, get locations of each cell in set
+//need to do this before get abundances, because there is possibility that
+//multiple sounders could be in a single cell
+//this means that can't just find cell with min abundance first and then get that location
+//need to find all sounders in each cell in set, sum abundance
 for(std::size_t p = 0; p < apoplocs3.n_rows; ++p){
-if(apoplocs3(s)==set_s) setmask[s]=1;
+if(apoplocs3(s)==set_s) setmask[s]=1; //set poplocs mask to 1 if any loc matches cell in set
 else setmask[s]=0;
 }
 
+//get abundances of cells in set
+//should there be if statement here? does it just revert to zero if there are no matching locations in pop?
+//pretty sure it does, but going to double check this to be sure
 imat abundinset_s = apopabund3.rows(find(setmask==1));
 abund(s)=sum(abundinset_s.col(0));
 
 }
 
-
+//find cell in set with minimum abundance
 //get the index of cell(s) in set equal to the minimum value
 //this is subset of set, so the index is actually of centroids.. aka cell ID
 arma::uvec cellindarma=set.row(abund.index_min());
 
-arma::uvec truemin;
+arma::uvec truemin; //initialize selected minimum value vector
 
-///trying to get sample to work with arma type
+//if there are more than 1 cell with same minimum abundance, choose one at random
 if(cellindarma.size()>1){
-
 truemin = Rcpp::RcppArmadillo::sample(cellindarma,1,false);
 
 } else {
 truemin = cellindarma;
 }
 
+
+///////Assign location for sounder//////
+
+//set location to selected cell in set with minimum abundance
 outpop(j,0)=truemin[0]+1;
 
-} else{
-
+} else{ //this is the else to the if statement 'if assigned pig movement > 0'
+//in this case, next location stays the same as present location
 outpop(j,0)=apoplocs(j,0);
 
 }
 
-
-//store new locations in pop matrix
- //change cell ID of new location (ie index of centroids stored in pop)
-//apop(j,4)=acent(truemin[0],0); //get x value of new location
-//apop(j,5)=acent(truemin[0],1); //get y value of new location
-
-//}
 
 } else{
 
@@ -180,11 +201,13 @@ outpop(j,0)=apoplocs(j,0);
 }; //worker closing loop
 
 
+////////////////////////////////////////////
+///////Call worker to run in parallel//////
+//////////////////////////////////////////
 
 //So, above, Movement_worker derives from RcppParallel::Worker
 //this is required for function objects passed to parallelFor
 //Now that the worker is described above, can call the Movement_worker worker we defined
-
 
 //Here's a function that calls the SquareRoot worker defined above
 //NumericMatrix parallelMatrixSqrt(NumericMatrix x) { //create a new function wrapper that calls the part you want run in parallel
@@ -213,6 +236,10 @@ NumericMatrix parallelMovementRcpp_portion(const NumericMatrix& apop,
   return outpop;
 //}
 }
+
+///////////////////////////
+///////Run the thing//////
+/////////////////////////
 
 //[[Rcpp::export]]
 //define the main function, MovementRcpp

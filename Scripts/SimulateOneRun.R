@@ -379,52 +379,74 @@ pop<-rbind(pop,deadguys)
 #Update abundance numbers (live individuals only count in abundance)
 pop[,1]=rowSums(pop[,8:11])
 
+########This block begins at detection day
+############################################################################
+############################################################################
+############################################################################
+
+#############################
+####Initiate Response based on day of first detection
+#############################
+#detection is the row of the pop of the infected pig that was detected
+#POSlive is a matrix with a row for each timestep
+#column one of poslive is the number of infected pigs detected at that timestep
+#remov this column? column two of poslive is the grid cell ID of the infected pigs
+######################################################################################################
+if((i==detectday)&(sum(pop[,9]+pop[,10]+pop[,12])>0)){
+  detection<-as.integer(sample(as.character(which(pop[,9]>0|pop[,10]>0|pop[,12]>0)),1))
+  POSlive[[i]]<-min(pop[detection,9]+pop[detection,10],1)
+  POSdead[[i]]<-min(pop[detection,12],0)
+  
+  
+  #update the surveillance data
+  if(POSlive[[i]]>0){POSlive_locs[[i]]<-pop[detection,3]}
+  if(POSdead[[i]]>0){POSdead_locs[[i]]<-pop[detection,3]}
+  
+  #Store the pop rows of the detected pigs
+  detected<-pop[detection,,drop=FALSE]
+  
+  #Remove the detected case
+  #if an infected live or infected carcass is discovered and removed,
+  #remove from disease status column and remove one from general number of pigs in cell column
+  if(pop[detection,9]>0|pop[detection,10]>0|pop[detection,12]>0){
+    pop[detection,1]<-pop[detection,1]-1
+    pop[detection,9]<-max(pop[detection,9]-1,0)
+    pop[detection,10]<-max(pop[detection,10]-1,0)
+    pop[detection,11]<-max(pop[detection,11]-1,0)
+  }
+  #if an infected live AND infected carcass is discovered and removed,
+  #remove from disease status column and remove two from general number of pigs in cell column
+  if(pop[detection,9]>0|pop[detection,10]>0&pop[detection,12]>0){
+    pop[detection,1]<-pop[detection,1]-2
+    pop[detection,9]<-max(pop[detection,9]-1,0)
+    pop[detection,10]<-max(pop[detection,10]-1,0)
+    pop[detection,11]<-max(pop[detection,11]-1,0)
+  }
+  
+  #if every pig in cell with infected pigs removed, remove the row from the population
+  if(pop[detection,1]==0){pop<-pop[-detection,]}
+  #print("after initiate response")
+} 
+
+#This block after detection step
+############################################################################
+############################################################################
+############################################################################
+
 #############################
 ####Response: Culling Zone
 #############################
 
 #% RESPONSE: CULLING ZONE (ALL CULLED PIGS ARE TESTED)
-#    if i > detectday && Rad > 0 % now that the initial detection is made, start testing all culled individuals; only do if there are pigs in the zone to cull
 if(i > detectday & Rad > 0){
-##    idNEW = find(POSlive(i-1,:) + POSdead(i-1,:) > 0); % find cells that had positives in the previous time step from detectday(assume 1-day lag between sampling and test results)
-#idNEW=c(POSlive[i-1,2],POSdead[i-1,2])
-#rint(paste("POSlive_locs:",POSlive_locs[[i-1]]))
-#print(paste("POSdead_locs:",POSdead_locs[[i-1]]))
-
-#print(paste("POSlive_locs:",POSlive_locs[i-1]))
-#print(paste("POSdead_locs:",POSdead_locs[i-1]))
-
-#print(paste("POSlive_locs:",!is.na(POSlive_locs[i-1])))
-#print(paste("POSdead_locs:",!is.na(POSdead_locs[i-1])))
-
 idNEW=c(POSlive_locs[[i-1]],POSdead_locs[[i-1]])
-#print("after idNEW")
-#POSlivei
-
-
 idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
-#print("after idNEW2")
 
-#% determine which are newly identified grid cells
-#    [~,temp] = intersect(idNEW, unique(idZONE(:,1))); % gives IDs in idNEW that overlap with pre-existing positive IDs
-#    idNEW(temp) = []; % remove the id's that overlap so we are just looking at the unique ids
-#idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-#print(idZONE[[i - 1]])
-#print(idZONE)
 if(any(idZONE[[i]])!=0){uniqueidNEW<-which(!(idNEW %in% idZONE[[i-1]][,1]))
 idNEW<-idNEW[uniqueidNEW]
 } else{idNEW=idNEW}
-#print("after idNEW3")
-#    X = [S(i,:);E(i,:);I(i,:);R(i,:);C(i,:);Z(i,:)]; % get current status 
-#    [idZONE,ids,Plive,Pdead,culled,areaC] = CullingOneRun(X,idNEW,idZONE,Intensity,alphaC,centroids,Rad,cullstyle,inc,i,stplot,enplot); % update numbers that were culled and tested, 
-###if statement needed here
-#if....
 
-#CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected)
 output.list<-CullingOneRun(pop,idNEW,idZONE[[i-1]],Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
-#    if isempty(culled) == 0; Tculled(i) = culled; else; Tculled(i) = 0; end
-#    if isempty(areaC) == 0; Carea(i) = areaC; else; Carea(i) = 0; end
-#print("exited CullingOneRun")
 
 #############################
 ####Update surveillance from culling zone
@@ -441,76 +463,18 @@ removalcells[[i]]<-output.list[[8]]
 culled<-output.list[[9]]
 ZONEkm2[i,]<-output.list[[10]]
 
-#print("after update surveillance")
-#print(pop[rowSums(is.na(pop)) > 0,])
-#############################
-####Update States based on Management Processes
-#############################
-#print(paste("nrow pop before removals:",nrow(pop)))
 pop<-output.list[[11]]
-#print(paste("nrow pop after removals:",nrow(pop)))
-
-
 #Total number culled at each timestep
 Tculled[i]=culled
-#print("after cullingonerun")
-
 } #if greater than detectday closing bracket
 
-    
-
-#############################
-####Initiate Response based on day of first detection
-#############################
-
-#% INITIATE RESPONSE ON THE DAY OF FIRST DETECTION (PRE-DETERMINED)
-#    if i == detectday && sum(I(i,:)+C(i,:)+E(i,:)) > 0 && Rad > 0 % day the the first detection is made
-
-#detection is the row of the pop of the infected pig that was detected
-#POSlive is a matrix with a row for each timestep
-#column one of poslive is the number of infected pigs detected at that timestep
-#remov this column? column two of poslive is the grid cell ID of the infected pigs
-######################################################################################################
-if((i==detectday)&(sum(pop[,9]+pop[,10]+pop[,12])>0)){
-detection<-as.integer(sample(as.character(which(pop[,9]>0|pop[,10]>0|pop[,12]>0)),1))
-#POSlive[i,1]<-min(pop[detection,9]+pop[detection,10],1)
-#POSdead[i,1]<-min(pop[detection,12],0)
-POSlive[[i]]<-min(pop[detection,9]+pop[detection,10],1)
-POSdead[[i]]<-min(pop[detection,12],0)
-
-
-#update the surveillance data
-#instead of second column of POSlive/POSdead, create a list with vector for each timestep
-
-if(POSlive[[i]]>0){POSlive_locs[[i]]<-pop[detection,3]}
-if(POSdead[[i]]>0){POSdead_locs[[i]]<-pop[detection,3]}
-
-#Store the pop rows of the detected pigs
-detected<-pop[detection,,drop=FALSE]
-
-#Remove the detected case
-#if an infected live or infected carcass is discovered and removed,
-#remove from disease status column and remove one from general number of pigs in cell column
-if(pop[detection,9]>0|pop[detection,10]>0|pop[detection,12]>0){
-pop[detection,1]<-pop[detection,1]-1
-pop[detection,9]<-max(pop[detection,9]-1,0)
-pop[detection,10]<-max(pop[detection,10]-1,0)
-pop[detection,11]<-max(pop[detection,11]-1,0)
-}
-#if an infected live AND infected carcass is discovered and removed,
-#remove from disease status column and remove two from general number of pigs in cell column
-if(pop[detection,9]>0|pop[detection,10]>0&pop[detection,12]>0){
-pop[detection,1]<-pop[detection,1]-2
-pop[detection,9]<-max(pop[detection,9]-1,0)
-pop[detection,10]<-max(pop[detection,10]-1,0)
-pop[detection,11]<-max(pop[detection,11]-1,0)
-}
-
-#if every pig in cell with infected pigs removed, remove the row from the population
-if(pop[detection,1]==0){pop<-pop[-detection,]}
-#print("after initiate response")
-} 
 ############################################################################
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+
 
 #############################
 ####Track true spatial spread
