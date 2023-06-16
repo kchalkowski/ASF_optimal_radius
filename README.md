@@ -11,23 +11,16 @@ The purpose of this Readme is to describe the pipeline for our African Swine Fev
 
 ### Objects
 
-Nall- matrix of length thyme, track total abundance
+Nall- matrix of length thyme, track total abundance    
+BB- matrix of length thyme,track births    
+POSlive- list of length thyme, positive cases observed and removed from landscape    
+POSdead- list of length thyme, positive carcasses observed and removed from landscape    
+NEGlive- list of length thyme, negative tests of hunted carcasses that are removed from landscape    
+NEGdead- list of length thyme, negative tests of carcasses that are removed from landscape    
+POSlive_locs- list of length thyme, contain locations of positive cases observed and removed from landscape    
+POSdead_locs- list of length thyme, contain locations of positive cases observed and removed from landscape    
 
-BB- matrix of length thyme,track births
-
-POSlive- list of length thyme, positive cases observed and removed from landscape
-
-POSdead- list of length thyme, positive carcasses observed and removed from landscape
-
-NEGlive- list of length thyme, negative tests of hunted carcasses that are removed from landscape
-
-NEGdead- list of length thyme, negative tests of carcasses that are removed from landscape
-
-POSlive_locs- list of length thyme, contain locations of positive cases observed and removed from landscape
-
-POSdead_locs- list of length thyme, contain locations of positive cases observed and removed from landscape
-
-Population matrix- each row is a sounder, each column indicates different state variables    
+pop-Population matrix, each row is a sounder, each column indicates different state variables    
   col 1: sounder size selected using ss as lambda in a poisson    
   col 2: open column, can be used for func checks in parallel operations where print is inconvenient    
   col 3: present location cell number (cells are randomly selected when pop initialized)    
