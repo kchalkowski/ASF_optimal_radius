@@ -1,7 +1,8 @@
 #outputs: pop,Incidence,BB
-StateChanges<-function(pop,Pbd,K,death,Pcr,Pir,Pic,Pei,Pse,Incidence,BB,i){
-
-###Initialize state change probability matrices
+StateChanges<-function(pop,centroids,cells,Pbd,B1,B2,F1,F2,Fi,K,death,Pcr,Pir,Incidence,BB,i){
+####################################################################
+########### Initialize state change probability matrices ########### 
+####################################################################
 
 #births
 Sdpb=matrix(nrow=nrow(pop),ncol=1)
@@ -33,9 +34,9 @@ Ccd[,1]=0
 Zcd=matrix(nrow=nrow(pop),ncol=1)
 Zcd[,1]=0
 	
-##############################
-########### Births ########### 
-##############################
+########################################
+########### Determine Births ########### 
+########################################
 
 #subset sounder sets with live individuals
 idN=pop[pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0,]
@@ -83,38 +84,19 @@ for(j in 1:length(id)){
 Sdpb[id2[j],1]<-id[j]
 	}
 
-###################################
-######## State Transitions ######## 
-###################################
 
-#natural deaths
-Sdpd<-matrix(nrow=nrow(pop),ncol=1)
-Edpd<-matrix(nrow=nrow(pop),ncol=1)
-Idpd<-matrix(nrow=nrow(pop),ncol=1)
-Rdpd<-matrix(nrow=nrow(pop),ncol=1)
-Sdpd[,1]=0
-Edpd[,1]=0
-Idpd[,1]=0
-Rdpd[,1]=0
+##############################################################
+######## Determine disease state change probabilities ######## 
+##############################################################
 
-#disease state change recording
-Eep=matrix(nrow=nrow(pop),ncol=1)
-Eep[,1]=0
-Iep=matrix(nrow=nrow(pop),ncol=1)
-Iep[,1]=0
-Rep=matrix(nrow=nrow(pop),ncol=1)
-Rep[,1]=0
-Cep=matrix(nrow=nrow(pop),ncol=1)
-Cep[,1]=0
+Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi) #force of infection
+Pei=1-exp(-1/rpois(nrow(pop),4)/7) #transitions exposure to infected
+Pic=1-exp(-1/rpois(nrow(pop),5)/7) #transitions infected to either dead or recovered
 
-#Carcass decay recording
-Ccd=matrix(nrow=nrow(pop),ncol=1)
-Ccd[,1]=0
-Zcd=matrix(nrow=nrow(pop),ncol=1)
-Zcd[,1]=0
 
-#Conduct the state changes
-#############################
+###############################################
+######## Conduct the State Transitions ######## 
+###############################################
 
 for(k in 1:nrow(pop)){
 
@@ -162,6 +144,11 @@ Zcd<-sum(rbinom(pop[k,13],1,Pcr))
 
 Incidence[i]<-Incidence[i]+sum(Eep)
 
+
+###################################
+######## Update pop matrix ######## 
+###################################
+
 #update states in pop matrix
 ###################################
 pop[,8]=pop[,8]-Eep+Sdpb-Sdpd #S
@@ -194,14 +181,18 @@ deadguys[,9]=0
 deadguys[,10]=0
 deadguys[,11]=0
 
-#set all deadguys in other pop to zero
+#set all deadguys in pop rows to zero
 pop[which(pop[,12]>0),12]<-0
 pop[which(pop[,13]>0),13]<-0
+
+#add deadguys to pop matrix
 pop<-rbind(pop,deadguys)
 
 }
 
 #Update abundance numbers (live individuals only count in abundance)
 pop[,1]=rowSums(pop[,8:11])
+
+return(list(pop,Incidence,BB))
 
 }
