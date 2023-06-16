@@ -9,33 +9,7 @@ The purpose of this Readme is to describe the pipeline for our African Swine Fev
 4. Pipeline 
 5. Troubleshooting needed
 
-### Objects
-
-Nall- matrix of length thyme, track total abundance    
-BB- matrix of length thyme,track births    
-POSlive- list of length thyme, positive cases observed and removed from landscape    
-POSdead- list of length thyme, positive carcasses observed and removed from landscape    
-NEGlive- list of length thyme, negative tests of hunted carcasses that are removed from landscape    
-NEGdead- list of length thyme, negative tests of carcasses that are removed from landscape    
-POSlive_locs- list of length thyme, contain locations of positive cases observed and removed from landscape    
-POSdead_locs- list of length thyme, contain locations of positive cases observed and removed from landscape    
-
-pop-Population matrix, each row is a sounder, each column indicates different state variables    
-  col 1: sounder size selected using ss as lambda in a poisson    
-  col 2: open column, can be used for func checks in parallel operations where print is inconvenient    
-  col 3: present location cell number (cells are randomly selected when pop initialized)    
-  col 4: assigned movement distance    
-  col 5,6: present location X, Y coords    
-  col 7: previous location    
-  col 8: number of pigs in sounder with S status    
-  col 9: number of pigs in sounder with E status    
-  col 10: number of pigs in sounder with I status    
-  col 11: number of pigs in sounder with R status    
-  col 12: number of pigs in sounder with C status    
-  col 13: number of pigs in sounder with Z status    
-  
-
-### Scripts    
+### Scripts Overview
 
 **ASFFunctionSourcer.R**    
 Sources all the functions used in the model. No inputs/outputs. 
