@@ -104,49 +104,58 @@ pop<-st.list[[1]]
 Incidence<-st.list[[2]]
 BB<-st.list[[3]]
 
-###**on day of first detection
+###**start on day of first detection
 ###################################
 ######## Initiate Response ######## 
 ###################################
 
+#if it's detect day, and there are infected pigs to detect, and Rad>0
+if(i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
 fd.list<-FirstDetect(pop,i,POSlive,POSdead)
 pop=fd.list[[1]]
 POSlive=fd.list[[2]]
 POSdead=fd.list[[3]]
+}
 
-#############################
-####Response: Culling Zone
-#############################
+###**start day after day of first detection
+#######################################
+######## Initiate Culling Zone ######## 
+#######################################
 
-#% RESPONSE: CULLING ZONE (ALL CULLED PIGS ARE TESTED)
+#if it is at least day after detect day, and Rad>0
 if(i > detectday & Rad > 0){
-idNEW=c(POSlive_locs[[i-1]],POSdead_locs[[i-1]])
-idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
+	
+	#new detections from last step, bc day lag 
+	#(either from initial detection or last culling period)
+	#get locations in grid for detections
+	idNEW=c(POSlive_locs[[i-1]],POSdead_locs[[i-1]])
+	
+	#remove NA/0 (may get NAs/zeroes if no live/dead detected)
+	idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
 
-if(any(idZONE[[i]])!=0){uniqueidNEW<-which(!(idNEW %in% idZONE[[i-1]][,1]))
-idNEW<-idNEW[uniqueidNEW]
-} else{idNEW=idNEW}
+	#keep only new grid cells that weren't already identified in previous time steps
+	if(any(idZONE[[i]])!=0){
+	uniqueidNEW<-which(!(idNEW %in% idZONE[[i-1]][,1]))
+	idNEW<-idNEW[uniqueidNEW]
+	} else{idNEW=idNEW}
 
-output.list<-CullingOneRun(pop,idNEW,idZONE[[i-1]],Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
+	#Culling process
+	output.list<-CullingOneRun(pop,idNEW,idZONE[[i-1]],Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
 
-#############################
-####Update surveillance from culling zone
-#############################
+	POSlive[[i]]<-output.list[[1]]
+	POSdead[[i]]<-output.list[[2]]
+	POSlive_locs[[i]]<-output.list[[3]]
+	POSdead_locs[[i]]<-output.list[[4]]
+	NEGlive[[i]]<-output.list[[5]]
+	NEGdead[[i]]<-output.list[[6]]
+	idZONE[[i]]<-output.list[[7]]
+	removalcells[[i]]<-output.list[[8]]
+	culled<-output.list[[9]]
+	ZONEkm2[i,]<-output.list[[10]]
 
-POSlive[[i]]<-output.list[[1]]
-POSdead[[i]]<-output.list[[2]]
-POSlive_locs[[i]]<-output.list[[3]]
-POSdead_locs[[i]]<-output.list[[4]]
-NEGlive[[i]]<-output.list[[5]]
-NEGdead[[i]]<-output.list[[6]]
-idZONE[[i]]<-output.list[[7]]
-removalcells[[i]]<-output.list[[8]]
-culled<-output.list[[9]]
-ZONEkm2[i,]<-output.list[[10]]
-
-pop<-output.list[[11]]
-#Total number culled at each timestep
-Tculled[i]=culled
+	pop<-output.list[[11]]
+	#Total number culled at each timestep
+	Tculled[i]=culled
 } #if greater than detectday closing bracket
 
 ############################################################################
