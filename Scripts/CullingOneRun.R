@@ -1,112 +1,98 @@
 #CullingOneRun<-function(X,idNEW,idZONE,Intensity,alphaC,CT,Rad,inc,i){
 CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
-print("entered cullingonerun")
-#print(length(idNEW))
+
+######################
+###### Get Zone ######
+######################
+	
+#if there were infected pigs detected in the last time step
 if(length(idNEW)>0){
-#idout = []; ids = []; Plive = []; Pdead = []; culled = []; #initiating objects
-#print("starting CullingOneRun")
-#print(POSlive[i])
-#print(NEGdead[i])
-#print(idNEW)
-#get list of each infected grid cell ID paired with every other cell ID
-#pairedIDs = [reshape(repelem(idNEW,size(CT,1),1),length(idNEW)*size(CT,1),1) repmat((1:size(CT,1))',length(idNEW),1)];
-pairedIDs<-matrix(nrow=cells*length(idNEW),ncol=3)
-if(length(idNEW)==1){
-pairedIDs[1:cells,1]<-idNEW
-pairedIDs[1:cells,2]<-1:cells
-}
 
-if(length(idNEW)>1){
-for(i in 1:length(idNEW)){
-if(i==1){
-pairedIDs[1:cells,1]<-idNEW[i]	
-pairedIDs[1:cells,2]<-1:cells
+	#initiate vector to store pairs of each infected grid cell ID with every other cell ID
+	#nrow for each combo, 3 cols
+	#col 1-each grid cell ID with detected infection
+	#col 2-each paired grid cell
+	#col 3-distance between infected grid cell ID with detection and each grid cell
+	pairedIDs<-matrix(nrow=cells*length(idNEW),ncol=3)
+
+	#get matrix of each infected grid cell ID paired with every other cell ID
+	if(length(idNEW)==1){
+		pairedIDs[1:cells,1]<-idNEW
+		pairedIDs[1:cells,2]<-1:cells
+	} else{ if(length(idNEW)>1){
+	
+			for(j in 1:length(idNEW)){
+				if(j==1){
+					pairedIDs[1:cells,1]<-idNEW[j]	
+					pairedIDs[1:cells,2]<-1:cells
+				}
+	
+				if(j>1){
+					cells=nrow(centroids)
+					pairedIDs[((1)+((j-1)*cells)):((j*cells)),1]<-idNEW[j]
+					pairedIDs[((1)+((j-1)*cells)):((j*cells)),2]<-1:cells
+				}
+			}
+		}
 	}
-if(i>1){
-	cells=nrow(centroids)
-#pairedIDs[(cells+1):nrow(pairedIDs),1]<-idNEW[2]
-#pairedIDs[(cells+1):nrow(pairedIDs),2]<-1:cells
-	#print(i)
-	#print(length(((1)+((i-1)*cells)):((i*cells))))
-	#print(dim(pairedIDs))
-	#print(paste("length paired id subset:",length(pairedIDs[((1)+((i-1)*cells)):((i*cells)),1])))
-	#print(paste("length 1:cells:",length(1:cells)))
-pairedIDs[((1)+((i-1)*cells)):((i*cells)),1]<-idNEW[i]
-pairedIDs[((1)+((i-1)*cells)):((i*cells)),2]<-1:cells
-}
-	}
-	}
+	
+	#get distance between each infected grid cell ID paired with every other cell ID
+	#below results in matrix with one column of each grid cell id and the second column the distance to each infected
+	pairedIDs[,3]<-sqrt((centroids[pairedIDs[,1],1]-centroids[pairedIDs[,2],1])^2 + (centroids[pairedIDs[,1],2]-centroids[pairedIDs[,2],2])^2)
 
-#get distance between each infected grid cell ID paired with every other cell ID
-#below results in matrix with one column of each grid cell id and the second column the distance to each infected
-#dist = [pairedIDs(:,2) sqrt((CT(pairedIDs(:,1),1)-CT(pairedIDs(:,2),1)).^2 + (CT(pairedIDs(:,1),2)-CT(pairedIDs(:,2),2)).^2)]; % list of grid cell ids with distance to each infected
-pairedIDs[,3]<-sqrt((centroids[pairedIDs[,1],1]-centroids[pairedIDs[,2],1])^2 + (centroids[pairedIDs[,1],2]-centroids[pairedIDs[,2],2])^2)
+	#get all grid cells where the distance between that grid cell and an infected detected pig is less than the pre-determined radius
+	idout<-pairedIDs[pairedIDs[,3]<=Rad,]
 
-#get all grid cells where the distance between that grid cell and an infected detected pig is less than the pre-determined radius
-#temp = find(dist(:,2) <= Rad);
-#3 columns: grid cell id for infection, each grid cell id in the zone, distance of each grid cell id in the zone from the infection	
-#idout =[pairedIDs(temp,1) pairedIDs(temp,2) dist(temp,2)]; % Store: grid cell id for infection, each grid cell id in the zone, distance of each grid cell id in the zone from the infection
-idout<-pairedIDs[pairedIDs[,3]<=10,]
+	} else{ #else, if no infections detected in last time step...no new grid cells added
+		idout<-matrix(nrow=0,ncol=3)
+	} 
 
-} else{idout<-matrix(nrow=0,ncol=3)}
-
-#print("starting Cull")
-#% full set of ids in culling zone with distances to detections (newly infected ID, ID of all others in zone, distance)
-#essentially binding idout from above with idZONE
-#fullZONE = [idZONE; idout]; 
+#fullZONE contains all grid cells with detected infections, from last time step and all before	
 fullZONE=rbind(idZONE,idout)
-#remove NAs
+
+#remove any NAs
 fullZONE<-fullZONE[!is.na(fullZONE[,1]),,drop=FALSE]
 
-#get vector of total pigs in each cell
-#pigs = sum(X,1); % vector of total pigs in each cell
-#already have this information stored in pop
-
 #get all unique grid cells in the zone		
-#allINzone = unique(fullZONE(:,2));
 allINzone=unique(fullZONE[,2])
-#nrow(fullZONE)
-#length(allINzone)
 
-#total number of grid cells in the zone	
-#Uall = length(allINzone); % total number of grid cells in the zone
+#get total number of grid cells in the zone	
 Uall=length(allINzone)
 
 #get total area of the zone	
-#% Multiply number of grid cells in zone by area of one grid cell (0.2 * 0.2 = 0.04 km2; 0.4 * 0.4 = 0.16 km2)
-#ZONEkm2 = Uall*inc^2; 
 ZONEkm2=Uall*inc^2
 	
-#get number of total number infected pigs in the zone	
-#EICinzone = sum(pigs(allINzone)); % current total number of pigs in the zone
-soundINzone<-which(pop[,3]%in%allINzone)
+#get number of total number of rows in the zone	
+soundINzone<-which(pop[,3]%in%allINzone) 
 
-#get total number of pigs and infected pigs inside zone
-pigsinzone<-sum(pop[soundINzone,1]) #total number of pigs in zone
-EICinzone<-sum(pop[soundINzone,9],pop[soundINzone,10],pop[soundINzone,12]) #total number of infected pigs in zone
+#get total number of pigs in zone
+#(col 1 abundance of all live, plus num carcasses in 12, 13)
+pigsinzone<-sum(pop[soundINzone,1],pop[soundINzone,12],pop[soundINzone,13])
+
+#total number of infected pigs in zone
+EICinzone<-sum(pop[soundINzone,9],pop[soundINzone,10],pop[soundINzone,12])
 
 #get total number of pigs outside the zone
+pigsoutzone<-sum(pop[-soundINzone,1],pop[-soundINzone,10],pop[-soundINzone,12])
+
 #get total number of infected pigs outside the zone
-#EICoutzone
-pigsoutzone<-sum(pop[-soundINzone,1]) #total number of pigs in zone
-EICoutzone<-sum(pop[-soundINzone,9],pop[-soundINzone,10],pop[-soundINzone,12]) #total number of infected pigs in zone
+EICoutzone<-sum(pop[-soundINzone,9],pop[-soundINzone,10],pop[-soundINzone,12]) 
 
 #get total number of  individuals (inside and outside zone)	
+totalpigs=sum(pop[,1],pop[,10],pop[,12])
+
 #get total number of infected individuals (inside and outside zone)	
-#EIC = sum(X([2 3 5],:),1); % sum all the individuals that have virus
-totalpigs=sum(pop[,1])
 totalEIC=EICinzone+EICoutzone
 
-###########Culling algorithm	
-#if EICinzone > 0 #if there are pigs to cull... 
-#print("pigs in zone")
-print(pigsinzone)
+#####################################
+###### Begin Culling Algorithm ######
+#####################################
+
+#if there are pigs to cull... 
 if(pigsinzone>0){
 	
 #get number of pigs for each grid cell in zone
-#temp2 = [fullZONE pigs(fullZONE(:,2))']; %add number of pigs per grid cell on fullZONE
-#% id infected, id of cell in zone, distance between 1 and 2, number of pigs in grid cell (remove grid cells without pigs)	
-#temp2 = temp2(temp2(:,4) > 0,:); 
+#initiate empty matrix, nrow for each grid cell, 7 for each of SEIRCZ
 SEIRCZpigs<-matrix(0,nrow=nrow(fullZONE),ncol=7)
 fullZONEpigs<-cbind(fullZONE,SEIRCZpigs)
 popINzone<-pop[soundINzone,]
@@ -124,24 +110,16 @@ fullZONEpigs[u_row,10]<-popINzone[u,13] #total number uninfected carcasses
 #remove rows from fullZONEpigs without pigs
 fullZONEpigs<-fullZONEpigs[fullZONEpigs[,4]>0,,drop=FALSE]
 
-#Cullstyle start in, start with closest pigs from detection
-#% sort by grid id and then distance (ascending order of total distance) 
-#temp2 = sortrows(temp2,[3 -4]);
+#Cullstyle start in, start with closest pigs from detections
 fullZONEpigs<-as.matrix(arrange(as.data.frame(fullZONEpigs),fullZONEpigs[,3]))
 
-#get total pigs sorted in order of grid cells that are being targeted	
-#tpigs = temp2(:,4); % get total pigs sorted in order of grid cells that are being targeted
-	
 #%density of all live and dead pigs in the zone
-#Dr = TotalPIGS/ZONEkm2; 
 Dr=pigsinzone/ZONEkm2
 
 #determine density-dependent capture probability in this radius  	
-#prob = 1-(1./(1+alphaC).^Dr);
 cprob=1-(1/(1+alphaC)^Dr)
 	
 #get total number culled/removed/sampled in the zone
-#numb = binornd(TotalPIGS,prob.*Intensity); %get the total number that will be culled/removed/sampled in the zone:
 numb=rbinom(pigsinzone,1,cprob*Intensity)
 
 #get cumulative sum of targeted pigs
@@ -149,7 +127,6 @@ numb=rbinom(pigsinzone,1,cprob*Intensity)
 cpigs=sum(numb)
 
 #determine how far down the list to remove pigs from cells
-#id = find(cpigs >= numb,1,'first')
 removals=0 #total number of removals, go through loop until first time it is equal to or greater than cpigs
 incr=0 #row number where culling stops
 while(removals<cpigs){
@@ -160,17 +137,14 @@ removals<-removals+fullZONEpigs[incr,4]
 culled=removals[[1]]
 
 #% list of cells that pigs will be eliminated from (column index was 1 in old version)		
-#ids = temp2(1:id,2);	
 removalcells<-fullZONEpigs[1:incr,2]
 
-#get total number of pigs culled
-#culled = sum(pigs(ids)); %total pigs culled
-#is just removals, already done in while loop above
+#get which pigs culled
 removalpigs<-fullZONEpigs[1:incr,,drop=FALSE]
 
-#}
-
-#%Update surveillance data
+######################################
+###### Update surveillance data ######
+######################################
 
 #outputs needed
 #idZONE,ids,POSlive,POSdead,culled,areaC]
