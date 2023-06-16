@@ -1,5 +1,4 @@
-# ASF simulation model Readme   
-#### Last edited by Kayleigh Chalkowski Jun 14, 2023    
+# ASF optimal radius model 
 
 The purpose of this Readme is to describe the pipeline for our African Swine Fever simulation model. This is an adaptation of the ASF meta-population model in Pepin et al. 2022, converted from Matlab to R, with changes made to optimize model speed and allow flexible incorporation of environmental and management-relevant parameters.
 
@@ -28,11 +27,25 @@ POSlive_locs- list of length thyme, contain locations of positive cases observed
 
 POSdead_locs- list of length thyme, contain locations of positive cases observed and removed from landscape
 
+Population matrix- each row is a sounder, each column indicates different state variables    
+  col 1: sounder size selected using ss as lambda in a poisson    
+  col 2: open column, can be used for func checks in parallel operations where print is inconvenient    
+  col 3: present location cell number (cells are randomly selected when pop initialized)    
+  col 4: assigned movement distance    
+  col 5,6: present location X, Y coords    
+  col 7: previous location    
+  col 8: number of pigs in sounder with S status    
+  col 9: number of pigs in sounder with E status    
+  col 10: number of pigs in sounder with I status    
+  col 11: number of pigs in sounder with R status    
+  col 12: number of pigs in sounder with C status    
+  col 13: number of pigs in sounder with Z status    
+  
 
 ### Scripts    
 
-**ASFFunctionSourcer.R**
-Just sources all the functions used in the model. No inputs/outputs. 
+**ASFFunctionSourcer.R**    
+Sources all the functions used in the model. No inputs/outputs. 
 
 **InitializeASFModel.R**    
 Sets parameters, runs ASFFunctionSourcer.R to source functions,  initializes state variables used in the simulation, loads data and grid, sets number to infect at first time step. This is run before starting the simulation.
@@ -43,31 +56,8 @@ Runs the simulation. Outputs sum of all exposures, total number culled at each t
 ### Functions    
 
 **InitializeSounders (InitializeSounders.R)**     
-Two purposes- 
-  1. Initialize the starting population matrix in InitializeASFModel
-  2. Add new pigs/sounders to existing population
-Inputs: 
-  N0-population size, determined in InitializeASFModel using given density and area of grid
-  ss-average sounder size, setting manually
-  centroids-center coordinates of each cell
-  type- if 0, initialize population for start of population; else, use init_locs and total        number to initialize new births in population
-  init_locs- used for births
-  n-number of births
-Outputs: 
-Population matrix-- each row is a sounder, each column indicates different state variables
-  col 1: sounder size selected using ss as lambda in a poisson
-  col 2: ?
-  col 3: present location cell number (cells are randomly selected when pop initialized)
-  col 4: assigned movement distance
-  col 5,6: present location X, Y coords
-  col 7: previous location
-  col 8: number of pigs in sounder with S status
-  col 9: number of pigs in sounder with E status
-  col 10: number of pigs in sounder with I status
-  col 11: number of pigs in sounder with R status
-  col 12: number of pigs in sounder with C status
-  col 13: number of pigs in sounder with Z status
-  
+Purpose is to initialize the starting population matrix in InitializeASFModel or add new pigs/sounders to existing population
+
 **FastMovement (FastMovement.R)**        
 Assigns distances using a gamma distribution, parameterized by collar data, then runs Rcpp function parallelMovementRcpp_portion, which conducts the movement process and outputs the new locations to pop[,3] (present location cell numbers). Outputs an updated population matrix with the new locations.
 
