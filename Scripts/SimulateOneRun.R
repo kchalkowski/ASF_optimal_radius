@@ -74,7 +74,6 @@ for(i in 1:thyme){
 if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 print(i)
 
-
 #####################################
 ######## Track I/C locations ######## 
 #####################################
@@ -96,244 +95,24 @@ C_locs[[i]]<-pop[pop[,12]>0,3]
 	
 pop<-FastMovement(pop,centroids,shift,inc)
 
-#######################################
-######## Births/Natural Deaths ######## 
-#######################################
+###############################
+######## State Changes ######## 
+###############################
+#births, natural deaths, disease state changes (exposure, infection, recovery, death), carcass decay
+st.list<-StateChanges(pop,centroids,cells,Pbd,B1,B2,F1,F2,Fi,K,death,Pcr,Pir,Incidence,BB,i)
+pop<-st.list[[1]]
+Incidence<-st.list[[2]]
+BB<-st.list[[3]]
 
-#determine disease state change probabilities
-Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi) #force of infection
-Pei=1-exp(-1/rpois(nrow(pop),4)/7) #transitions exposure to infected
-Pic=1-exp(-1/rpois(nrow(pop),5)/7) #transitions infected to either dead or recovered
-
-#conduct the state changes
-#pop<-StateChanges(pop,Pse,Pei,)
-
-######
-idN=pop[pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0,] #get all sounder sets with live individuals; subset
-liveind<-sum(colSums(pop)[8:11]) #N live individuals
-liverows<-which(pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0) #rownums with live indiv
-
-#        if id <= length(idN)
-########
-#    liveind = sum(N);
-#    Brate = Pbd*liveind*(1-liveind/K); %density-dependent birth rate; seasonally varying
-Brate=Pbd*liveind*(1-liveind/K)
-#    Tbirths = poissrnd(Brate); % Total births
-Tbirths=rpois(1,Brate)
-#    BB(i) = Tbirths; % record total births this time step
-BB[i]=Tbirths
-#    a = round(randi([0,min(Tbirths,10)], 1, cells)); b = cumsum(a); % Assign births to cells with a max of 10 per cell
-#a=round(runif(cells,min=0, max=min(Tbirths,10)))
-#a=round(runif(nrow(pop),min=0, max=min(Tbirths,10)))
-#    id = find(b >= Tbirths,1,'first'); % Pick out enough numbers that sum to Tbirths - this will determine how many cells get births
-id<-0
-n=1
-while (sum(id) < Tbirths) {
-    birthset_i <- round(runif(1,min=0, max=min(Tbirths,10)))
-    id[n]<-birthset_i
-    n=n+1
-}
-
-#    Sdpb = zeros(1,cells);
-#Sdpb=matrix(nrow=cells,ncol=1)
-
-#    if isempty(id) < 1
-if(length(id)>1){
-#        idN = find(N > 0);
-
-if(length(id)<=nrow(idN)){
-#            id2 = randsample(idN,id); % pick which cells with pigs will get the births
-id2=sample(1:nrow(idN),length(id))
-#        else
-} else {
-	#            id2 = randsample(idN,id,true); % if there are more births than cells only add births cells where the pigs are (so fewer births will be happening)
-id2=sample(1:length(liverows),length(liverows))
-#        end
-}
-}
-
-
-Sdpb=matrix(nrow=nrow(pop),ncol=1)
-Sdpb[,1]=0
-
-for(j in 1:length(id)){
-Sdpb[id2[j],1]<-id[j]
-	}
-
+###**on day of first detection
 ###################################
-######## State Transitions ######## 
+######## Initiate Response ######## 
 ###################################
 
-#natural deaths
-Sdpd<-matrix(nrow=nrow(pop),ncol=1)
-Edpd<-matrix(nrow=nrow(pop),ncol=1)
-Idpd<-matrix(nrow=nrow(pop),ncol=1)
-Rdpd<-matrix(nrow=nrow(pop),ncol=1)
-Sdpd[,1]=0
-Edpd[,1]=0
-Idpd[,1]=0
-Rdpd[,1]=0
-
-#disease state change recording
-Eep=matrix(nrow=nrow(pop),ncol=1)
-Eep[,1]=0
-Iep=matrix(nrow=nrow(pop),ncol=1)
-Iep[,1]=0
-Rep=matrix(nrow=nrow(pop),ncol=1)
-Rep[,1]=0
-Cep=matrix(nrow=nrow(pop),ncol=1)
-Cep[,1]=0
-
-#Carcass decay recording
-Ccd=matrix(nrow=nrow(pop),ncol=1)
-Ccd[,1]=0
-Zcd=matrix(nrow=nrow(pop),ncol=1)
-Zcd[,1]=0
-
-#Conduct the state changes
-#############################
-
-for(k in 1:nrow(pop)){
-
-#operations on Susceptible individuals
-if(pop[k,8]>0){
-#print(pop[k,3])
-#print(pop[k,8])
-Sdpd[k]<-sum(rbinom(pop[k,8],1,death))
-Eep[k]<-sum(rbinom(pop[k,8],1,Pse[pop[k,3]])) #Exposure (S -> E) infection based on probability using their location
-#print("popk")
-#print(pop[k,8])
-#print(Pse[pop[k,3]])
-#print(Eep[k])
-}	
-
-#operations on Exposed individuals
-if(pop[k,9]>0){
-Edpd[k]<-sum(rbinom(pop[k,9],1,death))
-Iep[k]<-sum(rbinom(pop[k,9],1,Pei))
-}
-
-#operations on Infected individuals	
-if(pop[k,10]>0){
-Idpd[k]<-sum(rbinom(pop[k,10],1,death))
-Rep[k]<-sum(rbinom(pop[k,10],1,Pir*Pic))
-Cep[k]<-sum(rbinom(pop[k,10],1,(1-Pir)*(Pic))) 
-}	
-
-#operations on Recovered individuals
-if(pop[k,11]>0){
-Rdpd[k]<-sum(rbinom(pop[k,11],1,death))
-}	
-
-#operations on Carcasses (infected)
-if(pop[k,12]>0){
-Ccd<-sum(rbinom(pop[k,12],1,Pcr))	
-}	
-
-#operations on Carcasses (uninfected)
-if(pop[k,13]>0){
-#operations on Uninf carcass individuals	
-Zcd<-sum(rbinom(pop[k,13],1,Pcr))	
-	}	
-}
-
-Incidence[i]<-Incidence[i]+sum(Eep)
-
-#update states in pop matrix
-###################################
-pop[,8]=pop[,8]-Eep+Sdpb-Sdpd #S
-pop[,9]=pop[,9]-Iep+Eep-Edpd #E
-pop[,10]=pop[,10]-Rep-Cep+Iep-Idpd#I
-pop[,11]=pop[,11]+Rep-Rdpd #R
-pop[,12]=pop[,12]+Idpd+Cep-Ccd #C
-pop[,13]=pop[,13]+Sdpd+Rdpd+Edpd-Zcd #Z
-
-#sometimes end up with negative numbers 
-#(i.e. all pigs in sounders chosen for natural mort and disease mort)
-#just set anything below zero to zero
-pop[which(pop[,8]<0),8]<-0
-pop[which(pop[,9]<0),9]<-0
-pop[which(pop[,10]<0),10]<-0
-pop[which(pop[,11]<0),11]<-0
-pop[which(pop[,12]<0),12]<-0
-pop[which(pop[,13]<0),13]<-0
-
-#move dead individuals (C or Z) into their own rows
-#pop[,12] and pop[,13] > 0
-deadguys<-pop[pop[,12]>0|pop[,13]>0,,drop=FALSE]
-
-#if there are deadguys....
-if(length(deadguys)!=0){
-#remove abundance and all live guy counts from deadguy set
-deadguys[,1]=0
-deadguys[,8]=0
-deadguys[,9]=0
-deadguys[,10]=0
-deadguys[,11]=0
-
-#set all deadguys in other pop to zero
-pop[which(pop[,12]>0),12]<-0
-pop[which(pop[,13]>0),13]<-0
-pop<-rbind(pop,deadguys)
-
-}
-
-#Update abundance numbers (live individuals only count in abundance)
-pop[,1]=rowSums(pop[,8:11])
-
-########This block begins at detection day
-############################################################################
-############################################################################
-############################################################################
-
-#############################
-####Initiate Response based on day of first detection
-#############################
-#detection is the row of the pop of the infected pig that was detected
-#POSlive is a matrix with a row for each timestep
-#column one of poslive is the number of infected pigs detected at that timestep
-#remov this column? column two of poslive is the grid cell ID of the infected pigs
-######################################################################################################
-if((i==detectday)&(sum(pop[,9]+pop[,10]+pop[,12])>0)){
-  detection<-as.integer(sample(as.character(which(pop[,9]>0|pop[,10]>0|pop[,12]>0)),1))
-  POSlive[[i]]<-min(pop[detection,9]+pop[detection,10],1)
-  POSdead[[i]]<-min(pop[detection,12],0)
-  
-  
-  #update the surveillance data
-  if(POSlive[[i]]>0){POSlive_locs[[i]]<-pop[detection,3]}
-  if(POSdead[[i]]>0){POSdead_locs[[i]]<-pop[detection,3]}
-  
-  #Store the pop rows of the detected pigs
-  detected<-pop[detection,,drop=FALSE]
-  
-  #Remove the detected case
-  #if an infected live or infected carcass is discovered and removed,
-  #remove from disease status column and remove one from general number of pigs in cell column
-  if(pop[detection,9]>0|pop[detection,10]>0|pop[detection,12]>0){
-    pop[detection,1]<-pop[detection,1]-1
-    pop[detection,9]<-max(pop[detection,9]-1,0)
-    pop[detection,10]<-max(pop[detection,10]-1,0)
-    pop[detection,11]<-max(pop[detection,11]-1,0)
-  }
-  #if an infected live AND infected carcass is discovered and removed,
-  #remove from disease status column and remove two from general number of pigs in cell column
-  if(pop[detection,9]>0|pop[detection,10]>0&pop[detection,12]>0){
-    pop[detection,1]<-pop[detection,1]-2
-    pop[detection,9]<-max(pop[detection,9]-1,0)
-    pop[detection,10]<-max(pop[detection,10]-1,0)
-    pop[detection,11]<-max(pop[detection,11]-1,0)
-  }
-  
-  #if every pig in cell with infected pigs removed, remove the row from the population
-  if(pop[detection,1]==0){pop<-pop[-detection,]}
-  #print("after initiate response")
-} 
-
-#This block after detection step
-############################################################################
-############################################################################
-############################################################################
+fd.list<-FirstDetect(pop,i,POSlive,POSdead)
+pop=fd.list[[1]]
+POSlive=fd.list[[2]]
+POSdead=fd.list[[3]]
 
 #############################
 ####Response: Culling Zone
