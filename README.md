@@ -42,4 +42,6 @@ This function is only run in SimulateOneRun if the timestep is equal to detectda
 1. more optimize on movement func
 2. more optimize on FOI
 3. add formal sanity checks to funcs
+4. add all current scripts to readme
+5. finish neatening/commenting scripts
 
