@@ -2,39 +2,20 @@
 
 SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop){
 
-#outputs:
-#All,Nall,BB,IncOverTime	
-	
-#############################
-####Initialize Output Objects
-#############################
+###########################################
+######## Initialize Output Objects ######## 
+###########################################
+
 Nall=matrix(nrow=thyme) #track total abundance
 BB=matrix(nrow=thyme) #track births
-
-#############################
-####Initialize Disease Surveillance/Culling Variables
-#############################
-
-#POSlive=matrix(0, nrow=thyme,ncol=1) #Positive cases observed and removed from landscape
-#POSdead=matrix(0, nrow=thyme,ncol=1) #Positive carcasses observed and removed from landscape
-#NEGlive=matrix(0, nrow=thyme,ncol=1) #Negative tests of hunted carcasses that are removed from landscape
-#NEGdead=matrix(0, nrow=thyme,ncol=1) #Negative tests of carcasses that are removed from landscape
 
 POSlive=as.list(rep(0,thyme)) #Positive cases observed and removed from landscape
 POSdead=as.list(rep(0,thyme))#Positive carcasses observed and removed from landscape
 NEGlive=as.list(rep(0,thyme)) #Negative tests of hunted carcasses that are removed from landscape
 NEGdead=as.list(rep(0,thyme))#Negative tests of carcasses that are removed from landscape
 
-#empty_list <- vector(mode = "list", length = desired_length)
-#POSlive_locs<-vector(mode="list",length=thyme) #put this in beginning at initialization
-#POSdead_locs<-vector(mode="list",length=thyme) #put this in beginning at initialization
-
 POSlive_locs<-as.list(rep(0,thyme))
 POSdead_locs<-as.list(rep(0,thyme))
-
-#############################
-####Initialize Data Recording
-#############################
 
 #idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
 idZONE<-as.list(rep(as.integer(0),thyme))
@@ -58,9 +39,10 @@ ICatEnd=0
 #out[i,]<-areaOfinfection(pop,centroids,inc)
 #print(out)
 
-#############################
-####Initialize Infection
-#############################
+######################################
+######## Initialize Infection ######## 
+######################################
+
 #num_inf_0=1 #how many pigs to infect starting off
 
 #find the midpoint of the grid
@@ -70,14 +52,16 @@ id=which(centroids[,1]>=midpoint[1]&centroids[,2]>=midpoint[2])[1] #location on 
 infected<-InitializeSounders(N0,ss,cells,centroids,num_inf_0,id,1)
 infected[,8]<-0
 infected[,10]<-1
-#infected[,9]<-1
+
 #combine infected pig with pop matrix
 pop<-rbind(pop,infected)
+
+#track first infection in Incidence matrix
 Incidence[1]<-num_inf_0
 
-#############################
-####Simulate pop over time
-#############################
+##################################
+######## Start simulation ######## 
+##################################
 
 #initialize indices for weekly movement
 indWM=seq(1,72,7)
@@ -89,54 +73,12 @@ indP=1:length(indWM)
 for(i in 1:thyme){
 if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 print(i)
-#print(dim(pop))
-#print(pop[,9])
-#print(head(pop))
-#print("top of loop")
-#print(i)
-#print(pop[rowSums(is.na(pop)) > 0,])
-#print(pop[pop[,3]==0,])
-#print(head(pop))	
-#print(paste0("any infections?:",any(pop[,10]!=0|pop[,12]!=0)))
 
-#############################
-####Movement Function
-#############################
-#print(pop[,3])
-#print("pre movement prints")
-#print(unique(sapply(pop,class)))
-#pop<-Movement(pop,centroids,shift,inc) #This function will be translated to RCPP
-pop<-FastMovement(pop,centroids,shift,inc)
 
-#print("after movement")
-#print(pop[rowSums(is.na(pop)) > 0,])
-#print(pop[pop[,3]==0,])
-#print(unique(sapply(pop,class)))
-#print(unique(sapply(pop, anyNA)))
-#print(pop[anyNA(pop),])
-#print("post movement prints end")
-#print(pop[,7])
-# watch daily movement changes, plotting
-#check = find(temp>0); %ids of cells with pigs at previous timestep	
-#scatter(centroids(check,1),centroids(check,2),'MarkerEdgeColor',[0.9 0.9 0.9],'MarkerFaceColor',[0.9 0.9 0.9],'sizedata',4); hold on;
-#set(gca,'fontsize',10,'fontname','times','xtick',[],'ytick',[]); %xlabel('km east-west'); ylabel('km north-south');
-#text(2,gridlen-5,sprintf('Week = %d',i-1),'fontweight','bold','fontsize',12,'fontname','times');
-#Icheck = find(I(i-1,:) > 0); scatter(centroids(Icheck,1),centroids(Icheck,2),'r','filled','sizedata',10);
-#Ccheck = find(C(i-1,:) > 0); scatter(centroids(Ccheck,1),centroids(Ccheck,2),'b','filled','sizedata',15);
-#axis([0 gridlen 0 gridlen]);
+#####################################
+######## Track I/C locations ######## 
+#####################################
 
-#may choose to plot at each timestep later (may save time/memory)
-#but for now, just store movement records in a matrix
-#only need to record the locations of the infected ones
-
-#print(pop[pop[,10]>0,,drop=FALSE])
-#print(pop[pop[,10]>0,,drop=FALSE][7])
-#print(pop[pop[,10]>0,7,drop=FALSE])
-
-#print(pop[pop[,12]>0,,drop=FALSE])
-#print(pop[pop[,12]>0,][7])
-#print(pop[pop[,12]>0,7,drop=FALSE])
-#print(nrow(pop[pop[,10]>0,,drop=FALSE]))
 if(nrow(pop[pop[,10]>0,,drop=FALSE])>0){
 Isums[i]<-nrow(pop[pop[,10]>0,,drop=FALSE])
 } else{Isums[i]=0}
@@ -145,17 +87,28 @@ if(nrow(pop[pop[,12]>0,,drop=FALSE])>0){
 Csums[i]<-nrow(pop[pop[,12]>0,,drop=FALSE])
 } else{Csums[i]=0}
 
-I_locs[[i]]<-pop[pop[,10]>0,7]
-C_locs[[i]]<-pop[pop[,12]>0,7]
-#############################
-####Births and Natural Deaths
-#############################
+I_locs[[i]]<-pop[pop[,10]>0,3]
+C_locs[[i]]<-pop[pop[,12]>0,3]
+	
+##########################
+######## Movement ######## 
+##########################
+	
+pop<-FastMovement(pop,centroids,shift,inc)
 
-#% Births and natural deaths
-#%tic;
-#    N = sum([S(i-1,:); E(i-1,:); R(i-1,:)],1);
-#N=nrow(pop) 
-########
+#######################################
+######## Births/Natural Deaths ######## 
+#######################################
+
+#determine disease state change probabilities
+Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi) #force of infection
+Pei=1-exp(-1/rpois(nrow(pop),4)/7) #transitions exposure to infected
+Pic=1-exp(-1/rpois(nrow(pop),5)/7) #transitions infected to either dead or recovered
+
+#conduct the state changes
+#pop<-StateChanges(pop,Pse,Pei,)
+
+######
 idN=pop[pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0,] #get all sounder sets with live individuals; subset
 liveind<-sum(colSums(pop)[8:11]) #N live individuals
 liverows<-which(pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0) #rownums with live indiv
@@ -180,6 +133,7 @@ while (sum(id) < Tbirths) {
     id[n]<-birthset_i
     n=n+1
 }
+
 #    Sdpb = zeros(1,cells);
 #Sdpb=matrix(nrow=cells,ncol=1)
 
@@ -203,37 +157,14 @@ Sdpb=matrix(nrow=nrow(pop),ncol=1)
 Sdpb[,1]=0
 
 for(j in 1:length(id)){
-#Sdpb[id2[i],1]<-id[i]	
-#which(pop[,8]>0|pop[,9]>0|pop[,10]>0|pop[,11]>0)
 Sdpb[id2[j],1]<-id[j]
 	}
 
-#        Sdpb(id2) = a(1:id); % assign the births to cells where they will happen 
-#for(i in 1:length(id2)){
-#pop[id2[i],1]=pop[id2[i],1]+id[i] #add to total number of pigs in sounder
-#pop[id2[i],8]=pop[id2[i],1]+id[i] #add to total number of susceptible pigs in sounder
-#	}
-#    end
+###################################
+######## State Transitions ######## 
+###################################
 
-
-
-#############################
-####State Transitions
-#############################
-##########Notes: currently doing state transitions
-#need Sdpd, Edp etc to be lists of 1/0/2/whatever but created such that they will only go in columns
-#where there are relevant individuals (i.e. cant have recoveries where no infected)
-
-#Natural Deaths
-#    Sdpd = binornd(S(i-1,:),death); % natural death of S (a constant)
-#    Edp = binornd(E(i-1,:),death); % natural death of E (a constant)
-#    Rdp = binornd(R(i-1,:),death); % natural death of R (a constant)
-#Sdpd<-rbinom(nrow(pop),1,death)
-#Edpd<-rbinom(nrow(pop),1,death)
-#Idpd<-rbinom(nrow(pop),1,death)
-#Rdpd<-rbinom(nrow(pop),1,death)
-#pop[liverows,]
-#
+#natural deaths
 Sdpd<-matrix(nrow=nrow(pop),ncol=1)
 Edpd<-matrix(nrow=nrow(pop),ncol=1)
 Idpd<-matrix(nrow=nrow(pop),ncol=1)
@@ -242,57 +173,30 @@ Sdpd[,1]=0
 Edpd[,1]=0
 Idpd[,1]=0
 Rdpd[,1]=0
-#Force of Infection
-#Pse = FOI(I(i-1,:),C(i-1,:),B1,B2,F1,F2,F2i,centroids,cells,S(i-1,:));
-#Pei = 1-exp(-1./(poissrnd(4,1,cells)./7)); %weekly scale %1-exp(-1./max(1,poissrnd(4,1,cells))); % incubation period (fix as mean of truncated Poisson)
-#Pic = 1-exp(-1./(poissrnd(5,1,cells)./7)); %weekly scale % infectious period until death (fix as mean of truncated Poisson)
-#QUESTION: say in notes truncated poisson. is this old? poissrnd is regular poisson right?
-#print("which is na pop2")
-#print(pop[which(is.na(pop)),])
 
-#int("any infectious individuals?:")
-#print(length(pop[pop[,10]>0|pop[,12]>0,1])>0)
-Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi)
-#Pse<-Fast_FOI_function(pop,centroids,cells,B1,B2,F1)
-#Pse<-FOIParallelFull(pop,centroids,cells,B1,B2,F1)
-#print("after FOI")
-#print(pop[rowSums(is.na(pop)) > 0,])
-#print(which(Pse==1))
-#print(pop[which(Pse==1),])
-Pei=1-exp(-1/rpois(nrow(pop),4)/7)
-Pic=1-exp(-1/rpois(nrow(pop),5)/7)
-#print(head(Pse))
-#Disease transitions
-#    Eep = binornd(S(i-1,:),Pse); % Exposure
-#    Iep = binornd(E(i-1,:),Pei); % transitions from E to I
-#    Rep = binornd(I(i-1,:),Pir.*Pic); % transitions from I to R, natural deaths of R
-#    Cep = binornd(I(i-1,:),(1-Pir).*Pic); % transitions from I to C
+#disease state change recording
 Eep=matrix(nrow=nrow(pop),ncol=1)
 Eep[,1]=0
-#Eep<-rbinom(nrow(pop),1,Pse[pop[,3],]) #Exposure (S -> E)
 Iep=matrix(nrow=nrow(pop),ncol=1)
 Iep[,1]=0
-#Iep<-rbinom(nrow(pop),1,Pei) #Disease progression (E -> I)
 Rep=matrix(nrow=nrow(pop),ncol=1)
 Rep[,1]=0
-#Rep<-rbinom(nrow(pop),1,Pir*Pic) #Recovery (I -> R)
 Cep=matrix(nrow=nrow(pop),ncol=1)
 Cep[,1]=0
-#Cep<-rbinom(nrow(pop),1,(1-Pir)*(Pic)) #Death (I -> C)
 
-#Carcass decay
+#Carcass decay recording
 Ccd=matrix(nrow=nrow(pop),ncol=1)
 Ccd[,1]=0
-#Ccd<-rbinom(nrow(pop),1,Pcr) #prob of removal from landscape
 Zcd=matrix(nrow=nrow(pop),ncol=1)
 Zcd[,1]=0
-#Zcd<-rbinom(nrow(pop),1,Pcr) #prob of removal from landscape
-#print(head(pop))
+
+#Conduct the state changes
+#############################
 
 for(k in 1:nrow(pop)){
-#print(i)
-if(pop[k,8]>0){
+
 #operations on Susceptible individuals
+if(pop[k,8]>0){
 #print(pop[k,3])
 #print(pop[k,8])
 Sdpd[k]<-sum(rbinom(pop[k,8],1,death))
@@ -302,30 +206,31 @@ Eep[k]<-sum(rbinom(pop[k,8],1,Pse[pop[k,3]])) #Exposure (S -> E) infection based
 #print(Pse[pop[k,3]])
 #print(Eep[k])
 }	
-	#print(i)
-if(pop[k,9]>0){
+
 #operations on Exposed individuals
+if(pop[k,9]>0){
 Edpd[k]<-sum(rbinom(pop[k,9],1,death))
 Iep[k]<-sum(rbinom(pop[k,9],1,Pei))
 }
-	#print(i)
-if(pop[k,10]>0){
+
 #operations on Infected individuals	
+if(pop[k,10]>0){
 Idpd[k]<-sum(rbinom(pop[k,10],1,death))
 Rep[k]<-sum(rbinom(pop[k,10],1,Pir*Pic))
 Cep[k]<-sum(rbinom(pop[k,10],1,(1-Pir)*(Pic))) 
 }	
-	#print(i)
-if(pop[k,11]>0){
+
 #operations on Recovered individuals
+if(pop[k,11]>0){
 Rdpd[k]<-sum(rbinom(pop[k,11],1,death))
 }	
-	#print(i)
+
+#operations on Carcasses (infected)
 if(pop[k,12]>0){
-#operations on Inf carcass individuals	
 Ccd<-sum(rbinom(pop[k,12],1,Pcr))	
 }	
-	#print(i)
+
+#operations on Carcasses (uninfected)
 if(pop[k,13]>0){
 #operations on Uninf carcass individuals	
 Zcd<-sum(rbinom(pop[k,13],1,Pcr))	
@@ -333,13 +238,9 @@ Zcd<-sum(rbinom(pop[k,13],1,Pcr))
 }
 
 Incidence[i]<-Incidence[i]+sum(Eep)
-#print("after assignments")
-#print(pop[rowSums(is.na(pop)) > 0,])
-#############################
-####Update States based on Demographic and Epidemiological Processes
-#############################
-#print(paste0("new exposures:",any(Eep>0)))
 
+#update states in pop matrix
+###################################
 pop[,8]=pop[,8]-Eep+Sdpb-Sdpd #S
 pop[,9]=pop[,9]-Iep+Eep-Edpd #E
 pop[,10]=pop[,10]-Rep-Cep+Iep-Idpd#I
@@ -347,6 +248,9 @@ pop[,11]=pop[,11]+Rep-Rdpd #R
 pop[,12]=pop[,12]+Idpd+Cep-Ccd #C
 pop[,13]=pop[,13]+Sdpd+Rdpd+Edpd-Zcd #Z
 
+#sometimes end up with negative numbers 
+#(i.e. all pigs in sounders chosen for natural mort and disease mort)
+#just set anything below zero to zero
 pop[which(pop[,8]<0),8]<-0
 pop[which(pop[,9]<0),9]<-0
 pop[which(pop[,10]<0),10]<-0
@@ -354,13 +258,12 @@ pop[which(pop[,11]<0),11]<-0
 pop[which(pop[,12]<0),12]<-0
 pop[which(pop[,13]<0),13]<-0
 
-#move dead individuals (C or Z) into their own row
+#move dead individuals (C or Z) into their own rows
 #pop[,12] and pop[,13] > 0
 deadguys<-pop[pop[,12]>0|pop[,13]>0,,drop=FALSE]
 
 #if there are deadguys....
 if(length(deadguys)!=0){
-	
 #remove abundance and all live guy counts from deadguy set
 deadguys[,1]=0
 deadguys[,8]=0
@@ -375,7 +278,6 @@ pop<-rbind(pop,deadguys)
 
 }
 
-#############################
 #Update abundance numbers (live individuals only count in abundance)
 pop[,1]=rowSums(pop[,8:11])
 

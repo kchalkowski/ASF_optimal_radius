@@ -101,23 +101,28 @@ for(std::size_t j = begin; j < end; j++) {
 
 //initialize integers for pig movement distance and abundance
 //slightly faster than grabbing the numbers each time
-int pop_j_3=apop3(j,3);
-int pop_j_0=apop3(j,0);
+double pop_j_3=apop3(j,3); //distance pop[,4]
+int pop_j_0=apop3(j,0); //abundance pop[,1]
 
 //loop through each element in centroids to get distance, then take the difference
+
+//if abundance and distance greater than zero
 if(pop_j_3 > 0 & pop_j_0 > 0){
+
 //initialize distance matrix mask...
 arma::vec mask(diff.n_rows);
+
 double diffk_0; //initialize diffk_0 double
+
 //loop through each cell in centroids (acent3)
 for(std::size_t k = 0; k < acent.nrow(); k++) {
 //get distance between current sounder and each cell in centroids, using spatial distance function
 //get difference between assigned movement distance, and calculated distance between present location and each cell
 //shouldn't this be absolute value? otherwise can have negative and won't be picked up by diffk mask
-diffk_0=sqrt(pow((acent3(k,0)-apop3(j,4)),2)+pow((acent3(k,1)-apop3(j,5)),2))-apop3(j,3);
+diffk_0=abs(sqrt(pow((acent3(k,0)-apop3(j,4)),2)+pow((acent3(k,1)-apop3(j,5)),2))-apop3(j,3));
 diff(k,0)=diffk_0; //assign distance to distance matrix
 //find diffk_0 closest to assigned movement distance, set mask to isolate those
-if(diffk_0>=0 & diffk_0<=0.1){
+if(diffk_0>=0 & diffk_0<=0.4){
 mask[k]=1;
 } else {
 mask[k]=0;    
@@ -153,8 +158,6 @@ else setmask[s]=0;
 }
 
 //get abundances of cells in set
-//should there be if statement here? does it just revert to zero if there are no matching locations in pop?
-//pretty sure it does, but going to double check this to be sure
 imat abundinset_s = apopabund3.rows(find(setmask==1));
 abund(s)=sum(abundinset_s.col(0));
 
@@ -179,18 +182,23 @@ truemin = cellindarma;
 ///////Assign location for sounder//////
 
 //set location to selected cell in set with minimum abundance
-outpop(j,0)=truemin[0]+1;
+outpop(j,0)=truemin[0]+1; //+1 is to get appropriate index
 
-} else{ //this is the else to the if statement 'if assigned pig movement > 0'
-//in this case, next location stays the same as present location
-outpop(j,0)=apoplocs(j,0);
+} else{ //this is the else to the if statement 'if any cells in set'
+
+//there should always be a possible cell to move to (unless barriers introduced in model)
+//currently, if no cells in set, should generate error
+//this will output unrealistic location number that will be used in R script to generate error
+outpop(j,0)=acent.nrow()+1000;
+
 
 }
 
 
-} else{
+} else{ //if movement distance is zero, or abundance is zero
 
 outpop(j,0)=apoplocs(j,0);
+
 
 }
 

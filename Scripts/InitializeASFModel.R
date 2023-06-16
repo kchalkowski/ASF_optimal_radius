@@ -41,7 +41,7 @@ N0=density*area #initial population size
 K=N0*1.5 #carrying capacity for whole population
 Rad=10 #culling radius
 detectday = 20
-thyme=72+detectday #using 'time' sometimes gives weird errors with different packages, hence the diff spelling
+thyme=52+detectday #using 'time' sometimes gives weird errors with different packages, hence the diff spelling
 #thyme=72
 #detectday=73
 intensity=0.05
@@ -59,7 +59,7 @@ Intensity = 0.05 #proportion of population targeted for removal per day based on
 #col 1- sequence 1:ncell
 #col 2-5: X1,Y1; X2,Y2
 #col 6-7: centroid x and y
-grid<-readMat(paste0(home,"/Matlab_ASF_Model/Grid_80x80_0pt4km.mat"))
+grid<-readMat(paste0("/Users/kchalkowski/Dropbox/Projects/ASFsim/ASF_Matlab","/Grid_80x80_0pt4km.mat"))
 grid<-grid$grid
 
 #Need to look at code for making grid in matlab, make function to generate grid in R
