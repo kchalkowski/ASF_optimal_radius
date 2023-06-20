@@ -17,8 +17,8 @@ NEGdead=as.list(rep(0,thyme))#Negative tests of carcasses that are removed from 
 POSlive_locs<-as.list(rep(0,thyme))
 POSdead_locs<-as.list(rep(0,thyme))
 
-#idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-idZONE<-as.list(rep(as.integer(0),thyme))
+idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
+#idZONE<-as.list(rep(as.integer(0),thyme))
 Tculled=matrix(0,nrow=thyme) #total number culled at each time step
 ZONEkm2=matrix(0,nrow=thyme) 
 Carea=matrix(0,nrow=thyme) #area of culling zone at each time step
