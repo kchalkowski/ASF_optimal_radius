@@ -166,50 +166,37 @@ if(i > detectday & Rad > 0){
 	Tculled[i]=culled
 } #if greater than detectday closing bracket
 
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-
 
 #############################
 ####Track true spatial spread
 #############################
-#print("before aoi")
-#print(pop[rowSums(is.na(pop)) > 0,])
 #if any infected individuals
-#areaOfinfection()
-#print("before area of infection")
 if(nrow(pop[pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,12,drop=FALSE]>0,,drop=FALSE])>0){
-#print("inside if statement")
 out[i,]<-areaOfinfection(pop,centroids,inc)
-#print("after area of infection output")
 } else{out[i,]=c(0,0,0)}
-#print("after area of infection")
-#Plotting function in matlab goes here
+
+#############################
+####Summarize infections
+#############################
+
+#sum all infectious cases (I,C,E) at each timestep
+#ICtrue = sum(I + C,2); sum of all infectious cases over time
+if(i==detectday){
+ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that first detected
+} else{
+	ICtrue[i]<-sum(colSums(pop)[c(9,10,12)])
+}
+
+
+#print("after create outputs")
+} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
+	} #for timestep closing bracket
 
 #############################
 ####Generate Outputs
 #############################
 
-#Incidence is matrix with one column, nrow timesteps
-#needs to be total exposures at each timestep
-#first timestep one infected, incidence
-#rest of the timesteps will be informed by Eep
-#Incidence
-#I_locs
-#C_locs
-
-#total exposures at each timestep
-#this will just be inherent in new way of storing incidence
-#IncOverTime = sum(Incidence,2);
-
 #% find the last infectious case (true)
-#sum all infectious cases (I,C) at each timestep
-#ICtrue = sum(I + C,2); % sum of all infectious cases over time
-ICtrue[i]<-sum(colSums(pop)[c(10,12)])
 
 #same as above but with one removed at detection added back into total
 #if Intensity > 0; ICtrue(detectday) = ICtrue(detectday) + 1; end % add back the one we removed at deteection
@@ -285,9 +272,11 @@ list.all[[10]]=I_locs
 list.all[[11]]=C_locs
 list.all[[12]]=Isums
 list.all[[13]]=Csums
-#print("after create outputs")
-} else{print("Exiting function, no infections")} #if any infected closing bracket/else
-	} #for timestep closing bracket
+
+#############################////////
+####Generate Outputs
+#############################
+
 
 ######################################################################
 #%find how many infections are present at the end
