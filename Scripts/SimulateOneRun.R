@@ -36,8 +36,6 @@ ICtrue=matrix(0,nrow=thyme,ncol=1)
 Etrue=matrix(0,nrow=thyme,ncol=1)
 IConDD=0
 ICatEnd=0
-#out[i,]<-areaOfinfection(pop,centroids,inc)
-#print(out)
 
 ######################################
 ######## Initialize Infection ######## 
@@ -193,7 +191,7 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 #############################
 #############################
 
-out.list<-GenerateOutputs(pop,Incidence,Tculled,ICtrue,out,detectday)
+out.list<-GetOutputs(pop,Incidence,Tculled,ICtrue,out,detectday)
 
 return(out.list)
 

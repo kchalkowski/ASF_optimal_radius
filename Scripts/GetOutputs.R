@@ -1,4 +1,4 @@
-GenerateOutputs<-function(pop,Incidence,Tculled,ICtrue,out,detectday){
+GetOutputs<-function(pop,Incidence,Tculled,ICtrue,out,detectday){
 #List of outputs created here:	
 	#Tinc #sum of all exposures over simulation 
 	#sum(Tculled)

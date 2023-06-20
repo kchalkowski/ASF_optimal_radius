@@ -61,9 +61,6 @@ fullZONE=rbind(idZONE_i,idout)
 	}
 	}
 
-#remove any NAs
-#fullZONE<-fullZONE[!is.na(fullZONE[,1]),,drop=FALSE]
-
 #get all unique grid cells in the zone		
 allINzone=unique(fullZONE[,2])
 
