@@ -8,9 +8,20 @@ using namespace Rcpp;
 using namespace RcppParallel;
 using namespace arma;
 
+//Inner FOI loop configuration begin
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////
+///////Set up wrapper to run with RcppParallel//////
+///////////////////////////////////////////////////
+
 //this wrapper makes the function available to RcppParallel sort of
 //the function that you want made parallel goes here in void operator
-//this sample function takes the square root of its input and writes it into its output
 //struct SquareRoot : public Worker
 struct FOILoop : public Worker {
    // source matrix
@@ -66,16 +77,7 @@ struct FOILoop : public Worker {
            F1(F1),
            B_tot(B_tot) {}
 
-   // take the square root of the range of elements requested
-   //this is where the function goes
-   //need to use format for initialization-- void operator()(input stuff like in function) {function goes here}
-   //tells it to go through the specified range size_t begin and end...
-   //void operator()(std::size_t begin, std::size_t end) {
-   //   std::transform(input.begin() + begin, 
-   //                  input.begin() + end, 
-   //                  output.begin() + begin, 
-   //                  ::sqrt);
-   //}
+
 //needed inputs:Imat, Cmat, cent, pdI_1, pdC_1, B_I, B_C, W_I, W_C, B2, F1
 arma::mat convertImat()
  {
@@ -140,6 +142,10 @@ arma::mat convertW_C()
     return W_C_2;
   }
 
+/////////////////////////////////////////////////
+///////Inner FOI function loop begins here//////
+///////////////////////////////////////////////
+
 void operator()(std::size_t begin, std::size_t end) {
     // rows we will operate on
 //needed inputs:Imat, Cmat, cent, pdI_1, pdC_1, B_I, B_C, W_I, W_C, B2, F1
@@ -157,12 +163,16 @@ void operator()(std::size_t begin, std::size_t end) {
 //needed output: arma::mat Btot(cells,2)
 for(std::size_t j = begin; j < end; j++) {
 
+//if any infected rows in Imat
 if(Imat3.n_rows > 0){
 for(std::size_t i=0; i < Imat3.n_rows; ++i) {
+
+//get distance between infected cells, and all other cells
 pdI_1_3(i,j)=sqrt(pow((cent3(j,0)-Imat3(i,4)),2)+pow((cent3(j,1)-Imat3(i,5)),2));
-//nrow cells, columns for each infected
+
 //using distance to get probability of contact for cell j
 B_I_3(j,i)=(exp(0.5737-1.0616*pdI_1_3(i,j)))*B1;
+
 if(pdI_1_3(i,j)==0){
 W_I_3(j,i)=F1;} else{
 W_I_3(j,i)=0;
@@ -178,6 +188,7 @@ B_tot(j,0)=sum(B_I_3.row(j))+sum(W_I_3.row(j));
 
 } //if num_I closing loop
 
+//same as above for carcasses
 if(Cmat3.n_rows > 0){
 for(std::size_t i=0; i < Cmat3.n_rows; ++i) {
 pdC_1_3(i,j)=sqrt(pow((cent3(j,0)-Cmat3(i,4)),2)+pow((cent3(j,1)-Cmat3(i,5)),2));
@@ -205,11 +216,12 @@ B_tot(j,1)=sum(B_C_3.row(j))+sum(W_C_3.row(j));
 
 //So, above, Movement_worker derives from RcppParallel::Worker
 //this is required for function objects passed to parallelFor
-//Now that the worker is described above, can call the Movement_worker worker we defined
+//Now that the worker is described above, can call the worker we defined
 
+////////////////////////////////////////
+///////Call inner FOI loop worker//////
+//////////////////////////////////////
 
-//Here's a function that calls the SquareRoot worker defined above
-//NumericMatrix parallelMatrixSqrt(NumericMatrix x) { //create a new function wrapper that calls the part you want run in parallel
 // [[Rcpp::export]]
 NumericMatrix parallelFOI(
            const NumericMatrix& Imat,
@@ -225,24 +237,34 @@ NumericMatrix parallelFOI(
            const double B2,
            const double F1
            ){
+  
   // allocate the output matrix
   //essentially just defining the size of the output
   NumericMatrix B_tot(cent.nrow(), 2);
-  // SquareRoot functor (pass input and output matrixes)
-  // x is input matrix defined above
+
+  
   //output is output matrix defined above
-  //SquareRoot squareRoot(x, output);
     FOILoop foiloop(Imat,Cmat,cent,pdI_1,pdC_1,B_I,B_C,W_I,W_C,B1,B2,F1,B_tot);
-   //apop(apop), apopabund(apopabund), apoplocs(apoplocs), acent(acent), cells(cells), np(np), popoutput(popoutput) {}
-  // call parallelFor to do the work
-  // starting from 0 to length of x, run the squareRoot function defined above in the worker
-  //parallelFor(0, x.length(), squareRoot);
+   
+
     parallelFor(0,cent.nrow(), foiloop);
   
   // return the output matrix
   return B_tot;
 //}
 }
+
+//Inner FOI loop configuration end
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
+///////////////////////////////////////////
+///////Call FOIParallelFull function//////
+/////////////////////////////////////////
+//this is the function called in R
 
 //[[Rcpp::export]]
 //define the main function, MovementRcpp
@@ -255,56 +277,58 @@ arma::mat FOIParallelFull(
                        double F1
                        ) {
                                             
-//Rcpp::NumericMatrix popout = apop;
-//set present locations to previous locations
-//popout(_,6)=popout(_,2);
 
+//define Pse output
 arma::mat Pse(cells,1,fill::zeros);
 
+//find rows with infected pigs
 arma::ivec setmaskI(pop.n_rows);
 for(std::size_t s=0; s < pop.n_rows; ++s) {
 if(pop(s,9)>0) setmaskI[s]=1;
 else setmaskI[s]=0;
 }
 
+//subset pop to get only rows with infected pigs
 arma::mat Imata = pop.rows(find(setmaskI==1));
 
+//find rows with infected carcasses
 arma::ivec setmaskC(pop.n_rows);
 for(std:: size_t s=0; s < pop.n_rows; ++s) {
 if(pop(s,11)>0) setmaskC[s]=1;
 else setmaskC[s]=0;
 }
 
+//subset pop to get only rows with infected carcasses
 arma::mat Cmata = pop.rows(find(setmaskC==1));
 
+//convert class of Imat from arma to NumericMatrix
+//needs to be this way to work in parallel
 Rcpp::NumericMatrix Imat=wrap(Imata);
 Rcpp::NumericMatrix Cmat=wrap(Cmata);
 
+//get Imat/Cmat row numbers
 int num_I = Imat.nrow();
 int num_C = Cmat.nrow();
 
+//initialize transmission matrices
 Rcpp::NumericMatrix B_I(cells,num_I);
 Rcpp::NumericMatrix B_C(cells,num_C);
-
 Rcpp::NumericMatrix B_tot(cells,2);
-
 Rcpp::NumericMatrix pdI_1(num_I,cells);
 Rcpp::NumericMatrix pdC_1(num_C,cells);
-
 Rcpp::NumericMatrix W_I(cells,num_I);
 Rcpp::NumericMatrix W_C(cells,num_C);
-
 arma::mat Bsum(cells,1);
 
+//run parallel FOI function (defined above)
 //needed inputs:Imat, Cmat, cent, pdI_1, pdC_1, B_I, B_C, W_I, W_C, B2, F1
 B_tot=parallelFOI(Imat,Cmat,cent,pdI_1,pdC_1,B_I,B_C,W_I,W_C,B1,B2,F1);
-//popout(_,4)=acent(popout(_,2),0);
-//popout(_,5)=acent(popout(_,2),1);
 
 //convert B_tot back to arma::mat
-//arma::mat y= as<arma::mat>(x)
+//is faster this way
 arma::mat B_tota=as<arma::mat>(B_tot);
 
+//combine C/I to get total transmission probabilities
 if(num_C>0&num_I>0){
 Bsum=sum(B_tota,1);
 }
