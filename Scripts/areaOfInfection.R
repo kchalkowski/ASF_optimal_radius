@@ -4,7 +4,7 @@ areaOfinfection<-function(pop,centroids,inc){
 infected<-pop[pop[,9]>0|pop[,10]>0|pop[,12]>0,,drop=FALSE]	
 
 #determine which cells infected
-infectcells<-infected[,3]
+infectcells<-unique(infected[,3])
 	
 if(length(infectcells)==1){ #get the area of one grid cell
 
@@ -37,6 +37,7 @@ A<-abs(polyarea(boundary[,1,drop=FALSE],boundary[,2,drop=FALSE]))
 #library(rdist)
 maxdist<-max(pdist(xy))
 
+#number of unique infected cells, area of infection, max distance between infected cells
 out=c(length(infectcells),A,maxdist)
 
 	} #greater than 2 infected closing bracket
