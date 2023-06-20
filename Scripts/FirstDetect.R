@@ -1,9 +1,8 @@
-FirstDetect<-function(pop,i,POSlive,POSdead){
+FirstDetect<-function(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs){
 #randomly detects a single infected pig (carcass or live)
 	
 	#Randomly detect an E,I, or C pig
 	detection<-as.integer(sample(as.character(which(pop[,9]>0|pop[,10]>0|pop[,12]>0)),1))
-	
 	
 	#If chose row with combination of E, I, C, pick one
 	if(sum(pop[detection,c(9,10,12)])>1){
@@ -43,6 +42,6 @@ FirstDetect<-function(pop,i,POSlive,POSdead){
   	pop<-pop[-detection,]
   	}
 
-  return(list(pop,POSlive,POSdead))
+  return(list(pop,POSlive,POSdead,POSlive_locs,POSdead_locs))
   
 }

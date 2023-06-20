@@ -111,10 +111,12 @@ BB<-st.list[[3]]
 
 #if it's detect day, and there are infected pigs to detect, and Rad>0
 if(i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
-fd.list<-FirstDetect(pop,i,POSlive,POSdead)
+fd.list<-FirstDetect(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs)
 pop=fd.list[[1]]
 POSlive=fd.list[[2]]
 POSdead=fd.list[[3]]
+POSlive_locs=fd.list[[4]]
+POSdead_locs=fd.list[[5]]
 }
 
 ###**start day after day of first detection
