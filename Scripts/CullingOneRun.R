@@ -62,7 +62,7 @@ Uall=length(allINzone)
 #get total area of the zone	
 ZONEkm2=Uall*inc^2
 	
-#get number of total number of rows in the zone	
+#get which rows in the zone	
 soundINzone<-which(pop[,3]%in%allINzone) 
 
 #get total number of pigs in zone
@@ -92,6 +92,7 @@ totalEIC=EICinzone+EICoutzone
 if(pigsinzone>0){
 	
 #get number of pigs for each grid cell in zone
+#and get their status, SEIRCZ
 #initiate empty matrix, nrow for each grid cell, 7 for each of SEIRCZ
 SEIRCZpigs<-matrix(0,nrow=nrow(fullZONE),ncol=7)
 fullZONEpigs<-cbind(fullZONE,SEIRCZpigs)
@@ -134,6 +135,7 @@ incr=incr+1
 removals<-removals+fullZONEpigs[incr,4]
 	}
 
+#determine which pigs culled
 culled=removals[[1]]
 
 #% list of cells that pigs will be eliminated from (column index was 1 in old version)		
@@ -146,12 +148,8 @@ removalpigs<-fullZONEpigs[1:incr,,drop=FALSE]
 ###### Update surveillance data ######
 ######################################
 
-#outputs needed
-#idZONE,ids,POSlive,POSdead,culled,areaC]
-#print(paste("POSlive_locsc174:",POSlive_locs[i-1]))
-#print(paste("POSdead_locsc175:",POSdead_locs[i-1]))
-#POSlive
-#POSlive is a matrix with a row for each timestep
+
+#POSlive_i is a matrix with a row for each timestep
 #column one of poslive is the number of exposed/infected pigs detected at that timestep
 #sum removalpigs column 6,7
 POSlive_i<-sum(removalpigs[,7],removalpigs[,6])
@@ -197,32 +195,13 @@ NEGdead_i<-sum(removalpigs[,10])
 
 #idZONE:
 #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-#assign fullzone to IDzone, is just without NA
-idZONE=fullZONE
-#print(idZONE)
-#ids:
-#removalcells, list of cells where pigs removed from
+idZONE=fullZONE 
 
-#culled: 
-#total number of pigs culled
-
-#areaC: 
-#area of culling zone, ZONEkm2
-
-#Last step: remove selected pigs from population
-#removing all pigs in grid cells in removal cells
-#assuming removing all pigs in those cells
-#find rows in pop equal to those grid cells
-#remove those rows from the population
-#print(paste("number culled:",culled))
-#print(paste("nrow pop before removals:",nrow(pop)))
-
+#remove removed sounders from pop
 removalrows<-which(pop[,3] %in% removalcells)
 removedpop<-pop[-removalrows,,drop=FALSE]
-#print(paste("nrow pop after removals:",nrow(removedpop)))
-#print(paste("POSlive_locsc236:",POSlive_locs[[i]]))
-#print(paste("POSdead_locsc237:",POSdead_locs[[i]]))
 
+#send updated objects to output list
 output.list<-vector(mode="list",length=11)
 output.list[[1]]<-POSlive_i
 output.list[[2]]<-POSdead_i
