@@ -33,7 +33,15 @@ TincFromDD<-sum(Incidence[detectday:idT])
 #DET #total number of detections
 DET=sum(unlist(POSlive),unlist(POSdead))
 
-list.all=list(Tinc,idT,Mspread,IConDD,ICatEnd,TincToDD,TincFromDD,DET)
+#send to list
+list.all=list("Tinc"==Tinc,
+							"idT"=idT,
+							"Mspread"=Mspread,
+							"IConDD"=IConDD,
+							"ICatEnd"=ICatEnd,
+							"TincToDD"=TincToDD,
+							"TincFromDD"=TincFromDD,
+							"DET"=DET)
 
 return(list.all)
 
