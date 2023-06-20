@@ -47,11 +47,19 @@ if(length(idNEW)>0){
 		idout<-matrix(nrow=0,ncol=3)
 	} 
 
+#remove NAs
+idZONE_i <- idZONE[!is.na(idZONE)]
+
 #fullZONE contains all grid cells with detected infections, from last time step and all before	
-fullZONE=rbind(idZONE,idout)
+if(length(idZONE_i)>0){
+idZONE_i=unlist(idZONE_i)	
+fullZONE=rbind(idZONE_i,idout)
+} else{
+fullZONE=idout		
+	}
 
 #remove any NAs
-fullZONE<-fullZONE[!is.na(fullZONE[,1]),,drop=FALSE]
+#fullZONE<-fullZONE[!is.na(fullZONE[,1]),,drop=FALSE]
 
 #get all unique grid cells in the zone		
 allINzone=unique(fullZONE[,2])
@@ -209,7 +217,7 @@ output.list[[3]]<-POSlive_locs_i
 output.list[[4]]<-POSdead_locs_i
 output.list[[5]]<-NEGlive_i
 output.list[[6]]<-NEGdead_i
-output.list[[7]]<-idZONE
+output.list[[7]]<-idZONE_i
 output.list[[8]]<-removalcells
 output.list[[9]]<-culled
 output.list[[10]]<-ZONEkm2
