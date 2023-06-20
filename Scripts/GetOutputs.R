@@ -1,6 +1,7 @@
-GenerateOutputs<-function(pop,Incidence,ICtrue,out,detectday){
+GenerateOutputs<-function(pop,Incidence,Tculled,ICtrue,out,detectday){
 #List of outputs created here:	
 	#Tinc #sum of all exposures over simulation 
+	#sum(Tculled)
 	#idT #last day there is an infectious individual
 	#Mspread #max spread of infection
 	#IConDD #number of I, C, and E on detection day TROUBLESHOOT
@@ -11,6 +12,9 @@ GenerateOutputs<-function(pop,Incidence,ICtrue,out,detectday){
 
 #Tinc, this just sums all of the exposures
 Tinc=sum(Incidence)
+
+#sum all culled
+sumTculled=sum(Tculled)
 
 #Find last day there was an infectious individual
 idT=which(ICtrue!=0)[length(which(ICtrue!=0))]
@@ -35,6 +39,7 @@ DET=sum(unlist(POSlive),unlist(POSdead))
 
 #send to list
 list.all=list("Tinc"==Tinc,
+							"sumTculled"=sumTculled,
 							"idT"=idT,
 							"Mspread"=Mspread,
 							"IConDD"=IConDD,

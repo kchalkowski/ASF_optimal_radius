@@ -187,15 +187,15 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 	ICtrue[i]<-sum(colSums(pop)[c(9,10,12)])
 }
 
-
-#print("after create outputs")
 } else{print("Exiting loop, no infections")} #if any infected closing bracket/else
 	} #for timestep closing bracket
 
-out.list<-GenerateOutputs(pop,Incidence,ICtrue,out,detectday)
+#############################
+#############################
+
+out.list<-GenerateOutputs(pop,Incidence,Tculled,ICtrue,out,detectday)
 
 return(out.list)
-#return(pop)
 
 	} #function closing bracket
 
