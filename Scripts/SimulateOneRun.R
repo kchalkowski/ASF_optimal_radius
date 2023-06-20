@@ -18,7 +18,7 @@ POSlive_locs<-as.list(rep(0,thyme))
 POSdead_locs<-as.list(rep(0,thyme))
 
 #idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-idZONE<-as.list(rep(as.integer(0),thyme))
+idZONE<-as.list(rep(NA,thyme))
 Tculled=matrix(0,nrow=thyme) #total number culled at each time step
 ZONEkm2=matrix(0,nrow=thyme) 
 Carea=matrix(0,nrow=thyme) #area of culling zone at each time step
@@ -136,13 +136,19 @@ if(i > detectday & Rad > 0){
 	idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
 
 	#keep only new grid cells that weren't already identified in previous time steps
-	if(any(idZONE[[i]])!=0){
-	uniqueidNEW<-which(!(idNEW %in% idZONE[[i-1]][,1]))
+	idZONE_t <- idZONE[!is.na(idZONE)]
+	if(length(idZONE_t)==1){
+		idZONE_t=idZONE_t[[1]][,1]
+	} else{
+		idZONE_t=unlist(idZONE_t)[,1]	
+		}
+	if(length(idZONE_t)>0){
+	uniqueidNEW<-which(!(idNEW %in% idZONE_t))
 	idNEW<-idNEW[uniqueidNEW]
 	} else{idNEW=idNEW}
 
 	#Culling process
-	output.list<-CullingOneRun(pop,idNEW,idZONE[[i-1]],Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
+	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
 
 	POSlive[[i]]<-output.list[[1]]
 	POSdead[[i]]<-output.list[[2]]

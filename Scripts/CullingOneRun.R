@@ -1,4 +1,3 @@
-#CullingOneRun<-function(X,idNEW,idZONE,Intensity,alphaC,CT,Rad,inc,i){
 CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
 
 ######################
@@ -51,11 +50,15 @@ if(length(idNEW)>0){
 idZONE_i <- idZONE[!is.na(idZONE)]
 
 #fullZONE contains all grid cells with detected infections, from last time step and all before	
-if(length(idZONE_i)>0){
+if(length(idZONE_i)>1){
 idZONE_i=unlist(idZONE_i)	
 fullZONE=rbind(idZONE_i,idout)
 } else{
-fullZONE=idout		
+		if(length(idZONE_i)==1){
+			fullZONE=rbind(idZONE_i[[1]],idout)	
+			} else{
+				fullZONE=idout
+	}
 	}
 
 #remove any NAs
@@ -203,7 +206,7 @@ NEGdead_i<-sum(removalpigs[,10])
 
 #idZONE:
 #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-idZONE=fullZONE 
+idZONE_i=fullZONE 
 
 #remove removed sounders from pop
 removalrows<-which(pop[,3] %in% removalcells)
