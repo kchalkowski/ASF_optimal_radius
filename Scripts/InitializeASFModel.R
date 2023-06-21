@@ -149,6 +149,16 @@ mc_time=0.0027
 Pcr = 7/30 #fix at 30 days - average for the year; %zeta.*1; % transition probability from carcass to removal from landscape
 Pbd = 7*mc_time #; %repmat(mean(c_time(1:364/7)),time,1).*1; % constant birth rate for S; rescale trend as needed to produce realistic pop dynamics
 
+#Set F2/F2i manually here
+#need as explicit parameters to run FOI in cpp
+#will later be incorporating this once finish U.S. contact prediction mapping
+#infectious pig contact prob based on distance
+F2_int=F2$coef[[1]]
+F2_B=F2$coef[[2]]
+#infected carcass contact prob based on distance
+F2i_int=F2i$coef[[1]]
+F2i_B=F2i$coef[[2]]
+
 ######################
 ####Initialize Population
 #####################
