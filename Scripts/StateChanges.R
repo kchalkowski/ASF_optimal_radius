@@ -1,5 +1,5 @@
 #outputs: pop,Incidence,BB
-StateChanges<-function(pop,centroids,cells,Pbd,B1,B2,F1,F2,Fi,K,death,Pcr,Pir,Incidence,BB,i){
+StateChanges<-function(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i){
 ####################################################################
 ########### Initialize state change probability matrices ########### 
 ####################################################################
@@ -89,7 +89,9 @@ Sdpb[id2[j],1]<-id[j]
 ######## Determine disease state change probabilities ######## 
 ##############################################################
 
-Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2,Fi) #force of infection
+#Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2) #force of infection #R version
+Pse<-FOIParallelFull(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B) #cpp parallel version, 22x faster than R version
+
 Pei=1-exp(-1/rpois(nrow(pop),4)/7) #transitions exposure to infected
 Pic=1-exp(-1/rpois(nrow(pop),5)/7) #transitions infected to either dead or recovered
 
