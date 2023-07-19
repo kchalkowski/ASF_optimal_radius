@@ -51,7 +51,7 @@ idZONE_i <- idZONE[!is.na(idZONE)]
 
 #fullZONE contains all grid cells with detected infections, from last time step and all before	
 if(length(idZONE_i)>1){
-idZONE_i=unlist(idZONE_i)	
+idZONE_i=do.call(rbind,idZONE_i)	
 fullZONE=rbind(idZONE_i,idout)
 } else{
 		if(length(idZONE_i)==1){

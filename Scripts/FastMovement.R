@@ -9,8 +9,7 @@ pop[pop[,4]<inc,][,4]=0
 #set present locations to previous locations
 pop[,7]=pop[,3]
 
-#get new locations with movement func
-pop[,3]<-parallelMovementRcpp_portion(pop,pop[,1,drop=FALSE],pop[,3,drop=FALSE],centroids)	
+m1=parallelMovementRcpp_portion(pop,pop[,1,drop=FALSE],pop[,3,drop=FALSE],centroids)
 
 #if stop function here.. if no cells to move to
 #any(pop[,3]==nrow(centroids)+1000)

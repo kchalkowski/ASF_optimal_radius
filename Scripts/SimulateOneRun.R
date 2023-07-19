@@ -1,6 +1,6 @@
 ##The purpose of this script is to run a single rep of the ASF control optimization model
 
-SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2,F2i,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop){
+SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop){
 
 ###########################################
 ######## Initialize Output Objects ######## 
@@ -11,8 +11,8 @@ BB=matrix(nrow=thyme) #track births
 
 POSlive=as.list(rep(0,thyme)) #Positive cases observed and removed from landscape
 POSdead=as.list(rep(0,thyme))#Positive carcasses observed and removed from landscape
-NEGlive=as.list(rep(0,thyme)) #Negative tests of hunted carcasses that are removed from landscape
-NEGdead=as.list(rep(0,thyme))#Negative tests of carcasses that are removed from landscape
+NEGlive=as.list(rep(0,thyme)) #Negative tests of detected carcasses that are removed from landscape
+NEGdead=as.list(rep(0,thyme)) #Negative tests of carcasses that are removed from landscape
 
 POSlive_locs<-as.list(rep(0,thyme))
 POSdead_locs<-as.list(rep(0,thyme))
@@ -33,9 +33,6 @@ Isums<-matrix(0,nrow=thyme)
 Csums<-matrix(0,nrow=thyme)
 out=matrix(c(0,0,0),nrow=thyme,ncol=3)
 ICtrue=matrix(0,nrow=thyme,ncol=1)
-Etrue=matrix(0,nrow=thyme,ncol=1)
-IConDD=0
-ICatEnd=0
 
 ######################################
 ######## Initialize Infection ######## 
@@ -61,17 +58,17 @@ Incidence[1]<-num_inf_0
 ######## Start simulation ######## 
 ##################################
 
-#initialize indices for weekly movement
-indWM=seq(1,72,7)
-indP=1:length(indWM)
-
 #start the timestep loop
 ##i=1
 ##detectday=i
 for(i in 1:thyme){
 if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
-print(i)
 
+
+#for(i in 1:(detectday-1)){ #for manual troubleshooting of loop, in place of 1:thyme
+for(i in detectday:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
+
+print(i)
 #####################################
 ######## Track I/C locations ######## 
 #####################################
@@ -97,10 +94,12 @@ pop<-FastMovement(pop,centroids,shift,inc)
 ######## State Changes ######## 
 ###############################
 #births, natural deaths, disease state changes (exposure, infection, recovery, death), carcass decay
-st.list<-StateChanges(pop,centroids,cells,Pbd,B1,B2,F1,F2,Fi,K,death,Pcr,Pir,Incidence,BB,i)
+st.list<-StateChanges(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i)
 pop<-st.list[[1]]
 Incidence<-st.list[[2]]
 BB<-st.list[[3]]
+
+
 
 ###**start on day of first detection
 ###################################
@@ -138,8 +137,11 @@ if(i > detectday & Rad > 0){
 	if(length(idZONE_t)==1){
 		idZONE_t=idZONE_t[[1]][,1]
 	} else{
-		idZONE_t=unlist(idZONE_t)[,1]	
-		}
+		idZONE_t=do.call(rbind,idZONE_t)[,1]	
+	}
+	
+	#if there were detections in previous time steps, only get newly detected infected grid cells
+	#"infected grid cell"=grid cell where there was an infected pig or carcass
 	if(length(idZONE_t)>0){
 	uniqueidNEW<-which(!(idNEW %in% idZONE_t))
 	idNEW<-idNEW[uniqueidNEW]
@@ -185,12 +187,16 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 	ICtrue[i]<-sum(colSums(pop)[c(9,10,12)])
 }
 
+} #for manual testing of loop
+
 } else{print("Exiting loop, no infections")} #if any infected closing bracket/else
 	} #for timestep closing bracket
 
 #############################
 #############################
 
+	
+	
 out.list<-GetOutputs(pop,Incidence,Tculled,ICtrue,out,detectday)
 
 return(out.list)

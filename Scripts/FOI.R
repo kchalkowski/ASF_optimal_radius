@@ -2,8 +2,8 @@ FOI<-function(pop,centroids,cells,B1,B2,F1,F2,Fi){
 #Pse = zeros(1,cells);
 Pse=matrix(nrow=cells,ncol=1)	
 #F1 contact probability at 0 distance
-#F2 contact probability at other distances (define based on landscape dist matrix)
-#F2i 
+#F2 contact probability live pigs at other distances (define based on landscape dist matrix)
+#F2i contact probability infected carcasses at other distances
 #B1 = transmission probability given contact for direct contact (a constant)
 #B2 = transmission probability given contact for indirect contact (a constant)
 if(length(pop[pop[,10]>0|pop[,12]>0,1])>0){#if there are any infectious agents (2=I; 4=C)

@@ -97,6 +97,10 @@ void operator()(std::size_t begin, std::size_t end) {
 //for( j = 0; j < np; ++j) {
 for(std::size_t j = begin; j < end; j++) {
 
+//get pointers for centroids matrix
+double* cent_x = acent3.colptr(0);
+double* cent_y = acent3.colptr(1);
+
 ///////Getting distances between sounder and each cell in grid//////
 
 //initialize integers for pig movement distance and abundance
@@ -119,7 +123,7 @@ for(std::size_t k = 0; k < acent.nrow(); k++) {
 //get distance between current sounder and each cell in centroids, using spatial distance function
 //get difference between assigned movement distance, and calculated distance between present location and each cell
 //shouldn't this be absolute value? otherwise can have negative and won't be picked up by diffk mask
-diffk_0=abs(sqrt(pow((acent3(k,0)-apop3(j,4)),2)+pow((acent3(k,1)-apop3(j,5)),2))-apop3(j,3));
+diffk_0=abs(sqrt(pow((cent_x[k]-apop3(j,4)),2)+pow((cent_y[k]-apop3(j,5)),2))-apop3(j,3));
 diff(k,0)=diffk_0; //assign distance to distance matrix
 //find diffk_0 closest to assigned movement distance, set mask to isolate those
 if(diffk_0>=0 & diffk_0<=0.4){

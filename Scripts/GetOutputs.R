@@ -4,7 +4,7 @@ GetOutputs<-function(pop,Incidence,Tculled,ICtrue,out,detectday){
 	#sum(Tculled)
 	#idT #last day there is an infectious individual
 	#Mspread #max spread of infection
-	#IConDD #number of I, C, and E on detection day TROUBLESHOOT
+	#IConDD #number of I, C, and E on detection day
 	#ICatEnd #number of I,C,E on last day 
 	#TincFromDD #sum of all exposures starting day after detection day
 	#TincToDD #sum of all exposures up until detection day
