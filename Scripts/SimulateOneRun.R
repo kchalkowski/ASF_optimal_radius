@@ -66,7 +66,7 @@ if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 
 
 #for(i in 1:(detectday-1)){ #for manual troubleshooting of loop, in place of 1:thyme
-for(i in detectday:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
+#for(i in detectday:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 
 print(i)
 #####################################
@@ -187,7 +187,7 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 	ICtrue[i]<-sum(colSums(pop)[c(9,10,12)])
 }
 
-} #for manual testing of loop
+#} #for manual testing of loop
 
 } else{print("Exiting loop, no infections")} #if any infected closing bracket/else
 	} #for timestep closing bracket
