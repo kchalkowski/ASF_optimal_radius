@@ -1,6 +1,6 @@
 # ASF optimal radius model 
 
-The purpose of this Readme is to describe the pipeline for our African Swine Fever simulation model. This is an adaptation of the ASF meta-population model in Pepin et al. 2022, converted from Matlab to R, with changes made to optimize model speed and allow flexible incorporation of environmental and management-relevant parameters.
+This is an adaptation of the ASF meta-population model in Pepin et al. 2022, converted from Matlab to R, with changes made to optimize model speed and allow flexible incorporation of environmental and management-relevant parameters.
 
 ### Table of Contents:    
 1. Scripts summaries
@@ -20,6 +20,32 @@ Sets parameters, runs ASFFunctionSourcer.R to source functions,  initializes sta
 **SimulateOneRun.R**    
 Runs the simulation. Outputs sum of all exposures, total number culled at each time step, last day there is an infectious individual, max spread of infection, number of I,C,E (infected, infected carcass, exposed) individuals on detection day, number of I,C,E on last day, sum of all exposures starting day after detection day, total number of detections, locations of infected at each time step, locations of carcasses at each time step, Isums, Csums.
 
+Objects: 
+Nall- matrix of nrow=number of time steps, tracks number of (live) pigs in population at each time step
+BB- matrix, nrow=number of time steps, tracks number of births at each time step
+POSlive- list, length=number of time steps, positive (live) cases observed and removed from landscape
+POSdead- list, length=number of time steps, positive carcasses observed and removed from landscape
+NEGlive- list, length=number of time steps, negative (live) cases observed and removed from landscape
+NEGdead- list, length=number of time steps, negative carcasses observed and removed from landscape
+POSlive_locs- list, length=number of time steps, locations of all positive detected cases
+POSdead_locs- list, length=number of time steps, locations of all positive detected carcasses
+idZONE- list, length=number of time steps, each item in list contains a matrix of _______
+Tculled- matrix, nrow=number of time steps, total number culled at each time step
+ZONEkm2- matrix, nrow=number of time steps, total area of control zone at each time step in km2
+Spread- matrix, nrow=number of time steps, ncol=3, col 1=number of infectious individuals, col 2=true area of infection (using convex hull around infected pigs), col 3=max distance between any two cases
+Incidence- matrix, nrow=number of time steps, new (true) cases at each time step
+I_locs- list, length=number of time steps, locations of all infected pigs
+C_locs- list, length=number of time steps, locations of all infected carcasses
+removalcells- list, length=number of time steps, cells where pig removals occurred during culling
+Isums- matrix, nrow=number of time steps, number of rows in population matrix with infected pigs at each time step
+Csums-matrix, nrow=number of time steps, number of rows in population matrix with infected carcasses at each time step
+out-matrix with 3 cols, nrow=number of time steps, col 1=number of infected pigs/carcasses, col 2=area of infection, col 3=max distance between infected pigs/carcasses
+ICtrue-vector containing total number of infections (I,C,E) at each time step
+IConDD-number of ICE on detect day
+ICatEnd-number of infection on last day
+idNEW-vector containing newly detected infected pigs/carcasses, begins on day after detectday, reflecting a 1 day lag between initiating surveillance (initiated on detectday) and new detections 
+idZONE-list with length=timestep, each item in list containing matrices with 3 cols, containing all grid cells in zone per row. col 1=grid cell, col2=each grid cell in zone paired with grid cell in col 1, col 3=distance between paired grid cells
+
 ### Functions    
 
 **InitializeSounders (InitializeSounders.R)**     
@@ -38,10 +64,13 @@ This function conducts all state changes including births, natural deaths, expos
 **FirstDetect (FirstDetect.R)**    
 This function is only run in SimulateOneRun if the timestep is equal to detectday. The function detects an infected pig or carcass at random, records the infection in either POSlive or POSdead for that time step, removes the detected live pig or carcass, and returns the updated population matrix and POSlive/POSdead vectors
 
+**CullingOneRun (CullingOneRun.R)**  
+Finds cells within set radius from cells where an infected pig/carcass was found in last time step, then combines with cells in zone from previous time steps. If there are pigs within the culling zone, remove some randomly based on set culling intensity. Output new population matrix, updated control zone cells (idZONE) and detection numbers and locations.
+
+**areaOfinfection (areaOfinfection.R)**
+Identifies where infected pigs/carcasses are, outputs convex hull area around infected pigs/carcasses, and max distance between them
+
 ### In progress
-1. more optimize on movement func
-2. more optimize on FOI
-3. add formal sanity checks to funcs
-4. add all current scripts to readme
-5. finish neatening/commenting scripts
+-add all current scripts to readme
+-finish neatening/commenting scripts
 
