@@ -61,12 +61,12 @@ Incidence[1]<-num_inf_0
 #start the timestep loop
 ##i=1
 ##detectday=i
-for(i in 1:thyme){
-if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
+#for(i in 1:thyme){
+#if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 
-
-#for(i in 1:(detectday-1)){ #for manual troubleshooting of loop, in place of 1:thyme
-#for(i in detectday:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
+#for(i in 1:(detectday)){ #for manual troubleshooting of loop, in place of 1:thyme
+for(i in (detectday+1):thyme){ #for manual troubleshooting of loop, in place of 1:thyme
+#for(i in 22:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 
 print(i)
 #####################################
@@ -121,6 +121,14 @@ POSdead_locs=fd.list[[5]]
 ######## Initiate Culling Zone ######## 
 #######################################
 
+if(i>1){
+print(paste0("POSlive ",i,": ",POSlive[[i-1]]))
+print(paste0("POSlive_locs ",i,": ",POSlive_locs[[i-1]]))
+print(paste0("POSdead ",i,": ",POSdead[[i-1]]))
+print(paste0("POSdead_locs ",i,": ",POSdead_locs[[i-1]]))
+}
+print(paste0("actual num. EIC ",i,": ",sum(colSums(pop)[c(9,10,12)])))
+
 #if it is at least day after detect day, and Rad>0
 if(i > detectday & Rad > 0){
 	
@@ -132,23 +140,26 @@ if(i > detectday & Rad > 0){
 	#remove NA/0 (may get NAs/zeroes if no live/dead detected)
 	idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
 
-	#keep only new grid cells that weren't already identified in previous time steps
-	idZONE_t <- idZONE[!is.na(idZONE)]
-	if(length(idZONE_t)==1){
-		idZONE_t=idZONE_t[[1]][,1]
-	} else{
-		idZONE_t=do.call(rbind,idZONE_t)[,1]	
-	}
+	#get all unique grid cells of idZONE
+	idZONE_amal=unique(do.call(rbind,idZONE))
+	idZONE_amal <- idZONE_amal[complete.cases(idZONE_amal),,drop=FALSE]
+
 	
 	#if there were detections in previous time steps, only get newly detected infected grid cells
 	#"infected grid cell"=grid cell where there was an infected pig or carcass
-	if(length(idZONE_t)>0){
-	uniqueidNEW<-which(!(idNEW %in% idZONE_t))
+	if(nrow(idZONE_amal)>0){
+	#remove any zero values
+	idZONE_amal=idZONE_amal[idZONE_amal[,1]>0,]
+	#determine which cell ids are new, not already in zone from prev. timesteps
+	uniqueidNEW<-which(!(idNEW %in% unique(idZONE_amal[,1])))
 	idNEW<-idNEW[uniqueidNEW]
 	} else{idNEW=idNEW}
+#idZONE_amal
 
 	#Culling process
-	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
+	#idZONE in S1R needs to contain all paired cells in zone from previous time zones
+	#input to cullingonerun can be rbinded/unique version of this
+	output.list<-CullingOneRun(pop,idNEW,idZONE_amal,Intensity,alphaC,centroids,Rad,inc,i,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
 
 	POSlive[[i]]<-output.list[[1]]
 	POSdead[[i]]<-output.list[[2]]
@@ -165,6 +176,7 @@ if(i > detectday & Rad > 0){
 	#Total number culled at each timestep
 	Tculled[i]=culled
 } #if greater than detectday closing bracket
+
 
 
 #############################
@@ -187,17 +199,17 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 	ICtrue[i]<-sum(colSums(pop)[c(9,10,12)])
 }
 
-#} #for manual testing of loop
+} #for manual testing of loop
 
-} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
-	} #for timestep closing bracket
+#} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
+#	} #for timestep closing bracket
 
 #############################
 #############################
 
 	
 	
-out.list<-GetOutputs(pop,Incidence,Tculled,ICtrue,out,detectday)
+out.list<-GetOutputs(pop,Incidence,Tculled,ICtrue,out,detectday,I_locs,Clocs,POSlive_locs,POSdead_locs,Isums,Csums)
 
 return(out.list)
 

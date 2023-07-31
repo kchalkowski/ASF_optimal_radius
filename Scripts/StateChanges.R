@@ -195,6 +195,9 @@ pop<-rbind(pop,deadguys)
 #Update abundance numbers (live individuals only count in abundance)
 pop[,1]=rowSums(pop[,8:11])
 
+#remove rows that don't have any pigs
+pop=pop[-which(rowSums(pop[,8:13])==0),]
+
 return(list(pop,Incidence,BB))
 
 }

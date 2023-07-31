@@ -1,4 +1,4 @@
-GetOutputs<-function(pop,Incidence,Tculled,ICtrue,out,detectday){
+GetOutputs<-function(pop,Incidence,Tculled,ICtrue,out,detectday,I_locs,Clocs,POSlive_locs,POSdead_locs,Isums,Csums){
 #List of outputs created here:	
 	#Tinc #sum of all exposures over simulation 
 	#sum(Tculled)
@@ -9,6 +9,12 @@ GetOutputs<-function(pop,Incidence,Tculled,ICtrue,out,detectday){
 	#TincFromDD #sum of all exposures starting day after detection day
 	#TincToDD #sum of all exposures up until detection day
 	#DET #total number of detections
+	#I_locs
+	#C_locs
+	#POSlive_locs
+	#POSdead_locs
+	#Isums
+	#Csums
 
 #Tinc, this just sums all of the exposures
 Tinc=sum(Incidence)
@@ -46,7 +52,13 @@ list.all=list("Tinc"==Tinc,
 							"ICatEnd"=ICatEnd,
 							"TincToDD"=TincToDD,
 							"TincFromDD"=TincFromDD,
-							"DET"=DET)
+							"DET"=DET,
+							"I_locs"=I_locs,
+							"C_locs"=C_locs,
+							"POSlive_locs"=POSlive_locs,
+							"POSdead_locs"=POSdead_locs,
+							"Isums"=Isums,
+							"Csums"=Csums)
 
 return(list.all)
 

@@ -169,5 +169,11 @@ pop<-InitializeSounders(N0,ss,cells,centroids,0,0,0)
 #####################
 
 num_inf_0=1 #how many pigs to infect starting off
+#37
+#sim_output<-SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)
+#SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop)
 
-                                                                                                                                                                                                                                                                                                                                       
+#Error in fullZONEpigs[incr, 4] : subscript out of bounds
+
+
+
