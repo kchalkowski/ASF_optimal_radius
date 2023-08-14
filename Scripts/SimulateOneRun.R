@@ -61,11 +61,11 @@ Incidence[1]<-num_inf_0
 #start the timestep loop
 ##i=1
 ##detectday=i
-#for(i in 1:thyme){
-#if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
+for(i in 1:thyme){
+if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 
-#for(i in 1:(detectday)){ #for manual troubleshooting of loop, in place of 1:thyme
-for(i in (detectday+1):thyme){ #for manual troubleshooting of loop, in place of 1:thyme
+#for(i in 1:(19)){ #for manual troubleshooting of loop, in place of 1:thyme
+#for(i in (detectday):thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in 22:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 
 print(i)
@@ -121,13 +121,13 @@ POSdead_locs=fd.list[[5]]
 ######## Initiate Culling Zone ######## 
 #######################################
 
-if(i>1){
-print(paste0("POSlive ",i,": ",POSlive[[i-1]]))
-print(paste0("POSlive_locs ",i,": ",POSlive_locs[[i-1]]))
-print(paste0("POSdead ",i,": ",POSdead[[i-1]]))
-print(paste0("POSdead_locs ",i,": ",POSdead_locs[[i-1]]))
-}
-print(paste0("actual num. EIC ",i,": ",sum(colSums(pop)[c(9,10,12)])))
+#if(i>1){
+#print(paste0("POSlive ",i,": ",POSlive[[i-1]]))
+#print(paste0("POSlive_locs ",i,": ",POSlive_locs[[i-1]]))
+#print(paste0("POSdead ",i,": ",POSdead[[i-1]]))
+#print(paste0("POSdead_locs ",i,": ",POSdead_locs[[i-1]]))
+#}
+#print(paste0("actual num. EIC ",i,": ",sum(colSums(pop)[c(9,10,12)])))
 
 #if it is at least day after detect day, and Rad>0
 if(i > detectday & Rad > 0){
@@ -143,7 +143,7 @@ if(i > detectday & Rad > 0){
 	#get all unique grid cells of idZONE
 	idZONE_amal=unique(do.call(rbind,idZONE))
 	idZONE_amal <- idZONE_amal[complete.cases(idZONE_amal),,drop=FALSE]
-
+	
 	
 	#if there were detections in previous time steps, only get newly detected infected grid cells
 	#"infected grid cell"=grid cell where there was an infected pig or carcass
@@ -159,7 +159,7 @@ if(i > detectday & Rad > 0){
 	#Culling process
 	#idZONE in S1R needs to contain all paired cells in zone from previous time zones
 	#input to cullingonerun can be rbinded/unique version of this
-	output.list<-CullingOneRun(pop,idNEW,idZONE_amal,Intensity,alphaC,centroids,Rad,inc,i,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
+	output.list<-CullingOneRun(pop,idNEW,idZONE_amal,Intensity,alphaC,centroids,Rad,inc,i,detectday,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
 
 	POSlive[[i]]<-output.list[[1]]
 	POSdead[[i]]<-output.list[[2]]
@@ -193,16 +193,18 @@ out[i,]<-areaOfinfection(pop,centroids,inc)
 
 #sum all infectious cases (I,C,E) at each timestep
 #ICtrue = sum(I + C,2); sum of all infectious cases over time
+if(i==1){ICtrue[i]=num_inf_0}
+
 if(i==detectday){
 ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that first detected
 } else{
 	ICtrue[i]<-sum(colSums(pop)[c(9,10,12)])
 }
 
-} #for manual testing of loop
+#} #for manual testing of loop
 
-#} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
-#	} #for timestep closing bracket
+} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
+	} #for timestep closing bracket
 
 #############################
 #############################

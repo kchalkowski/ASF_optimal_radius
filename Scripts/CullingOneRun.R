@@ -1,4 +1,4 @@
-CullingOneRun<-function(pop,idNEW,idZONE_i,Intensity,alphaC,centroids,Rad,inc,i,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
+CullingOneRun<-function(pop,idNEW,idZONE_i,Intensity,alphaC,centroids,Rad,inc,i,detectday,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
 
 ######################
 ###### Get Zone ######
@@ -50,8 +50,8 @@ if(length(idNEW)>0){
 #idZONE_i <- idZONE[!is.na(idZONE)]
 
 #fullZONE contains all grid cells with detected infections, from last time step and all before
-#if no idZONe from previous time step, will just be vector of nrow/ncol 1
-if(nrow(idZONE_i)==1&ncol(idZONE_i)==1){
+#if this is the first day of culling, only detections will be from detectday in prev. timestep
+if(i==(detectday+1)){
 #idZONE_i=do.call(rbind,idZONE_i)	
 fullZONE=idout
 } else{
@@ -63,7 +63,7 @@ fullZONE=idout
 #get all unique grid cells in the zone
 	#paired cells are cells within set distance of detected infections
 	#all cells within zone is ,2
-allINzone=unique(fullZONE[,2])
+allINzone=fullZONE[,2]
 
 #get total number of grid cells in the zone	
 Uall=length(allINzone)
@@ -139,11 +139,11 @@ cprob=1-(1/(1+alphaC)^Dr)
 	
 #get total number culled/removed/sampled in the zone
 numb=rbinom(pigsinzone,1,cprob*Intensity)
-print(paste0("pigsinzone:",pigsinzone))
+#print(paste0("pigsinzone:",pigsinzone))
 #get cumulative sum of targeted pigs
 #cpigs = cumsum(tpigs);
 cpigs=sum(numb)
-print(paste0("number to cull:",cpigs))
+#print(paste0("number to cull:",cpigs))
 #determine how far down the list to remove pigs from cells
 removals=0 #total number of removals, go through loop until first time it is equal to or greater than cpigs
 incr=0 #row number where culling stops
@@ -154,7 +154,7 @@ print("entering while loop")
 while(removals<cpigs){
 incr=incr+1
 #print(paste0("incr:",incr))
-removals<-removals+fullZONEpigs[incr,4]
+removals<-removals+fullZONEpigs[incr,3]
 #print(paste0("removals:",removals))
 	}
 
@@ -197,7 +197,7 @@ POSlive_locs_i<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,1]
 #print(paste("removalpigs locations",removalpigs[removalpigs[,5]>0|removalpigs[,6]>0,1]))
 } else {POSlive_locs_i<-0}
 
-print(paste("POSlive_locs[i] inside COR",POSlive_locs_i))
+#print(paste("POSlive_locs[i] inside COR",POSlive_locs_i))
 #POSdead_locs
 #list of length thyme, each timestep is vector of grid cell locations where dead infected pigs detected at that ts
 #removalpigs col 2 where column 9>0
@@ -207,7 +207,7 @@ POSdead_locs_i<-removalpigs[removalpigs[,9]>0,1]
 #POSdead_locs_i=vector(mode="integer",length=lld)
 #POSdead_locs_i<-removalpigs[removalpigs[,9]>0,2]
 } else {POSdead_locs_i<-0}
-print(paste("POSdead_locs[i] inside COR",POSdead_locs_i))
+#print(paste("POSdead_locs[i] inside COR",POSdead_locs_i))
 
 #% Nlive(ids) = sum(X([1 2 4],ids),1); % count of S,R removed
 #vector of nrow timestop, count of total SR removed

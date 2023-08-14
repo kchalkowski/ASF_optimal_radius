@@ -24,7 +24,6 @@ sumTculled=sum(Tculled)
 
 #Find last day there was an infectious individual
 idT=which(ICtrue!=0)[length(which(ICtrue!=0))]
-
 #Find max spread of infection
 Mspread<-max(out[,2])
 
