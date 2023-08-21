@@ -64,9 +64,10 @@ Incidence[1]<-num_inf_0
 for(i in 1:thyme){
 if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 
-#for(i in 1:detectday){ #for manual troubleshooting of loop, in place of 1:thyme
+#for(i in 1:21){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in (detectday):thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in 22:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
+#for(i in 22:24){
 
 print(i)
 #####################################
@@ -141,14 +142,15 @@ POSdead_locs=fd.list[[5]]
 
 #if it is at least day after detect day, and Rad>0
 if(i > detectday & Rad > 0){
-	
+	print("Entering Culling if")
 	#new detections from last step, bc day lag 
 	#(either from initial detection or last culling period)
 	#get locations in grid for detections
-	idNEW=c(POSlive_locs[[i-1]],POSdead_locs[[i-1]])
+	idNEW=c(unique(POSlive_locs[[i-1]]),unique(POSdead_locs[[i-1]])) #checked
 	
 	#remove NA/0 (may get NAs/zeroes if no live/dead detected)
-	idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
+	idNEW<-idNEW[idNEW>0&!is.na(idNEW)] 
+	print(paste0("idNEW: ", idNEW))
 
 	#get all unique grid cells of idZONE
 	#idZONE_amal=unique(do.call(rbind,idZONE)) #original
@@ -165,7 +167,7 @@ if(i > detectday & Rad > 0){
 	idZONE=idZONE[idZONE[,1]>0,]
 
 	#determine which cell ids are new, not already in zone from prev. timesteps
-	uniqueidNEW<-which(!(idNEW %in% unique(idZONE_amal[,1])))
+	uniqueidNEW<-which(!(idNEW %in% unique(idZONE[,1])))
 	idNEW<-idNEW[uniqueidNEW]
 	} else{idNEW=idNEW}
 #idZONE_amal
