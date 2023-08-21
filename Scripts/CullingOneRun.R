@@ -192,7 +192,7 @@ if(POSlive_i>0){
 #getting duplicates in print statements...
 #lll<-length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,1])
 #POSlive_locs_i=vector(mode="integer",length=lll)
-POSlive_locs_i<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,1]
+POSlive_locs_i<-rep(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,1],sum(removalpigs[,3],removalpigs[,7]))
 #print(paste("number of removalpigs rows", length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])))
 #print(paste("removalpigs locations",removalpigs[removalpigs[,5]>0|removalpigs[,6]>0,1]))
 } else {POSlive_locs_i<-0}
@@ -202,7 +202,7 @@ POSlive_locs_i<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,1]
 #list of length thyme, each timestep is vector of grid cell locations where dead infected pigs detected at that ts
 #removalpigs col 2 where column 9>0
 if(POSdead_i>0){
-POSdead_locs_i<-removalpigs[removalpigs[,9]>0,1]
+POSdead_locs_i<-rep(removalpigs[removalpigs[,9]>0,1],removalpigs[removalpigs[,9]>0,9])
 #lld<-length(removalpigs[removalpigs[,9]>0,2])
 #POSdead_locs_i=vector(mode="integer",length=lld)
 #POSdead_locs_i<-removalpigs[removalpigs[,9]>0,2]

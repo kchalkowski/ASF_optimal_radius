@@ -81,9 +81,19 @@ if(nrow(pop[pop[,12]>0,,drop=FALSE])>0){
 Csums[i]<-nrow(pop[pop[,12]>0,,drop=FALSE])
 } else{Csums[i]=0}
 
+
+if(any(pop[,10]>0)){		
+I_locs[[i]]<-rep(pop[pop[,10]>0,3],pop[pop[,10]>0,10])
+} else{
 I_locs[[i]]<-pop[pop[,10]>0,3]
+}
+
+if(any(pop[,12]>0)){		
+C_locs[[i]]<-rep(pop[pop[,12]>0,3],pop[pop[,12]>0,12])
+} else{
 C_locs[[i]]<-pop[pop[,12]>0,3]
-	
+}
+
 ##########################
 ######## Movement ######## 
 ##########################
@@ -194,7 +204,8 @@ out[i,]<-areaOfinfection(pop,centroids,inc)
 #sum all infectious cases (I,C,E) at each timestep
 #ICtrue = sum(I + C,2); sum of all infectious cases over time
 if(i==1){ICtrue[i]=num_inf_0}
-
+print(ICtrue)
+print(length(which(ICtrue!=0)))
 if(i==detectday){
 ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that first detected
 } else{
