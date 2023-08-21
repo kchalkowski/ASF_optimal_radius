@@ -61,10 +61,10 @@ Incidence[1]<-num_inf_0
 #start the timestep loop
 ##i=1
 ##detectday=i
-#for(i in 1:thyme){
-#if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
+for(i in 1:thyme){
+if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 
-for(i in 1:detectday){ #for manual troubleshooting of loop, in place of 1:thyme
+#for(i in 1:detectday){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in (detectday):thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in 22:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 
@@ -217,11 +217,11 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 	ICtrue[i]<-sum(colSums(pop)[c(9,10,12)])
 }
 
-} #for manual testing of loop
+#} #for manual testing of loop
 
 #comment brackets below for manual testing
-#} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
-#	} #for timestep closing bracket
+} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
+	} #for timestep closing bracket
 
 #############################
 #############################
