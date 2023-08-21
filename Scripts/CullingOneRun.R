@@ -98,8 +98,10 @@ if(pigsinzone>0){
 #get number of pigs for each grid cell in zone
 #and get their status, SEIRCZ
 #initiate empty matrix, nrow for each grid cell, 7 for each of SEIRCZ
+#profvis({
 SEIRCZpigs<-matrix(0,nrow=nrow(fullZONE),ncol=7)
-fullZONEpigs<-as.data.frame(cbind(fullZONE,SEIRCZpigs))
+#fullZONEpigs<-as.data.frame(cbind(fullZONE,SEIRCZpigs)) #original
+fullZONEpigs<-cbind(fullZONE,SEIRCZpigs) #optimizing
 popINzone<-pop[soundINzone,,drop=FALSE]
 for(u in 1:nrow(fullZONEpigs)){
 pop_u<-which(popINzone[,3]==fullZONEpigs[u,2])
@@ -116,6 +118,8 @@ fullZONEpigs[u,10]<-sum(popINzone[pop_u,13]) #total number uninfected carcasses
 	}
 	}
 
+#})
+
 #remove rows from fullZONEpigs without any pigs
 if(any(rowSums(fullZONEpigs[,4:10])==0)){
 fullZONEpigs=fullZONEpigs[-(which(rowSums(fullZONEpigs[,4:10])==0)),,drop=FALSE]	
@@ -126,10 +130,11 @@ fullZONEpigs=fullZONEpigs[,-1]
 
 #duplicate rows, want row with minimum distance value-- use to sort closest to detected infection
 fullZONEpigs<-arrange(as.data.frame(fullZONEpigs),fullZONEpigs[,1])
-fullZONEpigs<-as.data.frame(fullZONEpigs %>% dplyr::group_by(V2) %>% summarise(dists=min(V3),V3=min(V4),V4=min(V5),V5=min(V6),V6=min(V7),V7=min(V8),V8=min(V9),V9=min(V10)))
+#fullZONEpigs<-as.data.frame(fullZONEpigs %>% dplyr::group_by(V2) %>% summarise(dists=min(V3),V3=min(V4),V4=min(V5),V5=min(V6),V6=min(V7),V7=min(V8),V8=min(V9),V9=min(V10)))
+fullZONEpigs<-as.matrix(fullZONEpigs %>% dplyr::group_by(V1) %>% slice(which.min(V2))) #takes cell and corresponding pig numbers with the minimum distance
 
 #Cullstyle start in, start with closest pigs from detections
-fullZONEpigs<-as.matrix(arrange(as.data.frame(fullZONEpigs),fullZONEpigs[,2]))
+fullZONEpigs<-as.matrix(arrange(as.data.frame(fullZONEpigs),fullZONEpigs[,2])) 
 
 #%density of all live and dead pigs in the zone
 Dr=pigsinzone/ZONEkm2
@@ -248,7 +253,7 @@ output.list[[3]]<-0
 output.list[[4]]<-0
 output.list[[5]]<-0
 output.list[[6]]<-0
-output.list[[7]]<-0
+output.list[[7]]<-idZONE_i
 output.list[[8]]<-0
 output.list[[9]]<-0
 output.list[[10]]<-0

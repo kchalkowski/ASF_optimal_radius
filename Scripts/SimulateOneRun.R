@@ -17,8 +17,8 @@ NEGdead=as.list(rep(0,thyme)) #Negative tests of carcasses that are removed from
 POSlive_locs<-as.list(rep(0,thyme))
 POSdead_locs<-as.list(rep(0,thyme))
 
-#idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-idZONE<-as.list(rep(NA,thyme))
+idZONE=matrix(nrow=1,ncol=3) #optimzing #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
+#idZONE<-as.list(rep(NA,thyme)) #original
 Tculled=matrix(0,nrow=thyme) #total number culled at each time step
 ZONEkm2=matrix(0,nrow=thyme) 
 Carea=matrix(0,nrow=thyme) #area of culling zone at each time step
@@ -61,10 +61,10 @@ Incidence[1]<-num_inf_0
 #start the timestep loop
 ##i=1
 ##detectday=i
-for(i in 1:thyme){
-if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
+#for(i in 1:thyme){
+#if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 
-#for(i in 1:(19)){ #for manual troubleshooting of loop, in place of 1:thyme
+for(i in 1:detectday){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in (detectday):thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in 22:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 
@@ -151,15 +151,19 @@ if(i > detectday & Rad > 0){
 	idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
 
 	#get all unique grid cells of idZONE
-	idZONE_amal=unique(do.call(rbind,idZONE))
-	idZONE_amal <- idZONE_amal[complete.cases(idZONE_amal),,drop=FALSE]
+	#idZONE_amal=unique(do.call(rbind,idZONE)) #original
+	
+	#idZONE_amal <- idZONE_amal[complete.cases(idZONE_amal),,drop=FALSE] #original
 	
 	
 	#if there were detections in previous time steps, only get newly detected infected grid cells
 	#"infected grid cell"=grid cell where there was an infected pig or carcass
-	if(nrow(idZONE_amal)>0){
+	#if(nrow(idZONE_amal)>0){ #original
+		if(!all(is.na(idZONE))){
 	#remove any zero values
-	idZONE_amal=idZONE_amal[idZONE_amal[,1]>0,]
+	#idZONE_amal=idZONE_amal[idZONE_amal[,1]>0,] #original
+	idZONE=idZONE[idZONE[,1]>0,]
+
 	#determine which cell ids are new, not already in zone from prev. timesteps
 	uniqueidNEW<-which(!(idNEW %in% unique(idZONE_amal[,1])))
 	idNEW<-idNEW[uniqueidNEW]
@@ -169,7 +173,7 @@ if(i > detectday & Rad > 0){
 	#Culling process
 	#idZONE in S1R needs to contain all paired cells in zone from previous time zones
 	#input to cullingonerun can be rbinded/unique version of this
-	output.list<-CullingOneRun(pop,idNEW,idZONE_amal,Intensity,alphaC,centroids,Rad,inc,i,detectday,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
+	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detectday,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
 
 	POSlive[[i]]<-output.list[[1]]
 	POSdead[[i]]<-output.list[[2]]
@@ -177,7 +181,8 @@ if(i > detectday & Rad > 0){
 	POSdead_locs[[i]]<-output.list[[4]]
 	NEGlive[[i]]<-output.list[[5]]
 	NEGdead[[i]]<-output.list[[6]]
-	idZONE[[i]]<-output.list[[7]]
+	#idZONE[[i]]<-output.list[[7]] #original
+	idZONE<-output.list[[7]]
 	removalcells[[i]]<-output.list[[8]]
 	culled<-output.list[[9]]
 	ZONEkm2[i,]<-output.list[[10]]
@@ -204,18 +209,19 @@ out[i,]<-areaOfinfection(pop,centroids,inc)
 #sum all infectious cases (I,C,E) at each timestep
 #ICtrue = sum(I + C,2); sum of all infectious cases over time
 if(i==1){ICtrue[i]=num_inf_0}
-print(ICtrue)
-print(length(which(ICtrue!=0)))
+#print(ICtrue)
+#print(length(which(ICtrue!=0)))
 if(i==detectday){
 ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that first detected
 } else{
 	ICtrue[i]<-sum(colSums(pop)[c(9,10,12)])
 }
 
-#} #for manual testing of loop
+} #for manual testing of loop
 
-} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
-	} #for timestep closing bracket
+#comment brackets below for manual testing
+#} else{print("Exiting loop, no infections")} #if any infected closing bracket/else
+#	} #for timestep closing bracket
 
 #############################
 #############################
