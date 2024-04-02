@@ -17,7 +17,9 @@ Tinc=sum(Incidence)
 sumTculled=sum(Tculled)
 
 #Find last day there was an infectious individual
+if(any(ICtrue!=0)){
 idT=which(ICtrue!=0)[length(which(ICtrue!=0))]
+} else{idT=1}
 
 #Find max spread of infection
 Mspread<-max(out[,2])
@@ -38,7 +40,7 @@ TincFromDD<-sum(Incidence[detectday:idT])
 DET=sum(unlist(POSlive),unlist(POSdead))
 
 #send to list
-list.all=list("Tinc"==Tinc,
+list.all=list("Tinc"=Tinc,
 							"sumTculled"=sumTculled,
 							"idT"=idT,
 							"Mspread"=Mspread,
