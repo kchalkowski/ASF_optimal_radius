@@ -38,14 +38,14 @@ Zcd[,1]=0
 ########### Determine Births ########### 
 ########################################
 
-#subset sounder sets with live individuals
-idN=pop[pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0,]
+#subset sounder sets with live, uninfected individuals
+idN=pop[pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,11,drop=FALSE]>0,]
 
-#Number of live individuals
-liveind<-sum(colSums(pop)[8:11])
+#Number of live, uninfected individuals
+liveind<-sum(colSums(pop)[c(8,9,11)])
 
 #get row indices of live individuals
-liverows<-which(pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,11,drop=FALSE]>0) #rownums with live indiv
+liverows<-which(pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,11,drop=FALSE]>0) #rownums with live indiv
 
 #density-dependent birth rate
 Brate=Pbd*liveind*(1-liveind/K)
@@ -92,8 +92,8 @@ Sdpb[id2[j],1]<-id[j]
 #Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2) #force of infection #R version
 Pse<-FOIParallelFull(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B) #cpp parallel version, 22x faster than R version
 
-Pei=1-exp(-1/rpois(nrow(pop),4)/7) #transitions exposure to infected
-Pic=1-exp(-1/rpois(nrow(pop),5)/7) #transitions infected to either dead or recovered
+Pei=1-exp(-1/(rpois(cells,4)/7)) #transitions exposure to infected
+Pic=1-exp(-1/(rpois(cells,5)/7)) #transitions infected to either dead or recovered
 
 
 ###############################################
@@ -117,14 +117,14 @@ Eep[k]<-sum(rbinom(pop[k,8],1,Pse[pop[k,3]])) #Exposure (S -> E) infection based
 #operations on Exposed individuals
 if(pop[k,9]>0){
 Edpd[k]<-sum(rbinom(pop[k,9],1,death))
-Iep[k]<-sum(rbinom(pop[k,9],1,Pei))
+Iep[k]<-sum(rbinom(pop[k,9],1,Pei[k]))
 }
 
 #operations on Infected individuals	
 if(pop[k,10]>0){
-Idpd[k]<-sum(rbinom(pop[k,10],1,death))
-Rep[k]<-sum(rbinom(pop[k,10],1,Pir*Pic))
-Cep[k]<-sum(rbinom(pop[k,10],1,(1-Pir)*(Pic))) 
+#Idpd[k]<-sum(rbinom(pop[k,10],1,death)) #idpd not in matlab model! maybe reason for lower fadeout rate
+Rep[k]<-sum(rbinom(pop[k,10],1,Pir*Pic[k]))
+Cep[k]<-sum(rbinom(pop[k,10],1,(1-Pir)*(Pic[k]))) 
 }	
 
 #operations on Recovered individuals
@@ -155,9 +155,9 @@ Incidence[i]<-Incidence[i]+sum(Eep)
 ###################################
 pop[,8]=pop[,8]-Eep+Sdpb-Sdpd #S
 pop[,9]=pop[,9]-Iep+Eep-Edpd #E
-pop[,10]=pop[,10]-Rep-Cep+Iep-Idpd#I
+pop[,10]=pop[,10]-Rep-Cep+Iep#-Idpd#I
 pop[,11]=pop[,11]+Rep-Rdpd #R
-pop[,12]=pop[,12]+Idpd+Cep-Ccd #C
+pop[,12]=pop[,12]+Cep-Ccd#+Idpd #C
 pop[,13]=pop[,13]+Sdpd+Rdpd+Edpd-Zcd #Z
 
 #sometimes end up with negative numbers 
@@ -175,7 +175,7 @@ pop[which(pop[,13]<0),13]<-0
 deadguys<-pop[pop[,12]>0|pop[,13]>0,,drop=FALSE]
 
 #if there are deadguys....
-if(length(deadguys)!=0){
+if(nrow(deadguys)!=0){
 #remove abundance and all live guy counts from deadguy set
 deadguys[,1]=0
 deadguys[,8]=0
