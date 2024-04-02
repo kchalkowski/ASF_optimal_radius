@@ -1,0 +1,7 @@
+### ASF meta-population model   
+
+Based on ASF simulation model from Pepin et al. 2022, Optimizing response to an introduction of African Swine Fever in wild pigs, converted from Matlab to R/C++.    
+
+All scripts/objects to run model should be here, with exception of two datasets used to model direct/indirect contact.
+
+Email kim.m.pepin@usda.gov to request these datasets to run model. Else, just comment out references to ModelStateData.R and input parameters separately.    
