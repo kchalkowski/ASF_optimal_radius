@@ -12,7 +12,7 @@ InitializeSounders<-function(N0,ss,cells,centroids,type,init_locs,n){
 if(type==0){
 sn_i<-N0/ss #Get the initializing number of sounders
 assigns<-rbinom(cells,1,sn_i/cells) #randomly assign sounders to cells
-sn<-sum(assigns) #generated pop size from random assignment of sounders to cells
+sn<-sum(assigns) #generated number of rows (sounders), size from random assignment of sounders to cells
 init_locs<-which(assigns==1) #get the locations where sounders have been initialized
 
 #Initialize the sounder population matrix

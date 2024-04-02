@@ -1,5 +1,6 @@
 CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
 
+  #profvis({
 ######################
 ###### Get Zone ######
 ######################
@@ -47,19 +48,19 @@ if(length(idNEW)>0){
 	} 
 
 #remove NAs
-idZONE_i <- idZONE[!is.na(idZONE)]
+#idZONE_i <- idZONE[!is.na(idZONE)]
 
 #fullZONE contains all grid cells with detected infections, from last time step and all before	
-if(length(idZONE_i)>1){
-idZONE_i=do.call(rbind,idZONE_i)	
-fullZONE=rbind(idZONE_i,idout)
-} else{
-		if(length(idZONE_i)==1){
-			fullZONE=rbind(idZONE_i[[1]],idout)	
-			} else{
-				fullZONE=idout
-	}
-	}
+#if(nrow(idZONE)>1){
+#idZONE_i=do.call(rbind,idZONE_i)	
+fullZONE=rbind(idZONE,idout)
+#} else{
+#		if(length(idZONE_i)==1){
+#			fullZONE=rbind(idZONE_i[[1]],idout)	
+#			} else{
+#				fullZONE=idout #this happens for first detection
+#	}
+#	}
 
 #get all unique grid cells in the zone		
 allINzone=unique(fullZONE[,2])
@@ -71,6 +72,7 @@ Uall=length(allINzone)
 ZONEkm2=Uall*inc^2
 	
 #get which rows in the zone	
+#total number of sounders=soundINzone
 soundINzone<-which(pop[,3]%in%allINzone) 
 
 #get total number of pigs in zone
@@ -102,6 +104,7 @@ if(pigsinzone>0){
 #get number of pigs for each grid cell in zone
 #and get their status, SEIRCZ
 #initiate empty matrix, nrow for each grid cell, 7 for each of SEIRCZ
+#tic()
 SEIRCZpigs<-matrix(0,nrow=nrow(fullZONE),ncol=7)
 fullZONEpigs<-cbind(fullZONE,SEIRCZpigs)
 popINzone<-pop[soundINzone,]
@@ -114,10 +117,32 @@ fullZONEpigs[u_row,7]<-popINzone[u,10] #total number infected pigs
 fullZONEpigs[u_row,8]<-popINzone[u,11] #total number recovered pigs
 fullZONEpigs[u_row,9]<-popINzone[u,12] #total number infected carcasses
 fullZONEpigs[u_row,10]<-popINzone[u,13] #total number uninfected carcasses
-	}
+}
+#toc()
+
+#####speed test, alt
+#tic()
+#SEIRCZpigs<-matrix(0,nrow=nrow(fullZONE),ncol=7)
+#fullZONEpigs<-cbind(fullZONE,SEIRCZpigs)
+#popINzone<-pop[soundINzone,]
+#  r_row<-which(fullZONEpigs[,2]%in%popINzone[u,3])
+#  fullZONEpigs2=fullZONEpigs[r_row,]
+#  for(u in 1:nrow(popINzone)){
+#  u_row<-which(fullZONEpigs2[,2]==popINzone[u,3])
+#  fullZONEpigs2[u_row,4]<-popINzone[u,1] #total number of pigs
+#  fullZONEpigs2[u_row,5]<-popINzone[u,8] #total number susceptible pigs
+#  fullZONEpigs2[u_row,6]<-popINzone[u,9] #total number exposted pigs
+#  fullZONEpigs2[u_row,7]<-popINzone[u,10] #total number infected pigs
+#  fullZONEpigs2[u_row,8]<-popINzone[u,11] #total number recovered pigs
+#  fullZONEpigs2[u_row,9]<-popINzone[u,12] #total number infected carcasses
+#  fullZONEpigs2[u_row,10]<-popINzone[u,13] #total number uninfected carcasses
+#  }
+#  toc()
+
+#####
 
 #remove rows from fullZONEpigs without pigs
-fullZONEpigs<-fullZONEpigs[fullZONEpigs[,4]>0,,drop=FALSE]
+fullZONEpigs<-fullZONEpigs[fullZONEpigs[,1]>0,,drop=FALSE]
 
 #Cullstyle start in, start with closest pigs from detections
 fullZONEpigs<-as.matrix(arrange(as.data.frame(fullZONEpigs),fullZONEpigs[,3]))
@@ -140,6 +165,15 @@ removals=0 #total number of removals, go through loop until first time it is equ
 incr=0 #row number where culling stops
 while(removals<cpigs){
 incr=incr+1
+#if(i==62){
+ # print(fullZONEpigs)
+  #print(removals)
+  #print(cpigs)
+  #print(numb)
+  #print(pigsinzone)
+  #print(soundINzone)
+  #print(pop)
+  #}
 removals<-removals+fullZONEpigs[incr,4]
 	}
 
@@ -173,22 +207,27 @@ POSdead_i<-sum(removalpigs[,9])
 #removalpigs col 2 where column 6 or 7 >0 (need check that should be E Ior just I)
 if(POSlive_i>0){
 lll<-length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])
-POSlive_locs_i=vector(mode="integer",length=lll)
-POSlive_locs[[i]]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
-print(paste("number of removalpigs rows", length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])))
-print(paste("POSlive_locs[i]",POSlive_locs[i]))
-print(paste("removalpigs locations",removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]))
+#POSlive_locs_i=vector(mode="integer",length=lll)
+#POSlive_locs[[i]]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
+POSlive_locs_i<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
+
+#POSlive_locs_detect
+
+#print(paste("number of removalpigs rows", length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])))
+#print(paste("POSlive_locs[i]",POSlive_locs[i]))
+#print(paste("POSlive_locs[i]",POSlive_locs_i))
+#print(paste("removalpigs locations",removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]))
 } else {POSlive_locs_i<-0}
 
 #POSdead_locs
 #list of length thyme, each timestep is vector of grid cell locations where dead infected pigs detected at that ts
 #removalpigs col 2 where column 9>0
 if(POSdead_i>0){
-POSdead_locs[[i]]<-removalpigs[removalpigs[,9]>0,2]
-
-lld<-length(removalpigs[removalpigs[,9]>0,2])
-POSdead_locs_i=vector(mode="integer",length=lld)
-POSdead_locs_i[[i]]<-removalpigs[removalpigs[,9]>0,2]
+#POSdead_locs[[i]]<-removalpigs[removalpigs[,9]>0,2]
+POSdead_locs_i<-removalpigs[removalpigs[,9]>0,2]
+#lld<-length(removalpigs[removalpigs[,9]>0,2])
+#POSdead_locs_i=vector(mode="integer",length=lld)
+#POSdead_locs_i[[i]]<-removalpigs[removalpigs[,9]>0,2]
 } else {POSdead_locs_i<-0}
 
 #% Nlive(ids) = sum(X([1 2 4],ids),1); % count of S,E,R removed
@@ -203,7 +242,7 @@ NEGdead_i<-sum(removalpigs[,10])
 
 #idZONE:
 #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-idZONE_i=fullZONE 
+idZONE=fullZONE 
 
 #remove removed sounders from pop
 removalrows<-which(pop[,3] %in% removalcells)
@@ -217,7 +256,7 @@ output.list[[3]]<-POSlive_locs_i
 output.list[[4]]<-POSdead_locs_i
 output.list[[5]]<-NEGlive_i
 output.list[[6]]<-NEGdead_i
-output.list[[7]]<-idZONE_i
+output.list[[7]]<-idZONE
 output.list[[8]]<-removalcells
 output.list[[9]]<-culled
 output.list[[10]]<-ZONEkm2
@@ -230,14 +269,15 @@ output.list[[3]]<-0
 output.list[[4]]<-0
 output.list[[5]]<-0
 output.list[[6]]<-0
-output.list[[7]]<-0
+output.list[[7]]<-idZONE
 output.list[[8]]<-0
 output.list[[9]]<-0
 output.list[[10]]<-0
 output.list[[11]]<-pop	
 	
 	}
-
+#}) #profvis closer
+  
 return(output.list)
 
 } #function closing bracket
