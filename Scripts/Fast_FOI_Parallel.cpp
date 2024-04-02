@@ -182,10 +182,15 @@ for(std::size_t i=0; i < Imat3.n_rows; ++i) {
 pdI_1_3(i,j)=sqrt(pow((cent3(j,0)-Imat3(i,4)),2)+pow((cent3(j,1)-Imat3(i,5)),2));
 
 //using distance to get probability of contact for cell j
-B_I_3(j,i)=(exp(F2_int+F2_B*pdI_1_3(i,j)))*B1;
+//B_I_3(j,i)=(exp(F2_int+F2_B*pdI_1_3(i,j)))*B1;
+B_I_3(j,i)=(1/(1+exp(-1*(F2_int+F2_B*pdI_1_3(i,j)))))*B1;
+//1/(1+exp(-(F2_int+F2_B*0.4)))
+
 
 if(pdI_1_3(i,j)==0){
-W_I_3(j,i)=F1;} else{
+W_I_3(j,i)=F1;
+B_I_3(j,i)=0;
+  } else{
 W_I_3(j,i)=0;
 }
 
@@ -203,9 +208,14 @@ B_tot(j,0)=sum(B_I_3.row(j))+sum(W_I_3.row(j));
 if(Cmat3.n_rows > 0){
 for(std::size_t i=0; i < Cmat3.n_rows; ++i) {
 pdC_1_3(i,j)=sqrt(pow((cent3(j,0)-Cmat3(i,4)),2)+pow((cent3(j,1)-Cmat3(i,5)),2));
-B_C_3(j,i)=(exp(F2i_int+F2i_B*pdC_1_3(i,j)))*B2;
+//B_C_3(j,i)=(exp(F2i_int+F2i_B*pdC_1_3(i,j)))*B2;
+B_C_3(j,i)=(1/(1+exp(-1*(F2i_int+F2i_B*pdC_1_3(i,j)))))*B2;
+//B_I_3(j,i)=(1/(1+exp(-1*(F2_int+F2_B*pdI_1_3(i,j)))))*B1;
+
 if(pdC_1_3(i,j)==0){
-W_C_3(j,i)=F1;} else{
+W_C_3(j,i)=F1;
+B_C_3(j,i)=0;  
+  } else{
 W_C_3(j,i)=0;
 }
 }
