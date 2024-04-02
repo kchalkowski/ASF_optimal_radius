@@ -17,8 +17,8 @@ NEGdead=as.list(rep(0,thyme)) #Negative tests of carcasses that are removed from
 POSlive_locs<-as.list(rep(0,thyme))
 POSdead_locs<-as.list(rep(0,thyme))
 
-#idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-idZONE<-as.list(rep(NA,thyme))
+idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
+#idZONE<-as.list(rep(NA,thyme)) #comment out of list mar 28
 Tculled=matrix(0,nrow=thyme) #total number culled at each time step
 ZONEkm2=matrix(0,nrow=thyme) 
 Carea=matrix(0,nrow=thyme) #area of culling zone at each time step
@@ -37,7 +37,7 @@ ICtrue=matrix(0,nrow=thyme,ncol=1)
 ######################################
 ######## Initialize Infection ######## 
 ######################################
-
+#print("Initializing Infection")
 #num_inf_0=1 #how many pigs to infect starting off
 
 #find the midpoint of the grid
@@ -57,18 +57,19 @@ Incidence[1]<-num_inf_0
 ##################################
 ######## Start simulation ######## 
 ##################################
+print("Starting timestep loop")
 
 #start the timestep loop
 ##i=1
 ##detectday=i
 for(i in 1:thyme){
-if (any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
+if(any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 
 
 #for(i in 1:(detectday-1)){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in detectday:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 
-print(i)
+#print(i)
 #####################################
 ######## Track I/C locations ######## 
 #####################################
@@ -87,13 +88,16 @@ C_locs[[i]]<-pop[pop[,12]>0,3]
 ##########################
 ######## Movement ######## 
 ##########################
-	
+#print("Moving pigs")
+
 pop<-FastMovement(pop,centroids,shift,inc)
 
 ###############################
 ######## State Changes ######## 
 ###############################
 #births, natural deaths, disease state changes (exposure, infection, recovery, death), carcass decay
+#print("Calculating state changes")
+
 st.list<-StateChanges(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i)
 pop<-st.list[[1]]
 Incidence<-st.list[[2]]
@@ -106,8 +110,10 @@ BB<-st.list[[3]]
 ######## Initiate Response ######## 
 ###################################
 
+
 #if it's detect day, and there are infected pigs to detect, and Rad>0
 if(i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
+  #print("First detection")
 fd.list<-FirstDetect(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs)
 pop=fd.list[[1]]
 POSlive=fd.list[[2]]
@@ -123,7 +129,8 @@ POSdead_locs=fd.list[[5]]
 
 #if it is at least day after detect day, and Rad>0
 if(i > detectday & Rad > 0){
-	
+  #print("Initiating Culling")
+  
 	#new detections from last step, bc day lag 
 	#(either from initial detection or last culling period)
 	#get locations in grid for detections
@@ -133,16 +140,18 @@ if(i > detectday & Rad > 0){
 	idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
 
 	#keep only new grid cells that weren't already identified in previous time steps
-	idZONE_t <- idZONE[!is.na(idZONE)]
-	if(length(idZONE_t)==1){
-		idZONE_t=idZONE_t[[1]][,1]
-	} else{
-		idZONE_t=do.call(rbind,idZONE_t)[,1]	
-	}
+	#idZONE_t <- idZONE[!is.na(idZONE)]
+	#if(length(idZONE_t)==1){
+	#	idZONE_t=idZONE_t[[1]][,1]
+	#} else{
+	#	idZONE_t=do.call(rbind,idZONE_t)[,1]	
+	#}
 	
+	idZONE_t=idZONE
+
 	#if there were detections in previous time steps, only get newly detected infected grid cells
 	#"infected grid cell"=grid cell where there was an infected pig or carcass
-	if(length(idZONE_t)>0){
+	if(length(idZONE_t[,1])>0){
 	uniqueidNEW<-which(!(idNEW %in% idZONE_t))
 	idNEW<-idNEW[uniqueidNEW]
 	} else{idNEW=idNEW}
@@ -156,7 +165,7 @@ if(i > detectday & Rad > 0){
 	POSdead_locs[[i]]<-output.list[[4]]
 	NEGlive[[i]]<-output.list[[5]]
 	NEGdead[[i]]<-output.list[[6]]
-	idZONE[[i]]<-output.list[[7]]
+	idZONE<-output.list[[7]]
 	removalcells[[i]]<-output.list[[8]]
 	culled<-output.list[[9]]
 	ZONEkm2[i,]<-output.list[[10]]
@@ -172,7 +181,8 @@ if(i > detectday & Rad > 0){
 #############################
 #if any infected individuals
 if(nrow(pop[pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,12,drop=FALSE]>0,,drop=FALSE])>0){
-out[i,]<-areaOfinfection(pop,centroids,inc)
+  #print("Tracking true spatial spread")
+  out[i,]<-areaOfinfection(pop,centroids,inc)
 } else{out[i,]=c(0,0,0)}
 
 #############################
@@ -189,6 +199,12 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 
 #} #for manual testing of loop
 
+####Update population matrix
+#Remove rows in pop with 0 pigs
+pigcols=c(1,8:13)
+pop=pop[which(rowSums(pop[,pigcols])!=0),]
+
+
 } else{print("Exiting loop, no infections")} #if any infected closing bracket/else
 	} #for timestep closing bracket
 
@@ -199,9 +215,8 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 	
 out.list<-GetOutputs(pop,Incidence,Tculled,ICtrue,out,detectday)
 
-return(out.list)
+#return(out.list)
+
+return(Incidence)
 
 	} #function closing bracket
-
-
-
