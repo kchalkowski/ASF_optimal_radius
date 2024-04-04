@@ -11,7 +11,9 @@ pop[,7]=pop[,3]
 
 m1=parallelMovementRcpp_portion(pop,pop[,1,drop=FALSE],pop[,3,drop=FALSE],centroids)
 
-#if stop function here.. if no cells to move to
+pop[,3]=m1
+
+#if spop#if stop function here.. if no cells to move to
 #any(pop[,3]==nrow(centroids)+1000)
 if(any(pop[,3]==nrow(centroids)+1000)) {
     stop("No cells to move to! This shouldn't happen")
