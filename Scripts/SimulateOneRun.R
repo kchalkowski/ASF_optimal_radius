@@ -1,6 +1,7 @@
 ##The purpose of this script is to run a single rep of the ASF control optimization model
+#out.opts=c("sounderlocs","idzone","alldetections","incidence")
 
-SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop){
+SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop,out.opts){
 
 ###########################################
 ######## Initialize Output Objects ######## 
@@ -34,6 +35,17 @@ Csums<-matrix(0,nrow=thyme)
 out=matrix(c(0,0,0),nrow=thyme,ncol=3)
 ICtrue=matrix(0,nrow=thyme,ncol=1)
 
+##Initialize out.opts objects as needed
+if("sounderlocs"%in%out.opts){
+  #Initialize list to track locations
+  loc.list=vector(mode="list",length=thyme)
+}
+
+if("idzone"%in%out.opts){
+  #Initialize list of idzones
+  idzone.mat=matrix(nrow=0,ncol=2)
+}
+
 ######################################
 ######## Initialize Infection ######## 
 ######################################
@@ -54,6 +66,7 @@ pop<-rbind(pop,infected)
 #track first infection in Incidence matrix
 Incidence[1]<-num_inf_0
 
+
 ##################################
 ######## Start simulation ######## 
 ##################################
@@ -65,7 +78,7 @@ print("Starting timestep loop")
 for(i in 1:thyme){
 if(any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 
-
+if("sounderlocs"%in%out.opts){loc.list[[i]]=pop[,c(3,8:13)]}
 #for(i in 1:(detectday-1)){ #for manual troubleshooting of loop, in place of 1:thyme
 #for(i in detectday:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
 
@@ -99,6 +112,41 @@ pop<-FastMovement(pop,centroids,shift,inc)
 #print("Calculating state changes")
 
 st.list<-StateChanges(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i)
+
+if("incidence"%in%out.opts){
+  inf.locs=rep(pop[pop[,10]>0,3],pop[pop[,10]>0,10]) #locs exposed
+  #inf.locs=pop[pop[,10]>0,3] #locs infected
+  inf.num=sum(pop[pop[,10]>0,10]) #num infected
+  exp.locs=rep(pop[st.list[[4]]>0,3],st.list[[4]][st.list[[4]]>0]) #locs exposed
+  exp.num=sum(st.list[[4]][st.list[[4]]>0]) #num exposed
+  
+  if(inf.num+exp.num>0){
+  inc.mat.i=matrix(nrow=(inf.num+exp.num),ncol=3)
+  inc.mat.i[,1]=i
+  
+  if(length(inf.locs)!=0){
+    inc.mat.i[1:inf.num,3]=inf.locs
+    inc.mat.i[1:inf.num,2]=10 #code 10 for inf, same as pop colnum
+  }
+  
+  if(length(exp.locs)!=0){
+    inc.mat.i[(inf.num+1):nrow(inc.mat.i),3]=exp.locs
+    inc.mat.i[(inf.num+1):nrow(inc.mat.i),2]=9 #code 9 for exp, same as pop colnum
+  }
+  
+  if(i==1){
+    inc.mat=inc.mat.i
+  } else{
+    inc.mat=rbind(inc.mat, inc.mat.i)
+  }
+  } else{
+    if(i==1){
+      inc.mat=matrix(nrow=0,ncol=3)
+    }
+  }
+  
+}
+
 pop<-st.list[[1]]
 Incidence<-st.list[[2]]
 BB<-st.list[[3]]
@@ -139,14 +187,6 @@ if(i > detectday & Rad > 0){
 	#remove NA/0 (may get NAs/zeroes if no live/dead detected)
 	idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
 
-	#keep only new grid cells that weren't already identified in previous time steps
-	#idZONE_t <- idZONE[!is.na(idZONE)]
-	#if(length(idZONE_t)==1){
-	#	idZONE_t=idZONE_t[[1]][,1]
-	#} else{
-	#	idZONE_t=do.call(rbind,idZONE_t)[,1]	
-	#}
-	
 	idZONE_t=idZONE
 
 	#if there were detections in previous time steps, only get newly detected infected grid cells
@@ -169,10 +209,29 @@ if(i > detectday & Rad > 0){
 	removalcells[[i]]<-output.list[[8]]
 	culled<-output.list[[9]]
 	ZONEkm2[i,]<-output.list[[10]]
-
 	pop<-output.list[[11]]
 	#Total number culled at each timestep
 	Tculled[i]=culled
+	
+	#compile optional outputs
+	if("izone"%in%out.opts){
+	  #get list index
+	  idz=(detectday-i)
+	  if(idz==1){
+	    idzone.mat.idz=idzone[,2]
+	    idzone.mat=cbind(idzone.mat.idz,rep(i,length=length(idzone.mat.idz)))
+	    colnames(idzone.mat)=c("cell","timestep")
+	  } else{
+	    #only store new locations
+	    idzone.mat.idz=idzone[,2](which(!(idzone[,2])%in%idzone.mat[,1]))
+	    idzone.mat.idz=cbind(idzone.mat.idz,rep(i,length=length(idzone.mat.idz)))
+	    colnames(idzone.mat.idz)=c("cell","timestep")
+	    idzone.mat=rbind(idzone.mat,idzone.mat.idz)
+	  }
+	  
+	}
+	
+	
 } #if greater than detectday closing bracket
 
 
@@ -211,12 +270,59 @@ pop=pop[which(rowSums(pop[,pigcols])!=0),]
 #############################
 #############################
 
-	
-	
-out.list<-GetOutputs(pop,Incidence,Tculled,ICtrue,out,detectday)
+input.opts=vector(mode="list",length=1)
+input.opts[[1]]=out.opts
+names(input.opts)[1]="out.opts"
+if("sounderlocs"%in%out.opts){
+  templist=vector(mode="list",length=1)
+  templist[[1]]=loc.list
+  input.opts=append(input.opts,templist)
+  names(input.opts)[length(input.opts)]="loc.list"
+}
+
+if("idzone"%in%out.opts){
+  templist=vector(mode="list",length=1)
+  templist[[1]]=idzone.mat
+  input.opts=append(input.opts,templist)
+  names(input.opts)[length(input.opts)]="idzone.mat"
+}
+
+if("alldetections"%in%out.opts){
+  templist=vector(mode="list",length=1)
+  templist[[1]]=POSlive
+  input.opts=append(input.opts,templist)
+  names(input.opts)[length(input.opts)]="POSlive"
+  
+  templist=vector(mode="list",length=1)
+  templist[[1]]=POSdead
+  input.opts=append(input.opts,templist)
+  names(input.opts)[length(input.opts)]="POSdead"
+  
+  templist=vector(mode="list",length=1)
+  templist[[1]]=POSlive_locs
+  input.opts=append(input.opts,templist)
+  names(input.opts)[length(input.opts)]="POSlive_locs"
+  
+  templist=vector(mode="list",length=1)
+  templist[[1]]=POSdead_locs
+  input.opts=append(input.opts,templist)
+  names(input.opts)[length(input.opts)]="POSdead_locs"
+}
+
+if("incidence"%in%out.opts){
+  templist=vector(mode="list",length=1)
+  templist[[1]]=inc.mat
+  input.opts=append(input.opts,templist)
+  names(input.opts)[length(input.opts)]="incidence"
+  
+  
+}
+
+
+out.list<-GetOutputs(pop,Incidence,Tculled,ICtrue,out,detectday,out.opts,input.opts)
 
 #return(out.list)
 
-return(Incidence)
+return(out.list)
 
 	} #function closing bracket

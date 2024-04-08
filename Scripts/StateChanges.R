@@ -195,6 +195,6 @@ pop<-rbind(pop,deadguys)
 #Update abundance numbers (live individuals only count in abundance)
 pop[,1]=rowSums(pop[,8:11])
 
-return(list(pop,Incidence,BB))
+return(list(pop,Incidence,BB,Eep))
 
 }

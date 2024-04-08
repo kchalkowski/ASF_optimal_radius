@@ -4,7 +4,7 @@
 #addTaskCallback(function(...) {set.seed(123);TRUE})
 
 #loop parameters
-reps=500
+reps=1
 
 densities=c(1.5,3,5)
 s.sizes=c(2,4,6)
@@ -25,10 +25,10 @@ s.sizes=c(2,4,6)
   source(paste0(home,"/Scripts/SetParameters.R")) #uncomment this to set parms if not running in RunASFSimReplicates.R
   incmat=matrix(nrow=72,ncol=reps)
 for(rep in 1:reps){
-  r=rep+(reps*d-reps)
+  #r=rep+(reps*d-reps)
   cat("rep ", rep, "\n")
   #out.list=RunSimulationModel()
-  incmat[,rep]=RunSimulationModel()
+  loc.list=RunSimulationModel()
   #outmat.rep[r,1]=densities[d]
   #outmat.rep[r,2]=rep
   #outmat.rep[r,3]=out.list$Tinc
