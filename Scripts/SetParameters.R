@@ -83,4 +83,8 @@ F2_B=F2$coef[[2]]
 F2i_int=F2i$coef[[1]]
 F2i_B=F2i$coef[[2]]
 
+#set output options
+#options: "sounderlocs","idzone","alldetections","incidence"
+out.opts=c("sounderlocs","idzone","alldetections","incidence")
+
 
