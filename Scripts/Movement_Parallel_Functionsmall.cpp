@@ -136,7 +136,7 @@ mask[k]=0;
 
 //get the indices for set of locations with distance nearest to the assigned movement distance
 arma::uvec set = find(mask==1);
-
+//Rcout << "set" << set << "\n";
 //get size of set
 const int setsize = set.n_elem;
 
@@ -157,21 +157,43 @@ int set_s = set(s); //get index of current cell in set
 //this means that can't just find cell with min abundance first and then get that location
 //need to find all sounders in each cell in set, sum abundance
 for(std::size_t p = 0; p < apoplocs3.n_rows; ++p){
-if(apoplocs3(s)==set_s) setmask[s]=1; //set poplocs mask to 1 if any loc matches cell in set
+if(apoplocs3(p)==set_s) setmask[s]=1; //set poplocs mask to 1 if any loc matches cell in set
 else setmask[s]=0;
 }
 
 //get abundances of cells in set
 imat abundinset_s = apopabund3.rows(find(setmask==1));
 abund(s)=sum(abundinset_s.col(0));
-
+//Rcout << "abund " << abund << "\n";
 }
 
 //find cell in set with minimum abundance
 //get the index of cell(s) in set equal to the minimum value
 //this is subset of set, so the index is actually of centroids.. aka cell ID
-arma::uvec cellindarma=set.row(abund.index_min());
 
+////////////////////////////////////////
+///Test block
+
+//get minimum abundance value
+int minabundinset = abund.min();
+arma::ivec abundmask(abund.n_rows);
+
+//Return indices of set which are equal to the minimum abundance value
+for(std::size_t p = 0; p < abund.n_rows; ++p){
+  if(abund(p)==minabundinset) abundmask[p]=1; //set poplocs mask to 1 if any loc matches cell in set
+  else abundmask[p]=0;
+}
+
+//then, cellindarma shouldbe wherever mask==1 (ie, wherever the value was equal to the minimum)
+//imat abundinset_s = apopabund3.rows(find(setmask==1));
+arma::uvec cellindarma = set.elem(find(abundmask==1));
+
+////////////////////////////////////////
+
+
+//arma::uvec cellindarma=set.row(abund.index_min());
+
+//Rcout << "cellindarma " << cellindarma << "\n";
 arma::uvec truemin; //initialize selected minimum value vector
 
 //if there are more than 1 cell with same minimum abundance, choose one at random
@@ -182,6 +204,7 @@ truemin = Rcpp::RcppArmadillo::sample(cellindarma,1,false);
 truemin = cellindarma;
 }
 
+//Rcout << "truemin " << truemin << "\n";
 
 ///////Assign location for sounder//////
 
