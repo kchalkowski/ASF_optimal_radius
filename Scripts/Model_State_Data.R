@@ -1,5 +1,65 @@
 #Modeling state data for ASF simulation contact parameters
 
+#################################################
+## Below is a summary of the variables and other info for the files needed to Model State Data
+
+#Order readout from list.files:
+#[1] "direct_marec_all1.csv" 
+#[2] "direct_srel_all1.csv"  
+#[3] "indirect_marec_all.csv"
+#[4] "indirect_srel_all.csv" 
+
+#File use:
+#Pig contact     = "direct"
+#Carcass contact = "indirect"
+#FL State        = "marec"
+#SC State        = "srel"
+
+#Variables inside each data set: 
+  
+#Pig Contact Data (both direct) (direct_marec_all1.csv, direct_srel_all1.csv)
+#- "id1"          = id of pig # 1      
+#- "id2"          = id of pig # 2
+#- "datetime"     = date and time when contact happened, date
+#- "numPair"      = Not needed in script-- not sure what this is
+#- "numbers"      = Number of contacts for each date, for given id pairing
+#- "HRdist"       = Home range distance in meters, numeric
+#- "HRover"       = Not needed in script, not sure what this is
+#- "sex1"         = sex of pig # 1, male/female
+#- "sex2"         = sex of pig # 2, male/female
+#- "dynamicgroup" = whether the contact represents a within-group or between-group contact
+    #1- between-group contact
+    #0- within-group contact
+  
+#Carcass Contact Data (FL - marec)
+#- "id"          = ID of pig contacting carcass, number-factor
+#- "baitid"      =id of carcass (bait?), factor
+#- "datetime"    = date and time when contact happened, date
+#- "numPair"     = Not needed in script-- not sure what this is
+#- "pairID"      = unique identifier for each pairing for each day
+#- "numbers"     = Number of contacts for each pairing/day
+#- "DistBait"    = Distance from bait in meters, numeric
+#- "type...8"    = bait type, character **
+#- "type...9"    = bait type, numeric identifier **
+#- "...10"       = type of attractant menu **
+
+#** Carcass contact data is currently underway
+#** For now, just using bait contact rates as a proxy for carcass contact
+
+#Carcass Contact Data (SC - srel)
+#- "id1"         = ID of pig contacting bait, number-factor    
+#- "id2"         = unique ID of bait, number-factor
+#- "datetime"    = Date and time when contact happened, date
+#- "numbers"     = Number of contacts between pig/bait pairing for that date, numeric
+#- "DistBait"    = Distance from bait in meters, numeric
+#- "sex1"        = sex of pig contacting bait, male/female
+#- "numPair"     = Not needed in script-- not sure what this is
+#- "type"        = type of attractant, character-factor
+
+######
+
+
+
 #1-read in data
 folder<-"/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_Optimal_Radius/"
 contact.dat=list.files(paste0(folder,"Matlab_ASF_Model"),full.names=TRUE)[c(3,4,8,9)]
@@ -66,8 +126,8 @@ for(i in 1:length(pig.contact)){
       
       ID.kk.ii=t(as.matrix(ID.kk[index2,]))
       Z.kk.ii=c(NA,NA)
-      Z.kk.ii[1]=sum(Z.kk[index2,1])
-      Z.kk.ii[2]=mean(Z.kk[index2,2])
+      Z.kk.ii[1]=sum(Z.kk[index2,1]) #sum of contacts
+      Z.kk.ii[2]=mean(Z.kk[index2,2]) #mean of hr dist
       G.kk.ii=G.kk[index2]
       #just take first value for dynamic group, even tho changes
       weekly=rbind(weekly,c(ID.kk.ii[1,1],ID.kk.ii[1,2],Z.kk.ii,G.kk.ii[1]))
@@ -76,12 +136,13 @@ for(i in 1:length(pig.contact)){
     
   }
   
-
+  #Get within-group contact
   wt=weekly[which(weekly[,5]==0),]
   wt1=wt[which(wt[,3]>0),3]
   wt0=wt[which(wt[,3]==0),3]
   W=length(wt1)/(length(wt0)+length(wt1))
   
+  #get between-group contact
   bt=weekly[which(weekly[,5]>0),]
   bt1=bt[which(bt[,3]>0),3]
   bt0=bt[which(bt[,3]==0),3]
@@ -193,9 +254,6 @@ for(i in 1:length(carcass.contact)){
   F2i.list[[i]]=M
 
 }
-
-
-
 
 
 
