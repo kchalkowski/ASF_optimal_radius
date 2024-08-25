@@ -82,6 +82,7 @@ F2i_B=F2i$coef[[2]]
 
 #set output options
 #options: "sounderlocs","idzone","alldetections","incidence"
+#if none selected (i.e., out.opts=c()), just get standard outputs
 out.opts=c("sounderlocs")
 
 #sounderlocs:
