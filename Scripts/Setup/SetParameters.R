@@ -1,39 +1,36 @@
-#notes: -would like to add if statement to adjust for if parameter specified outside this script (ie, in a loop)
-#ie, 'if parameter not set.... set to X'
-#for now just commenting out as needed
+
+#######################
+#### Set Variables ####
+#######################
+#parameters that may need to vary
+
+state=1 #state switch, FL or SC params. 1=FL, 2=SC
+density=1.5 #density per X
+detectday=73
+ss=2 #sounder size
 
 #########################
 ####Load fixed parameters
 #########################
+#parameters that stay the same
 
 Pir = 0.05 #; %proportion of individuals that recover instead of die
-#death = 7/(365*3) #assume pop growth rate of 1.5 so make death rate = birth rate*(1/1.5); 1/(365*3); % natural death rate for S and R
-death=0.00639
-alphaC = 1.1 #; % scaling parameter on relationship of effort to capture success
-
-######################
-####Define Variables
-#####################
-
-#state=1 #state switch
+death=0.00639 # probability of natural death
+alphaC = 1.1 #% scaling parameter on relationship of effort to capture success
 loc=c("FL","SC") #state strings
-density=1.5 #density per X
 area=80^2 #total area of grid
 N0=density*area #initial population size
 K=N0*1.5 #carrying capacity for whole population
 Rad=0 #culling radius
-#detectday = 72
-detectday=73
-#thyme=52+detectday #using 'time' sometimes gives weird errors with different packages, hence the diff spelling
-thyme=72
-intensity=0.05
-cullstyle="startOUT"
-inc=0.4
+thyme=72 #total number of time steps. is spelled 'thyme' bc 'time' is a function in stats namespace
+intensity=0.05 #
+cullstyle="startOUT" #option in original ASF opt rad 2022 model
+inc=0.4 #width of cells in grid 
 Intensity = 0.05 #proportion of population targeted for removal per day based on capabilities
-#ss=2
 num_inf_0=1 #how many pigs to infect starting off
-#stplot=1 #start plot at timestep i
-#enplot=time+1 #end plot at timestep j
+mc_time=0.0027
+Pcr=0.23
+Pbd=0.0192 #From opt rad ms
 
 
 if(state == 1){
@@ -72,12 +69,6 @@ B2 = B1*0.5;
 ####Create Seasonally Varying Parameters
 #########################
 #*For now they are constant
-
-mc_time=0.0027
-#Pcr = 7/30 #fix at 30 days - average for the year; %zeta.*1; % transition probability from carcass to removal from landscape
-Pcr=0.23
-#Pbd = 7*mc_time #; %repmat(mean(c_time(1:364/7)),time,1).*1; % constant birth rate for S; rescale trend as needed to produce realistic pop dynamics
-Pbd=0.0192 #From opt rad ms
 
 #Set F2/F2i manually here
 #need as explicit parameters to run FOI in cpp

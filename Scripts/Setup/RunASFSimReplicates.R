@@ -1,21 +1,16 @@
-####9APR24 testing, compare state changes with matlab
 
-#Eep_mat=matrix(nrow=72,ncol=500)
-#Sdpb_mat=matrix(nrow=72,ncol=500)
-#Sdpd_mat=matrix(nrow=72,ncol=500)
-#Rep_mat=matrix(nrow=72,ncol=500)
-#Cep_mat=matrix(nrow=72,ncol=500)
-#Rdpd_mat=matrix(nrow=72,ncol=500)
-#Ccd_mat=matrix(nrow=72,ncol=500)
-#Zcd_mat=matrix(nrow=72,ncol=500)
-#Iep_mat=matrix(nrow=72,ncol=500)
+#############################
+########## Purpose ##########
+#############################
 
-#########Troubleshooting to compare infection processes ML/R
-state=1
-density=1.5
-ss=2
+#The purpose of this script is to run the ASF simulation model
 
-source(paste0(home,"/Scripts/SetParameters.R")) #uncomment this to set parms if not running in RunASFSimReplicates.R
+
+#state=1
+#density=1.5
+#ss=2
+
+source(paste0(home,"/Scripts/SetParameters.R"))
 
 for(rep in 1:100){
 
