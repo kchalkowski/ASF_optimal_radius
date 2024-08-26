@@ -6,7 +6,7 @@ SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,th
 ###########################################
 ######## Initialize Output Objects ######## 
 ###########################################
-
+{
 Nall=matrix(nrow=thyme) #track total abundance
 BB=matrix(nrow=thyme) #track births
 
@@ -87,8 +87,10 @@ Incidence[1]<-num_inf_0
 #start the timestep loop
 ##i=1
 ##detectday=i
-
+}
+  
 for(i in 1:thyme){
+
 print(paste0("timestep: ",i))
 if(any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
 #print(i)
