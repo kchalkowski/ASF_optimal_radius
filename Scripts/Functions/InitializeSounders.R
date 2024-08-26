@@ -20,6 +20,7 @@
 #RSF_mat[,2]=c(0.1,0.9)
 
 InitializeSounders<-function(N0,ss,cells,centroids,type,init_locs,n,grid.opts){
+
 #for initializing whole population
 if(type==0){ 
 sn_i<-N0/ss #Get the initializing number of sounders
