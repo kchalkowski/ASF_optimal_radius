@@ -14,9 +14,9 @@ m1=parallelMovementRcpp_portion(pop,pop[,1,drop=FALSE],pop[,3,drop=FALSE],centro
 pop[,3]=m1
 
 #if old locs same as new locs, print
-if(all(pop[,3]==pop[,7])){
-  stop("all old locs same as new locs")
-}
+#if(all(pop[,3]==pop[,7])){
+  #warning("all old locs same as new locs")
+#}
 
 #if spop
 #if stop function here.. if no cells to move to
