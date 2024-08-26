@@ -2,6 +2,7 @@
 source(paste(home, "/Scripts/Functions/areaOfinfection.R", sep = ''))
 source(paste(home, "/Scripts/Functions/CullingOneRun.R", sep = ''))
 source(paste(home, "/Scripts/Functions/FirstDetect.R", sep = ''))
+source(paste(home, "/Scripts/Functions/FastMovement.R", sep = ''))
 source(paste(home, "/Scripts/Functions/GetOutputs.R", sep = ''))
 source(paste(home, "/Scripts/Functions/GetOutputs.R", sep = ''))
 source(paste(home, "/Scripts/Functions/InitializeSounders.R", sep = ''))
