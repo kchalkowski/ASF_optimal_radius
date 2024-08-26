@@ -78,11 +78,13 @@ id2=sample(1:nrow(idN),length(id))
 #%if there are more births than cells only add births cells where the pigs are (so fewer births will be happening)
 id2=sample(1:length(liverows),length(liverows))
 }
-}
 
+  #assign births to Sdpb
 for(j in 1:length(id)){
-Sdpb[id2[j],1]<-id[j]
-	}
+  Sdpb[id2[j],1]<-id[j]
+}
+  
+}
 
 
 ##############################################################
