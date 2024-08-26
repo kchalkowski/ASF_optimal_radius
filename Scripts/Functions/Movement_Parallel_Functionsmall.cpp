@@ -160,6 +160,8 @@ for(std::size_t p = 0; p < apoplocs3.n_rows; ++p){
 if(apoplocs3(p)==set_s) setmask[s]=1; 
 else setmask[s]=0;
 
+}
+
 //get abundances of cells in set
 imat abundinset_s = apopabund3.rows(find(setmask==1));
 abund(s)=sum(abundinset_s.col(0));
@@ -176,13 +178,12 @@ arma::ivec abundmask(abund.n_rows);
 
 //Return indices of set which are equal to the minimum abundance value
 for(std::size_t p = 0; p < abund.n_rows; ++p){
-//set poplocs mask to 1 if any loc matches cell in set
-  if(abund(p)==minabundinset) abundmask[p]=1; 
+  if(abund(p)==minabundinset) abundmask[p]=1; //set poplocs mask to 1 if any loc matches cell in set
   else abundmask[p]=0;
 }
 
-//cellindarma=cell index, arma format
 //then, cellindarma shouldbe wherever mask==1 (ie, wherever the value was equal to the minimum)
+//imat abundinset_s = apopabund3.rows(find(setmask==1));
 arma::uvec cellindarma = set.elem(find(abundmask==1));
 
 //initialize selected minimum value vector
@@ -193,7 +194,6 @@ if(cellindarma.size()>1){
 truemin = Rcpp::RcppArmadillo::sample(cellindarma,1,false);
 
 } else {
-//else, truemin is just the one with the min abundance
 truemin = cellindarma;
 }
 
@@ -202,20 +202,21 @@ truemin = cellindarma;
 //set location to selected cell in set with minimum abundance
 outpop(j,0)=truemin[0]+1; //+1 is to get appropriate index
 
-} else{ 
-//this is the else to the if statement 'if any cells in set'
-//there should always be a possible cell to move to unless barriers introduced in model
-//for now, choosing to generate error bc means something weird going on
+} else{ //this is the else to the if statement 'if any cells in set'
+
+//there should always be a possible cell to move to (unless barriers introduced in model)
+//currently, if no cells in set, should generate error
 //this will output unrealistic location number that will be used in R script to generate error
 outpop(j,0)=acent.nrow()+1000;
+
 
 }
 
 
-} else{
-//this is else to 'if movement distance is zero, or abundance is zero'
-//if so, destination location is same as original location
+} else{ //if movement distance is zero, or abundance is zero
+
 outpop(j,0)=apoplocs(j,0);
+
 
 }
 
@@ -235,7 +236,6 @@ outpop(j,0)=apoplocs(j,0);
 //Now that the worker is described above, can call the Movement_worker worker we defined
 
 //Here's a function that calls the SquareRoot worker defined above
-//NumericMatrix parallelMatrixSqrt(NumericMatrix x) { //create a new function wrapper that calls the part you want run in parallel
 // [[Rcpp::export]]
 NumericMatrix parallelMovementRcpp_portion(const NumericMatrix& apop,
            const IntegerMatrix& apopabund,
@@ -246,16 +246,19 @@ NumericMatrix parallelMovementRcpp_portion(const NumericMatrix& apop,
   //essentially just defining the size of the output
   NumericMatrix outpop(apop.nrow(), 1);
   
-  //output is output matrix defined early in script
-    MoveLoop moveloop(apop,apopabund,apoplocs,acent,outpop);
   
+  // x is input matrix defined above
+  //outpop is output matrix defined above
+    MoveLoop moveloop(apop,apopabund,apoplocs,acent,outpop);
+
   // call parallelFor to do the work
-  // starting from 0 to length of apop.nrow(), run the squareRoot function defined above in the worker
+  // starting from 0 to length of apop, run the squareRoot function defined above in the worker
+  //parallelFor(0, x.length(), squareRoot);
     parallelFor(0,apop.nrow(), moveloop);
   
   // return the output matrix
   return outpop;
-
+//}
 }
 
 ///////////////////////////
@@ -270,9 +273,11 @@ NumericMatrix MovementRcppParallel(NumericMatrix& apop,
 					   NumericMatrix& acent) {
                                             
 Rcpp::NumericMatrix popout = apop;
+
 //set present locations to previous locations
 popout(_,6)=popout(_,2);
 
+//get new locations using parallel movement function
 popout(_,2)=parallelMovementRcpp_portion(apop,apopabund,apoplocs,acent);
 
 return popout;
