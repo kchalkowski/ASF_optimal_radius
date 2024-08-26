@@ -58,14 +58,12 @@
 
 ######
 
-
-
 #1-read in data
-folder<-"/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_Optimal_Radius/"
-contact.dat=list.files(paste0(folder,"Matlab_ASF_Model"),full.names=TRUE)[c(3,4,8,9)]
+contact.dat=list.files(paste0(home,"/Input"),full.names=TRUE)
+contact.dat=contact.dat[grep("csv",contact.dat)]
 
-pig.contact=contact.dat[1:2]
-carcass.contact=contact.dat[3:4]
+pig.contact=contact.dat[grep("/direct",contact.dat)]
+carcass.contact=contact.dat[grep("/indirect",contact.dat)]
 contact.names=c("FL","SC")
 
 F1.list=vector(mode="list",length=length(contact.names))

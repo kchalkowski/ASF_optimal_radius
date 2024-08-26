@@ -35,7 +35,7 @@ source(paste(home, "/Scripts/Setup/ASFFunctionSourcer.R", sep = ''))
 #col 1- sequence 1:ncell
 #col 2-5: X1,Y1; X2,Y2
 #col 6-7: centroid x and y
-grid<-readMat(paste0(home,"Matlab_ASF_model/Grid_80x80_0pt4km.mat"))
+grid<-readMat(paste0(home,"/Input/Grid_80x80_0pt4km.mat"))
 grid<-grid$grid
 
 #scale land class values by RSFs
@@ -69,5 +69,5 @@ xFL=c(0.7515,0.3550)
 xSC=c(0.5657,1.9082)
 
 #source F2_FL and F2_SC
-source(paste0(home,"/Scripts/Model_State_Data.R"))
+source(paste0(home,"/Scripts/Setup/Model_State_Data.R"))
 
