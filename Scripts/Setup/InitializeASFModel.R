@@ -1,5 +1,6 @@
 
-#Loads libraries, sources functions, all things not dependent on spec. parms
+#Loads libraries, sources functions, loads spatial objects 
+#all things not dependent on specific parms
 #Run this before running RunSimulationModel.R
 
 ######################
@@ -24,8 +25,7 @@ options(dplyr.summarise.inform = FALSE)
 ####Source Functions
 #####################
 
-source(paste(getwd(), "/Scripts/Setup/ASFFunctionSourcer.R", sep = ''))
-
+source(paste(home, "/Scripts/Setup/ASFFunctionSourcer.R", sep = ''))
 
 ######################
 ####Import grid
@@ -38,32 +38,15 @@ source(paste(getwd(), "/Scripts/Setup/ASFFunctionSourcer.R", sep = ''))
 grid<-readMat(paste0(home,"Matlab_ASF_model/Grid_80x80_0pt4km.mat"))
 grid<-grid$grid
 
-#test<-readMat(paste0(home,"Matlab_ASF_model/TPbyDistWeekly_SC.mat"))
-
-
-
-#grid.list<-Make_Grid(100,0.4,grid.opts)
-#cells=as.integer(round(grid.list$cells)) #round bc sometimes floating pt error=39999??
-#grid=grid.list$grid
-#centroids=grid.list$centroids
-
 #scale land class values by RSFs
-if(grid.opts!="homogenous"){
-  prefs=grid[,8]
-  prefs[prefs==1]=RSF_mat[RSF_mat[,1]==1,2] #convert to RSF_prefs
-  prefs[prefs==0]=RSF_mat[RSF_mat[,1]==0,2] #convert to RSF_prefs
-  grid[,8]=prefs
-}
-  
-#Need to look at code for making grid in matlab, make function to generate grid in R
-#This will likely be something more complex in future, since grid will be incorporating other landscape/env elements
-#think about settings that would be good to toggle
+#if(grid.opts!="homogenous"){
+#  prefs=grid[,8]
+#  prefs[prefs==1]=RSF_mat[RSF_mat[,1]==1,2] #convert to RSF_prefs
+#  prefs[prefs==0]=RSF_mat[RSF_mat[,1]==0,2] #convert to RSF_prefs
+#  grid[,8]=prefs
+#}
 
-#function to control sounder size to grid size/resolution...
-#maybe could save grids as a matrix within a list (in an RDS file), and include the resolution in the list
-#then when bringing it in, use that part of the list to get the sounder size/etc.
-#for now, just going to set sounder size manually because I only have the one grid anyways
-
+#set up objects
 centroids=grid[,6:7]
 cells=nrow(grid)
 area<-grid[cells,4]*grid[cells,5]
@@ -86,7 +69,5 @@ xFL=c(0.7515,0.3550)
 xSC=c(0.5657,1.9082)
 
 #source F2_FL and F2_SC
-#source("GenerateFakeStateData.R",local=TRUE)
 source(paste0(home,"/Scripts/Model_State_Data.R"))
-
 
