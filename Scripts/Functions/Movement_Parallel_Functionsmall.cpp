@@ -116,6 +116,7 @@ diffk_0=abs(sqrt(pow((cent_x[k]-apop3(j,4)),2)+pow((cent_y[k]-apop3(j,5)),2))-ap
 
 //assign difference between assigned and actual distance to diff matrix
 diff(k,0)=diffk_0;
+//Rcout << "diffk_0 " << diffk_0 << "\n";
 
 //find diffk_0 closest to assigned movement distance, set mask to isolate those
 if(diffk_0>=0 & diffk_0<=0.4){
@@ -124,13 +125,17 @@ mask[k]=1;
 mask[k]=0;    
 }
 
+//Rcout << "mask " << mask << "\n";
+
 } //going through centroids closing bracket
 
 //get the indices for set of locations with distance near the assigned movement distance
 arma::uvec set = find(mask==1);
+//Rcout << "set " << set << "\n";
 
 //get size of set
 const int setsize = set.n_elem;
+//Rcout << "setsize " << setsize << "\n";
 
 ///////Decide which cells in set to move to, based on abundance//////
 
@@ -156,17 +161,57 @@ int set_s = set(s);
 //need to find all sounders in each cell in set, then sum abundance
 for(std::size_t p = 0; p < apoplocs3.n_rows; ++p){
 
+//troubleshooting:setmask[s] should be setmask[p]!
 //set poplocs mask to 1 if any loc matches cell in set
-if(apoplocs3(p)==set_s) setmask[s]=1; 
-else setmask[s]=0;
+if(apoplocs3(p)==set_s) setmask[p]=1; 
+else setmask[p]=0;
 
 }
+
+//Rcout << "setmask " << setmask << "\n";
 
 //get abundances of cells in set
+
+/////troubleshoot: move next line to if/else statement
+//imat abundinset_s = apopabund3.rows(find(setmask==1));
+//Rcout << "abundinset_s " << abundinset_s << "\n";
+
+//Troubleshoot: abundinset_s becomes 0x1 matrix when abundance is low
+//because all indices have setmask==0, so abundinset_s is empty
+//apoplocs3.n_rows
+
+//troubleshoot almost worked, but doesn't even like to call the n_rows
+//if matrix is empty, maybe. Won't print anything after if/else that uses abundinset_s
+//trying setmask.is_zero instead of if setmask.n_rows>0
+//trying all()
+
+//Rcout << "before if statement " << "\n";
+//if any elements of vector setmask are nonzero
+if(any(setmask)) {
+//Rcout << "enter if" << "\n";
+//sum abundance
 imat abundinset_s = apopabund3.rows(find(setmask==1));
 abund(s)=sum(abundinset_s.col(0));
-//Rcout << "abund " << abund << "\n";
+
+} else {
+//Rcout << "enter else" << "\n";
+//Rcout << "s" << s << "\n";
+abund(s)=0;
+//Rcout << "abund(s)" << abund(s) << "\n";
+
 }
+
+//Rcout << "after if/else statement " << "\n";
+
+//commenting this line, replacing with troubleshoot block
+//testing before removing
+/////abund(s)=sum(abundinset_s.col(0));
+
+//Rcout << "abundinset.col(0) " << abundinset_s.col(0) << "\n";
+//Rcout << "abund(s) " << abund(s) << "\n";
+}
+
+//Rcout << "abund(s) " << abund << "\n";
 
 //find cell in set with minimum abundance
 //get the index of cell(s) in set equal to the minimum value
@@ -175,6 +220,7 @@ abund(s)=sum(abundinset_s.col(0));
 //get minimum abundance value
 int minabundinset = abund.min();
 arma::ivec abundmask(abund.n_rows);
+//Rcout << "minabundinset " << minabundinset << "\n";
 
 //Return indices of set which are equal to the minimum abundance value
 for(std::size_t p = 0; p < abund.n_rows; ++p){
@@ -185,7 +231,6 @@ for(std::size_t p = 0; p < abund.n_rows; ++p){
 //then, cellindarma shouldbe wherever mask==1 (ie, wherever the value was equal to the minimum)
 //imat abundinset_s = apopabund3.rows(find(setmask==1));
 arma::uvec cellindarma = set.elem(find(abundmask==1));
-
 //initialize selected minimum value vector
 arma::uvec truemin; 
 
