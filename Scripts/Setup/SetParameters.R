@@ -9,6 +9,20 @@ density=1.5 #density per X
 detectday=73
 ss=2 #sounder size
 
+
+#########################
+#### Toggle switches ####
+#########################
+#ML- use original grid made in ML by Kim-- is 80kmx80km, 400m resolution
+#DIY- make grid in R with preset options using Make_Grid.R
+
+#Grid settings
+grid.type="DIY"
+len=10 #nrow/ncol of grid
+inc=0.4 #resolution of grid (m)
+
+#grid.type="ML"
+
 #########################
 ####Load fixed parameters
 #########################
@@ -18,9 +32,6 @@ Pir = 0.05 #; %proportion of individuals that recover instead of die
 death=0.00639 # probability of natural death
 alphaC = 1.1 #% scaling parameter on relationship of effort to capture success
 loc=c("FL","SC") #state strings
-area=80^2 #total area of grid
-N0=density*area #initial population size
-K=N0*1.5 #carrying capacity for whole population
 Rad=0 #culling radius
 thyme=72 #total number of time steps. is spelled 'thyme' bc 'time' is a function in stats namespace
 intensity=0.05 #
@@ -31,54 +42,6 @@ num_inf_0=1 #how many pigs to infect starting off
 mc_time=0.0027
 Pcr=0.23
 Pbd=0.0192 #From opt rad ms
-
-
-if(state == 1){
-  #specify which set if gamma fit parameters to use: xSC or xFL
-  shift=xFL
-  #specify which contact data to use (SC vs FL)
-  F1=F1.list$FL
-  F2=F2.list$FL
-  F2i=F2i.list$FL
-  if(density == 1.5){
-    B1=0.9
-  } else if(density == 3){
-    B1=0.4
-  } else if(density == 5){
-    B1=0.2
-  }
-} else if(state == 2){
-  #specify which set if gamma fit parameters to use: xSC or xFL
-  shift=xSC
-  #specify which contact data to use (SC vs FL)
-  F1=F1.list$SC
-  F2=F2.list$SC
-  F2i=F2i.list$SC
-  if(density == 1.5){
-    B1=0.009
-  } else if(density == 3){
-    B1=0.004
-  } else if(density == 5){
-    B1=0.002
-  }
-}
-
-B2 = B1*0.5;
-
-#########################
-####Create Seasonally Varying Parameters
-#########################
-#*For now they are constant
-
-#Set F2/F2i manually here
-#need as explicit parameters to run FOI in cpp
-#will later be incorporating this once finish U.S. contact prediction mapping
-#infectious pig contact prob based on distance
-F2_int=F2$coef[[1]]
-F2_B=F2$coef[[2]]
-#infected carcass contact prob based on distance
-F2i_int=F2i$coef[[1]]
-F2i_B=F2i$coef[[2]]
 
 #set output options
 #options: "sounderlocs","idzone","alldetections","incidence"

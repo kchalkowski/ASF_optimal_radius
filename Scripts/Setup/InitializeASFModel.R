@@ -35,6 +35,7 @@ source(paste(home, "/Scripts/Setup/ASFFunctionSourcer.R", sep = ''))
 #col 1- sequence 1:ncell
 #col 2-5: X1,Y1; X2,Y2
 #col 6-7: centroid x and y
+if(grid.type=="ML"){
 grid<-readMat(paste0(home,"/Input/Grid_80x80_0pt4km.mat"))
 grid<-grid$grid
 
@@ -49,8 +50,23 @@ grid<-grid$grid
 #set up objects
 centroids=grid[,6:7]
 cells=nrow(grid)
-area<-grid[cells,4]*grid[cells,5]
+area<-(grid[cells,4]*grid[cells,5])[nrow(grid)]
 midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
+} 
+
+if(grid.type=="DIY"){
+  grid.list=Make_Grid(len,inc,"homogenous")
+  cells=grid.list$cells
+  grid=grid.list$grid
+  centroids=grid.list$centroids
+  area=(grid[cells,4]*grid[cells,5])[nrow(grid)]
+  midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
+}
+
+#grid-dependent parms
+area=len^2 #total area of grid
+N0=density*area #initial population size
+K=N0*1.5 #carrying capacity for whole population
 
 #########################
 ####Import State contact rules
@@ -70,4 +86,46 @@ xSC=c(0.5657,1.9082)
 
 #source F2_FL and F2_SC
 source(paste0(home,"/Scripts/Setup/Model_State_Data.R"))
+
+if(state == 1){
+  #specify which set if gamma fit parameters to use: xSC or xFL
+  shift=xFL
+  #specify which contact data to use (SC vs FL)
+  F1=F1.list$FL
+  F2=F2.list$FL
+  F2i=F2i.list$FL
+  if(density == 1.5){
+    B1=0.9
+  } else if(density == 3){
+    B1=0.4
+  } else if(density == 5){
+    B1=0.2
+  }
+} else if(state == 2){
+  #specify which set if gamma fit parameters to use: xSC or xFL
+  shift=xSC
+  #specify which contact data to use (SC vs FL)
+  F1=F1.list$SC
+  F2=F2.list$SC
+  F2i=F2i.list$SC
+  if(density == 1.5){
+    B1=0.009
+  } else if(density == 3){
+    B1=0.004
+  } else if(density == 5){
+    B1=0.002
+  }
+}
+
+B2 = B1*0.5;
+
+#Set F2/F2i here
+#need as explicit parameters to run FOI in cpp
+#will later be incorporating this once finish U.S. contact prediction mapping
+#infectious pig contact prob based on distance
+F2_int=F2$coef[[1]]
+F2_B=F2$coef[[2]]
+#infected carcass contact prob based on distance
+F2i_int=F2i$coef[[1]]
+F2i_B=F2i$coef[[2]]
 

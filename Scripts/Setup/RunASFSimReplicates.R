@@ -19,11 +19,12 @@ setwd(home)
 ###########################
 
 #Run InitializeASFModel.R once per session
-#loads all functions, variables needed, etc.
-source(paste0(home,"/Scripts/Setup/InitializeASFModel.R"))
 
 #Run SetParameters once per session, or as needed to update parameters
 source(paste0(home,"/Scripts/Setup/SetParameters.R"))
+
+#loads all functions, variables needed, etc.
+source(paste0(home,"/Scripts/Setup/InitializeASFModel.R"))
 
 #set number of replicates to run
 nrep=100
@@ -35,7 +36,7 @@ if(!dir.exists(paste0("Output/",run_folder))){dir.create(paste0("Output/",run_fo
 #####################################
 ########## Loop replicates ##########
 #####################################
-
+rep=1
 #run loop
 for(rep in 1:nrep){
 
