@@ -1,21 +1,9 @@
-#The purpose of this script is to set all the parameters
+
 #Loads libraries, sources functions, all things not dependent on spec. parms
 #Run this before running RunSimulationModel.R
 
 ######################
-####Set directories
-#####################
-home<-"/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius/"
-#home<-"/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius"
-setwd(home)
-#Set parameters that apply to all replicates here
-#area=80^2
-#inc=0.4
-#grid.opts="test_pref_binary"
-grid.opts="homogenous"
-
-######################
-####Set libraries
+####Load libraries
 #####################
 library(Rcpp)
 library(profvis)
@@ -36,13 +24,7 @@ options(dplyr.summarise.inform = FALSE)
 ####Source Functions
 #####################
 
-#To test compilation ability
-#old_path <- Sys.getenv("PATH")
-#Sys.setenv(PATH = paste(old_path, "/Library/Developer/CommandLineTools", sep = ":"))
-#"/Applications/Xcode.app/Contents/Developer"
-#Sys.which("make")
-
-source(paste(getwd(), "/Scripts/ASFFunctionSourcer.R", sep = ''))
+source(paste(getwd(), "/Scripts/Setup/ASFFunctionSourcer.R", sep = ''))
 
 
 ######################

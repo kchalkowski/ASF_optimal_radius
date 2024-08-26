@@ -13,7 +13,7 @@ ss=2 #sounder size
 ####Load fixed parameters
 #########################
 #parameters that stay the same
-
+grid.opts="homogenous"
 Pir = 0.05 #; %proportion of individuals that recover instead of die
 death=0.00639 # probability of natural death
 alphaC = 1.1 #% scaling parameter on relationship of effort to capture success

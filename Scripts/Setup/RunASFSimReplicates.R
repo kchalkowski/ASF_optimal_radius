@@ -20,10 +20,10 @@ setwd(home)
 
 #Run InitializeASFModel.R once per session
 #loads all functions, variables needed, etc.
-source(paste0(home,"/Setup/InitializeASFModel.R"))
+source(paste0(home,"/Scripts/Setup/InitializeASFModel.R"))
 
 #Run SetParameters once per session, or as needed to update parameters
-source(paste0(home,"/Setup/SetParameters.R"))
+source(paste0(home,"/Scripts/Setup/SetParameters.R"))
 
 #set number of replicates to run
 nrep=100
