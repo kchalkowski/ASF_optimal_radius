@@ -1,7 +1,7 @@
 ##The purpose of this script is to run a single rep of the ASF control optimization model
 #out.opts=c("sounderlocs","idzone","alldetections","incidence")
 
-SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop,out.opts,grid.opts,rep){
+SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop,out.opts,grid.opts,rep,DetP){
 
 ###########################################
 ######## Initialize Output Objects ######## 
@@ -240,7 +240,7 @@ if(i > detectday & Rad > 0){
 	} else{idNEW=idNEW}
 
 	#Culling process
-	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead)
+	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead,DetP)
 
 	POSlive[[i]]<-output.list[[1]]
 	POSdead[[i]]<-output.list[[2]]

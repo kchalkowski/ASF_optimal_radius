@@ -1,4 +1,4 @@
-CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead){
+CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead,DetP){
 
   #profvis({
 ######################
@@ -195,12 +195,19 @@ removalpigs<-fullZONEpigs[1:incr,,drop=FALSE]
 #column one of poslive is the number of exposed/infected pigs detected at that timestep
 #sum removalpigs column 6,7
 POSlive_i<-sum(removalpigs[,7],removalpigs[,6])
-
+if(!is.null(DetP)){
+  POSlive_i_sel=rbinom(POSlive_i,1,DetP)
+  POSlive_i<-sum(POSlive_i_sel)
+}
 #POSdead
 #POSdead is a matrix with a row for each timestep
 #column one of poslive is the number of infected carcasses detected at that timestep
 #sum removalpigs column 9
 POSdead_i<-sum(removalpigs[,9])
+if(!is.null(DetP)){
+  POSdead_i_sel=rbinom(POSdead_i,1,DetP)
+  POSdead_i<-sum(POSdead_i_sel)
+}
 
 #POSlive_locs
 #list of length thyme, each timestep is vector of grid cell locations where liive infected pigs detected at that ts
@@ -210,7 +217,9 @@ lll<-length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])
 #POSlive_locs_i=vector(mode="integer",length=lll)
 #POSlive_locs[[i]]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
 POSlive_locs_i<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
-
+if(!is.null(DetP)){
+  POSlive_locs_i=POSlive_locs_i[POSlive_i_sel==1]
+}
 #POSlive_locs_detect
 
 #print(paste("number of removalpigs rows", length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])))
@@ -228,17 +237,28 @@ POSdead_locs_i<-removalpigs[removalpigs[,9]>0,2]
 #lld<-length(removalpigs[removalpigs[,9]>0,2])
 #POSdead_locs_i=vector(mode="integer",length=lld)
 #POSdead_locs_i[[i]]<-removalpigs[removalpigs[,9]>0,2]
+if(!is.null(DetP)){
+  POSdead_locs_i=POSdead_locs_i[POSdead_i_sel==1]
+}
+
 } else {POSdead_locs_i<-0}
 
 #% Nlive(ids) = sum(X([1 2 4],ids),1); % count of S,E,R removed
 #vector of nrow timestop, count of total SR removed
 #sum removalpigs column 5,8
 NEGlive_i<-sum(removalpigs[,5],removalpigs[,8])
-
+if(!is.null(DetP)){
+  NEGlive_i_missed=length(POSlive_i_sel[POSlive_i_sel==0])
+  NEGlive_i=NEGlive_i+NEGlive_i_missed
+}
 #% Ndead(ids) = X(6,ids); % count of Z removed
 #vector of nrow timestep, count of total Z removed
 #sum removalpigs column 10
 NEGdead_i<-sum(removalpigs[,10])
+if(!is.null(DetP)){
+  NEGdead_i_missed=length(POSdead_i_sel[POSdead_i_sel==0])
+  NEGdead_i=NEGdead_i+NEGdead_i_missed
+}
 
 #idZONE:
 #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
