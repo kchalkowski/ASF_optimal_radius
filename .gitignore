@@ -1,0 +1,12 @@
+.gitignore
+Not_Pipeline/
+Docs/
+Output/*
+.RData
+.Rhistory
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+.RDataTmp
+Input/Processing_Data
+Input/Processing_Data/*
