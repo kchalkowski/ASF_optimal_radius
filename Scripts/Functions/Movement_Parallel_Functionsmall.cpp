@@ -17,7 +17,8 @@ using namespace arma;
 struct MoveLoop : public Worker {
    // input matrices
    const RMatrix<double> apop;
-   const RMatrix<int> apopabund;
+   //const RMatrix<int> apopabund;
+   const RMatrix<int> apopmat;
    const RMatrix<int> apoplocs;
    const RMatrix<double> acent;
 
@@ -30,11 +31,12 @@ struct MoveLoop : public Worker {
 
 
 MoveLoop(const NumericMatrix& apop,
-           const IntegerMatrix& apopabund,
+           //const IntegerMatrix& apopabund,
+           const IntegerMatrix& apopmat,
            const IntegerMatrix& apoplocs,
            const NumericMatrix& acent,
            NumericMatrix outpop) 
-           : apop(apop), apopabund(apopabund), apoplocs(apoplocs), acent(acent), outpop(outpop) {}
+           : apop(apop), apopmat(apopmat), apoplocs(apoplocs), acent(acent), outpop(outpop) {}
 
 //Below conversion funcs are in place because we need them read in as NumericMatrix/IntegerMatrix format
 //this is native format for Rcpp, and plays well with RcppParallel
@@ -54,12 +56,19 @@ arma::mat convertcent()
     return acent2;
   }
 
-arma::imat convertapopabund()
+arma::imat convertapopmat()
   {
-    RMatrix<int> tmp_mat = apopabund;
-    const arma::imat apopabund2(tmp_mat.begin(), tmp_mat.nrow(), tmp_mat.ncol(), false);
-    return apopabund2;
+    RMatrix<int> tmp_mat = apopmat;
+    const arma::imat apopmat2(tmp_mat.begin(), tmp_mat.nrow(), tmp_mat.ncol(), false);
+    return apopmat2;
   }
+
+//arma::imat convertapopabund()
+//  {
+//    RMatrix<int> tmp_mat = apopabund;
+//    const arma::imat apopabund2(tmp_mat.begin(), tmp_mat.nrow(), tmp_mat.ncol(), false);
+//    return apopabund2;
+//  }
 
 arma::imat convertapoplocs()
   {
@@ -76,9 +85,10 @@ arma::imat convertapoplocs()
 void operator()(std::size_t begin, std::size_t end) {
     // rows we will operate on
         arma::mat apop3 = convertpop();
-        arma::mat acent3 = convertcent();
-        arma::imat apopabund3 = convertapopabund();
+        arma::imat apopmat3 = convertapopmat();
         arma::imat apoplocs3 = convertapoplocs();
+        arma::mat acent3 = convertcent();
+        //arma::imat apopabund3 = convertapopabund();
         arma::mat diff(acent.nrow(),1);
 
 ///////Starting loop through piggy pop matrix//////
@@ -101,7 +111,7 @@ int pop_j_0=apop3(j,0); //abundance, pop[,1]
 
 //if abundance (pop_j_0) and distance (pop_j_3) are greater than zero
 if(pop_j_3 > 0 & pop_j_0 > 0){
-
+//Rcout << "apopmat " << apopmat3 << "\n";
 //initialize distance matrix mask...
 arma::vec mask(diff.n_rows);
 
@@ -143,30 +153,35 @@ const int setsize = set.n_elem;
 if(setsize>0){
 
 //initialize vector for total abundance in each cell in set
-arma::ivec abund(setsize);
+//arma::ivec abund(setsize);
+//arma::ivec abund = apopmat3(set,0);
+//Rcout << "set " << set << "\n";
+arma::imat abund = apopmat3.rows(set);
+//Rcout << "abund " << abund << "\n";
+//Rcout << "apopmat " << apopmat3 << "\n";
 
 //make mask vector 'setmask' for grabbing indices of set in loop below
-arma::ivec setmask(apoplocs3.n_rows);
+//arma::ivec setmask(apoplocs3.n_rows);
 
 //loop through each cell in set, get total abundance in each cell in set
-for(std::size_t s = 0; s < setsize; ++s) {
+/////for(std::size_t s = 0; s < setsize; ++s) {
 
 //get index of current cell in set
-int set_s = set(s);
+/////int set_s = set(s);
 
 //run through each item in apoplocs, get locations of each cell in set
 //need to do this before get abundances, because there is possibility that
 //multiple sounders could be in a single cell
 //this means that can't just find cell with min abundance first and then get that location
 //need to find all sounders in each cell in set, then sum abundance
-for(std::size_t p = 0; p < apoplocs3.n_rows; ++p){
+/////for(std::size_t p = 0; p < apoplocs3.n_rows; ++p){
 
 //troubleshooting:setmask[s] should be setmask[p]!
 //set poplocs mask to 1 if any loc matches cell in set
-if(apoplocs3(p)==set_s) setmask[p]=1; 
-else setmask[p]=0;
+/////if(apoplocs3(p)==set_s) setmask[p]=1; 
+/////else setmask[p]=0;
 
-}
+/////}
 
 //Rcout << "setmask " << setmask << "\n";
 
@@ -187,19 +202,21 @@ else setmask[p]=0;
 
 //Rcout << "before if statement " << "\n";
 //if any elements of vector setmask are nonzero
-if(any(setmask)) {
+/////if(any(setmask)) {
 //Rcout << "enter if" << "\n";
 //sum abundance
-imat abundinset_s = apopabund3.rows(find(setmask==1));
-abund(s)=sum(abundinset_s.col(0));
+/////imat abundinset_s = apopabund3.rows(find(setmask==1));
+/////abund(s)=sum(abundinset_s.col(0));
 
-} else {
+/////} else {
 //Rcout << "enter else" << "\n";
 //Rcout << "s" << s << "\n";
-abund(s)=0;
+/////abund(s)=0;
 //Rcout << "abund(s)" << abund(s) << "\n";
 
-}
+/////}
+
+
 
 //Rcout << "after if/else statement " << "\n";
 
@@ -209,7 +226,7 @@ abund(s)=0;
 
 //Rcout << "abundinset.col(0) " << abundinset_s.col(0) << "\n";
 //Rcout << "abund(s) " << abund(s) << "\n";
-}
+//}
 
 //Rcout << "abund(s) " << abund << "\n";
 
@@ -283,7 +300,7 @@ outpop(j,0)=apoplocs(j,0);
 //Here's a function that calls the SquareRoot worker defined above
 // [[Rcpp::export]]
 NumericMatrix parallelMovementRcpp_portion(const NumericMatrix& apop,
-           const IntegerMatrix& apopabund,
+           const IntegerMatrix& apopmat,
            const IntegerMatrix& apoplocs,
            const NumericMatrix acent){
 
@@ -291,10 +308,9 @@ NumericMatrix parallelMovementRcpp_portion(const NumericMatrix& apop,
   //essentially just defining the size of the output
   NumericMatrix outpop(apop.nrow(), 1);
   
-  
   // x is input matrix defined above
   //outpop is output matrix defined above
-    MoveLoop moveloop(apop,apopabund,apoplocs,acent,outpop);
+    MoveLoop moveloop(apop,apopmat,apoplocs,acent,outpop);
 
   // call parallelFor to do the work
   // starting from 0 to length of apop, run the squareRoot function defined above in the worker
@@ -313,17 +329,20 @@ NumericMatrix parallelMovementRcpp_portion(const NumericMatrix& apop,
 //[[Rcpp::export]]
 //define the main function, MovementRcpp
 NumericMatrix MovementRcppParallel(NumericMatrix& apop,
-                       IntegerMatrix& apopabund,
+                       IntegerMatrix& apopmat,
                        IntegerMatrix& apoplocs,
 					   NumericMatrix& acent) {
-                                            
+
+//define the main function, MovementRcpp
+
 Rcpp::NumericMatrix popout = apop;
 
 //set present locations to previous locations
 popout(_,6)=popout(_,2);
 
 //get new locations using parallel movement function
-popout(_,2)=parallelMovementRcpp_portion(apop,apopabund,apoplocs,acent);
+popout(_,2)=parallelMovementRcpp_portion(apop,apopmat,apoplocs,acent);
+
 
 return popout;
 
