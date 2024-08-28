@@ -50,7 +50,7 @@ grid<-grid$grid
 #set up objects
 centroids=grid[,6:7]
 cells=nrow(grid)
-area<-(grid[cells,4]*grid[cells,5])[nrow(grid)]
+area<-cells*inc
 midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
 } 
 
@@ -59,15 +59,14 @@ if(grid.type=="DIY"){
   cells=grid.list$cells
   grid=grid.list$grid
   centroids=grid.list$centroids
-  area=(grid[cells,4]*grid[cells,5])[nrow(grid)]
+  area=cells*inc
   midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
-}
 
 #grid-dependent parms
-area=len^2 #total area of grid
+area=len^2*inc #total area of grid
 N0=density*area #initial population size
 K=N0*1.5 #carrying capacity for whole population
-
+}
 #########################
 ####Import State contact rules
 #########################
@@ -128,4 +127,6 @@ F2_B=F2$coef[[2]]
 #infected carcass contact prob based on distance
 F2i_int=F2i$coef[[1]]
 F2i_B=F2i$coef[[2]]
+
+
 

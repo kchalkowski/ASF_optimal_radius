@@ -18,7 +18,7 @@ ss=2 #sounder size
 
 #Grid settings
 grid.type="DIY"
-len=10 #nrow/ncol of grid
+len=200 #nrow/ncol of grid
 inc=0.4 #resolution of grid (m)
 
 #grid.type="ML"
