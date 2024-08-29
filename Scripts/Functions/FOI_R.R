@@ -10,8 +10,7 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2,F2i){
   temp=I+C
   id=which(temp>0)
   W=matrix(0,nrow=cells,ncol=2)
-  #test
-  #F1=0.7381
+
   W[,1]=F1*I
   W[,2]=F1*C
   
@@ -24,7 +23,6 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2,F2i){
   X1=centroids[id,1]
   Y1=centroids[id,2]
   
-  #in real one, remove brackets after X1-- just testing it out
   dist=sqrt((centroids[,1]-X1)^2+(centroids[,2]-Y1)^2)
   dist=as.data.frame(dist)
   colnames(dist)="X"
@@ -37,35 +35,13 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2,F2i){
   }
   
   if(length(id)>1){
-    X1=t(repmat(centroids[id,1],cells,1))
-    Y1=t(repmat(centroids[id,2],cells,1))
-    X2=repmat(centroids[,1],length(id),1)
-    Y2=repmat(centroids[,2],length(id),1)
-    
-    dist=sqrt((X2-X1)^2+(Y2-Y1)^2)
-    #checked dist vals with ML version, look good
-    
-    #obj=reshape(,nrow(dist),ncol(dist),direction="long")
-    obj=c(dist)
-    obj=as.data.frame(obj)
-    colnames(obj)="X"
-    prob.temp=predict(F2,obj,type="response")
-    probi.temp=predict(F2i,obj,type="response")
-    
-    prob=matrix(prob.temp,nrow = length(id),ncol = cells)
-    probi=matrix(probi.temp,nrow = length(id),ncol = cells)
-    
-    prob[dist==0]<-0
-    probi[dist==0]<-0
-    
-    B=B1*t(repmat(I[id],cells,1))*prob+B2*t(repmat(C[id],cells,1))*probi
-    #sum(B) in R=351.743
-    #sum(B,"all") in ML=351.743
-    
+    B=Fast_FOI_function((id-1),centroids,cells,F2_int,F2_B,F2i_int,F2i_B,t(repmat(I[id],cells,1)),t(repmat(C[id],cells,1)),B1,B2)
   }
-  #Pse=1-exp(-W(1,:)-W(2,:)-sum(Bm1));  
-  #obj=colSums(B)
-    #sum of obj in R and ML- 351.742
+  
+  #Any B val < machine epsilon should just be zero
+  #imprecise calculations below this value
+  B[B<.Machine$double.eps]<-0
+  
   if(length(id)==1){
   Pse=1-exp(-W[,1]-W[,2]-t(B))
   } else{
@@ -73,7 +49,8 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2,F2i){
       Pse=1-exp(-W[,1]-W[,2]-t(colSums(B)))
     }
   }
-  #sum Pse in ML and R- 364.5351
+  
+  
   return(Pse)
   
 }

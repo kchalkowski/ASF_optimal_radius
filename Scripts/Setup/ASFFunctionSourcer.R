@@ -14,4 +14,5 @@ source(paste(home, "/Scripts/Functions/FOI_R.R", sep = ''))
 
 #cpp Functions
 Rcpp::sourceCpp(paste0(home,"/Scripts/Functions/Movement_Parallel_Functionsmall.cpp"), verbose=TRUE)
+Rcpp::sourceCpp(paste0(home,"/Scripts/Functions/Fast_FOI_Matrix.cpp"), verbose=TRUE)
 
