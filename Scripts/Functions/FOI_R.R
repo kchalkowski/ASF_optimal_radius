@@ -14,7 +14,7 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2,F2i){
   W[,1]=F1*I
   W[,2]=F1*C
   
-  B=zeros(length(id),cells)
+  #B=zeros(length(id),cells)
   
   if(length(id)==1){
   X1=matrix(nrow=length(id),ncol=1)
@@ -35,12 +35,17 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2,F2i){
   }
   
   if(length(id)>1){
-    B=Fast_FOI_function((id-1),centroids,cells,F2_int,F2_B,F2i_int,F2i_B,t(repmat(I[id],cells,1)),t(repmat(C[id],cells,1)),B1,B2)
-  }
+    #B=Fast_FOI_function((id-1),centroids[,1,drop=FALSE],centroids[,2,drop=FALSE],
+    #                    cells,F2_int,F2_B,F2i_int,F2i_B,t(repmat(I[id],cells,1)),t(repmat(C[id],cells,1)),B1,B2)
+  
+    B=Fast_FOI_function((id-1),centroids[,1,drop=FALSE],centroids[,2,drop=FALSE],
+                        cells,F2_int,F2_B,F2i_int,F2i_B,I[id,,drop=FALSE],C[id,,drop=FALSE],B1,B2)
+    
+    }
   
   #Any B val < machine epsilon should just be zero
   #imprecise calculations below this value
-  B[B<.Machine$double.eps]<-0
+  #B[B<.Machine$double.eps]<-0
   
   if(length(id)==1){
   Pse=1-exp(-W[,1]-W[,2]-t(B))
