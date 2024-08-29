@@ -43,47 +43,36 @@ arma::mat Y2 = repmat(trans(Y_centroids), Ninf, 1);
 //sqrt added squared diffs
 arma::mat dist = sqrt(((X2-X1) % (X2-X1))+((Y2-Y1) % (Y2-Y1)));
 
-//initiate empty matrix for dist
-//arma::mat dist_empty zeros(dist.n_rows,1);
-
-//use distances in distanct/contact formula to get prob of contact
-//infected live individuals
-//arma::mat plogit = F2_int + (F2_B*dist);
-
-arma::mat prob = zeros(dist.n_rows,dist.n_cols);
-arma::mat probi = zeros(dist.n_rows,dist.n_cols);
+//initiate empty matrices for looping
+//arma::mat prob = zeros(dist.n_rows,dist.n_cols);
+//arma::mat probi = zeros(dist.n_rows,dist.n_cols);
 arma::mat B = zeros(dist.n_rows,dist.n_cols);
 
-for(std::size_t c = 0; c < dist.n_cols; c++){
+//cols in the outer loop is slightly faster
+//for(std::size_t c = 0; c < dist.n_cols; c++){
+for(std::size_t c = 0; c < dist.n_cols-2; c+=2){
 for(std::size_t r = 0; r < dist.n_rows; r++){
 
-//vectorized versions:
-//infected live individuals
-//arma::mat prob = exp(F2_int + (F2_B*dist))/(1+exp(F2_int + (F2_B*dist)));
-//infected carcasses
-//arma::mat probi = exp(F2i_int + (F2i_B*dist))/(1+exp(F2i_int + (F2i_B*dist)));
-
-//loop versions:
+//set limits on which probabilities need to be calculated
+//far end of grid, end up with wildly low numbers-- below even machine epsilon precision possible
+//also beyond likely pig movement distances
 if(dist(r,c)<5 && dist(r,c)!=0){
-prob(r,c) = exp(F2_int + (F2_B*dist(r,c)))/(1+exp(F2_int + (F2_B*dist(r,c))));
-probi(r,c) = exp(F2_int + (F2i_B*dist(r,c)))/(1+exp(F2i_int + (F2i_B*dist(r,c))));
-B(r,c) = B1*(I_cells(r,c)*prob(r,c))+B2*(I_cells(r,c)*probi(r,c));
+double dval = dist(r,c);
+double prob = exp(F2_int + (F2_B*dval))/(1+exp(F2_int + (F2_B*dval)));
+double probi = exp(F2_int + (F2i_B*dval))/(1+exp(F2i_int + (F2i_B*dval)));
 
+B(r,c) = B1*(I_cells(r,c)*prob)+B2*(I_cells(r,c)*probi);
+}
+
+if(dist(r,c+1)<5 && dist(r,c+1)!=0){
+double dval1 = dist(r,c+1);
+double prob1 = exp(F2_int + (F2_B*dval1))/(1+exp(F2_int + (F2_B*dval1)));
+double probi1 = exp(F2_int + (F2i_B*dval1))/(1+exp(F2i_int + (F2i_B*dval1)));
+B(r,c+1) = B1*(I_cells(r,c+1)*prob1)+B2*(I_cells(r,c+1)*probi1);
 }
 
 }
 }
-
-//find where dist=0, set those indices in prob/probi to zero
-//zero distance contact (same cell) is dealt with outside of Rcpp with simpler probability
-//arma::uvec dist_zero = find(dist == 0);
-//prob(dist_zero) = dist(dist_zero);
-//probi(dist_zero) = dist(dist_zero);
-
-//Get scaled probabilities, combined live infected contact with carcass infected contact
-//B1 and B2 are scaling parameters, determined via sensitivity analyses
-
-//arma::mat B = B1*(I_cells%prob)+B2*(I_cells%probi);
 
 return(B);
 
