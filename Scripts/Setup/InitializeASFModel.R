@@ -128,5 +128,10 @@ F2_B=F2$coef[[2]]
 F2i_int=F2i$coef[[1]]
 F2i_B=F2i$coef[[2]]
 
+##### Determine cutoff for simulation model
+#runs gamma for approximate number of distances that will be generated
+#This will be used to determine cutoff of distances for which FOI will be calculated
+#helps to cut down on FOI calculation time, and reduces inaccurate calculations with numbers < machine.epsilon
+FOI_cutoff=round(max(rgamma(2*nrow(pop)*thyme,shape=shift[1],scale=shift[2])),2)
 
 

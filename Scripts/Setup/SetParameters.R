@@ -57,6 +57,7 @@ Pbd=0.0192 #From opt rad ms
 #options: "sounderlocs","idzone","alldetections","incidence"
 #if none selected (i.e., out.opts=c()), just get standard outputs
 out.opts=c("sounderlocs")
+#out.opts=c()
 
 #sounderlocs:
 #subset of pop matrix taken at each timestep: 
