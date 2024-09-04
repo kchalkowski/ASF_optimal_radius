@@ -138,3 +138,98 @@ ggplot(dead, aes(x=week,y=appar_prev,color=type))+geom_line()
 
 
 
+
+
+
+
+
+##################################################
+########## Add method to get zone calcs ##########
+##################################################
+
+
+#out.list$sounderlocs
+#centroids
+#rl=out.list$sounderlocs
+findZone_sim<-function(rl,type){
+rl=st_as_sf(rl,coords=c("x","y"))
+case1=rl[rl$timestep==1&rl$I>0,]
+xw <- raster(ncol=200, nrow=200, xmn=0, xmx=80, ymn=0, ymx=80,crs="")
+values(xw)=1
+cns=extract(xw,case1,cellnumbers=TRUE)
+xy_first=xyFromCell(xw,cns[,1])
+case1
+
+weeks=unique(rl$timestep)[order(unique(rl$timestep))]
+rl$inZone=0
+rl$seq=1:nrow(rl)
+for(w in 1:length(weeks)){
+  print(paste0("starting timestep ",w))
+  rlw=rl[rl$timestep==w,]
+  if(type=="I"){
+  rl.pos=rlw[rlw$I>0,]
+  }
+  if(type=="C"){
+  rl.pos=rlw[rlw$C>0]
+  }
+  if(w==1){
+    pts=c(st_geometry(rl.pos),st_geometry(case1))
+  } else{
+    pts=c(pts,st_geometry(rl.pos))
+  }
+  
+  wkpos_chull=st_convex_hull(st_union(pts)) %>% st_sf %>% st_cast()
+  wkpos_chull=st_buffer(wkpos_chull,0.4)
+  #cn_chull=terra::extract(x,wkpos_chull,cellnumbers=TRUE)
+  #cn_inzone=cn_chull[[1]][,1]
+  ints=st_intersection(rl[rl$timestep==w,],wkpos_chull)
+  #rl[(rl$seq%in%ints$seq),]$inZone=1
+  
+  if(nrow(ints)>0){
+  rl[(rl$seq%in%ints$seq),]$inZone=1
+  }
+
+  area.vec.w=st_area(wkpos_chull)
+  if(w==1){
+    area.vec=area.vec.w
+  } else{
+    area.vec=c(area.vec,area.vec.w)
+  }
+  
+}
+
+rl=rl[,1:9]
+rl$x=st_coordinates(rl)[,1]
+rl$y=st_coordinates(rl)[,1]
+rl=st_drop_geometry(rl)
+
+rl$cell=NA
+for(i in 1:nrow(rl)){
+  if(i%%1000==0){
+  print(paste0(i," of ",nrow(rl)))
+  }
+  rl$cell[i]=which(centroids[,1]==rl$x[i]&centroids[,2]==rl$y[i])
+}
+
+area.vec.all=data.frame("week"=weeks,"area"=as.numeric(area.vec))
+return(list("area"=area.vec.all,"dat"=rl[,1:9]))
+
+}
+
+zone_out_I=findZone_sim(rl,"I")
+Izone<-zone_out_I$dat
+Iarea<-zone_out_I$area
+
+
+E_wk.cell.summary=
+  Izone[Izone$inZone==1,] %>% 
+  dplyr::group_by(sample_source,week,grid_80km) %>% 
+  dplyr::summarise(startdt=min(DATE),
+                   Nsampled=sum(number.of.animals),
+                   Npos=sum(PCR_Result),
+                   outbreak=first(region))
+
+
+
+
+
