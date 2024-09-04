@@ -114,8 +114,8 @@ for(i in 1:length(input.opts$loc.list)){
   }
 }
   #convert to integer for plotting locations with geom_tile
-  locs.df$x=as.integer(locs.df$x)
-  locs.df$y=as.integer(locs.df$y)
+  #locs.df$x=as.integer(locs.df$x)
+  #locs.df$y=as.integer(locs.df$y)
 }
 
 
