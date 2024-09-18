@@ -36,6 +36,15 @@ ss=2 #sounder size
   #pop_init_grid_opts="homogeneous"
   pop_init_grid_opts="heterogeneous"
   
+##################################
+#### Movement option settings ####
+##################################
+#movement preference switch
+  #0=random movement preference (distance-only)
+  #1=abundance-avoidance movement preference
+  #2=rsf preference (only works when pop_init_grid_opts="heterogeneous" and grid_opts!="homogeneous")
+mv_pref=2
+  
 ######################################
 #### Surveillance option settings ####
 ######################################

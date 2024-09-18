@@ -1,4 +1,4 @@
-FastMovement=function(pop,centroids,shift,inc){
+FastMovement=function(pop,centroids,shift,inc,mv_pref){
   
   #get distances from gamma distribution
   pop[,4]=rgamma(nrow(pop),shape=shift[1],scale=shift[2])
@@ -19,7 +19,7 @@ FastMovement=function(pop,centroids,shift,inc){
   abund.mat[,1]=abund.df$abund
   #pop[,4]=0
   #pop[1,4]=0.6347192
-  m1=parallelMovementRcpp_portion(pop,abund.mat[,1,drop=FALSE],pop[,3,drop=FALSE],centroids)
+  m1=parallelMovementRcpp_portion(pop,abund.mat[,1,drop=FALSE],pop[,3,drop=FALSE],centroids,mv_pref)
   #abund.mat[1,1]
   
   

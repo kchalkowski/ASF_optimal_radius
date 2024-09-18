@@ -124,7 +124,7 @@ C_locs[[i]]<-pop[pop[,12]>0,3]
 ##########################
 #print("Moving pigs")
 
-pop<-FastMovement(pop,centroids,shift,inc)
+pop<-FastMovement(pop,centroids,shift,inc,mv_pref)
 #try ML replicated Movement process
 #pop<-Movement(pop,centroids,shift,inc)
 

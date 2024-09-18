@@ -17,7 +17,7 @@ source(paste(home, "/Scripts/Functions/sounderlocsSummarize.R", sep = ''))
 source(paste(home, "/Scripts/Functions/ExtApparentPrev.R", sep = ''))
 
 #cpp Functions
-Rcpp::sourceCpp(paste0(home,"/Scripts/Functions/Movement_Parallel_Functionsmall.cpp"), verbose=TRUE)
+Rcpp::sourceCpp(paste0(home,"/Scripts/Functions/Movement_Fast_Generalized.cpp"), verbose=TRUE)
 Rcpp::sourceCpp(paste0(home,"/Scripts/Functions/Fast_FOI_Matrix.cpp"), verbose=TRUE)
 Rcpp::sourceCpp(paste0(home,"/Scripts/Functions/SpatialZones_fast.cpp"), verbose=TRUE)
 Rcpp::sourceCpp(paste0(home,"/Scripts/Functions/FindCellfromCentroid.cpp"), verbose=TRUE)

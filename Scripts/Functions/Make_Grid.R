@@ -76,24 +76,34 @@ Make_Grid<-function(len,inc,grid.opt){
   centroids=grid[,c(6,7)]
 
   if(!("homogenous"%in%grid.opt)){
-
+    
     #simulates a spatially random neutral landscape model with values drawn from a uniform distribution
     #values rescaled to range from 0-1
     if("random"%in%grid.opt){
     r=NLMR::nlm_random(len,len,inc,rescale=TRUE)
     grid[,8]=round(values(r),2)
+    
+    
+    centroids=cbind(centroids,grid[,8])
+    grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids,"r"=r)
+    
     }
     
+  } else{
+    grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids)
   }
   
-  grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids)
   return(grid.list)
   
 }
 
 
+set.seed(1984)
+m = matrix(sample.int(25,25), 5)
 
-
+col_indexes = c(1, 3)
+col_indexes
+min_loc_r = which(m[, col_indexes] == min(m[, col_indexes]), arr.ind = TRUE)
 
 
 
