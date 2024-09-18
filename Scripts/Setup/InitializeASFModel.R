@@ -95,10 +95,13 @@ if(state == 1){
   F2i=F2i.list$FL
   if(density == 1.5){
     B1=0.9
+    ss=2
   } else if(density == 3){
     B1=0.4
+    ss=4
   } else if(density == 5){
     B1=0.2
+    ss=6
   }
 } else if(state == 2){
   #specify which set if gamma fit parameters to use: xSC or xFL
@@ -109,10 +112,13 @@ if(state == 1){
   F2i=F2i.list$SC
   if(density == 1.5){
     B1=0.009
+    ss=2
   } else if(density == 3){
     B1=0.004
+    ss=4
   } else if(density == 5){
     B1=0.002
+    ss=6
   }
 }
 
@@ -133,5 +139,4 @@ F2i_B=F2i$coef[[2]]
 #This will be used to determine cutoff of distances for which FOI will be calculated
 #helps to cut down on FOI calculation time, and reduces inaccurate calculations with numbers < machine.epsilon
 FOI_cutoff=round(max(rgamma(2*nrow(pop)*thyme,shape=shift[1],scale=shift[2])),2)
-
 

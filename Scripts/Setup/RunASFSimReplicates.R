@@ -69,7 +69,7 @@ if("sounderlocs"%in%out.opts){
 ##################################
 
 saveRDS(out.list,paste0("/Output/",run_folder,"/out_list.rds"))
-#saveRDS(SEIRCZ.summary,paste0("/Output/",run_folder,"/SEIRCZ.summary.rds"))
+saveRDS(SEIRCZ.summary,paste0("/Output/",run_folder,"/SEIRCZ.summary.rds"))
 
 
 
