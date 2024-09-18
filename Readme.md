@@ -12,6 +12,7 @@ Readme/scripts updated periodically.
 
 ## Recent Updates
 **September 18, 2024** Added functionality for additional output/aggregation options for sounderlocs output, including some Rcpp-optimized spatial summary options (currently demonstrated in Sensitivity_Analysis/Scripts/doSensitivityAnalysis.R). Added comments to new spatial functions and finalized sensitivity analysis pipeline for comparing simulation output to observed, de-identified ASF outbreak data.    
+    
 **August 28, 2024** Optimized FOI function-- created FOI_Fast_Matrix.cpp to speed up FOI calcs via Rcpp armadillo, loop unrolling, and added distance cutoff for calculations.
 
 ## Pending/Upcoming Updates
