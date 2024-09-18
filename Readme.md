@@ -22,7 +22,8 @@ Readme/scripts updated periodically.
 * Add RSF-preference option to Movement_Parallel_Functionsmall.cpp
 * Add functionality to MakeGrid for creating different landscape structures with landscapemetrics
 * Add external input option to FOI_Fast_Matrix.cpp for FOI_cutoff to allow more flexiblity in determining calculation cutoffs-- currently just hardcoded to 5km in code on line 67
-
+* Add functionality to determine gamma-distributed movement from national-scale prediction model from given env covs
+* Add functionality to determine RSF preferences from available land classes
 
 
 
