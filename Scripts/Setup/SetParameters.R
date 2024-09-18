@@ -26,13 +26,16 @@ inc=0.4 #resolution of grid (m)
 
 #Surveillance settings
 #DetP=NULL #DetP=NULL if no detection probability, means DetP=1
-DetP=0.5 #otherwise, set detection probability-- of all tested pigs that are positive
+DetP=1 #otherwise, set detection probability-- of all tested pigs that are positive
 #this probability will determine how many of those are actually detected
   #Later-- get this probability from sensitivity/specificity (whichever one relates to false negatives)
   #Later-- consider whether should incorporate false positives, or if this matters
   #Also-- for now, not incorporatig DetP into FirstDetect. Point of that is to initiate a detection, and response. 
     #probably better ways to look at effect of late response due to missed detections
   #also assuming DetP is same for live and dead pigs for now
+
+pop_init_grid_opts="homogeneous"
+
 #########################
 ####Load fixed parameters
 #########################

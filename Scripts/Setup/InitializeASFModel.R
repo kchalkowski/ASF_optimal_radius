@@ -67,6 +67,7 @@ area=len^2*inc #total area of grid
 N0=density*area #initial population size
 K=N0*1.5 #carrying capacity for whole population
 }
+
 #########################
 ####Import State contact rules
 #########################

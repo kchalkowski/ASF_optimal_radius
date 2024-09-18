@@ -11,7 +11,8 @@ RunSimulationModel<-function(rep){
 ######################
 ####Initialize Population
 #####################
-pop<-InitializeSounders(N0,ss,cells,centroids,0,0,0,"homogenous")
+#pop<-InitializeSounders(N0,ss,cells,centroids,0,0,0,"homogenous")
+pop=InitializeSounders(centroids,grid,c(N0,ss),"init_pop","homogeneous")
 FOI_cutoff=round(max(rgamma(2*nrow(pop)*thyme,shape=shift[1],scale=shift[2])),2)
 out.list=SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop,out.opts,"homogenous",rep,DetP)
 return(out.list)
