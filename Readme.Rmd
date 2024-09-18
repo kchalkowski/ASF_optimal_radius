@@ -2,22 +2,17 @@
 
 Based on ASF simulation model from Pepin et al. 2022, Optimizing response to an introduction of African Swine Fever in wild pigs, converted from Matlab to R/C++.    
 
-All scripts/objects to run model should be here, with exception of two datasets used to model direct/indirect contact.
-
-Email kim.m.pepin@usda.gov to request these datasets to run model. Else, just comment out references to ModelStateData.R and input parameters separately.    
-
 Readme/scripts updated periodically.    
 
-## Scripts
+### Steps to run simulation
+* clone repo to your machine
+* store contact data files in Input folder (email kim.m.pepin@usda.gov or kayleigh.chalkowski@usda.gov for these files)
+* set home directory in RunASFSimReplicates.R to your ASF_optimal_radius path
+* if needed, change parameters in SetParameters.R
 
-### Scripts to run simulation
-* InitializeASFModel.R- run this once to load libraries, set paths, etc. 
-* SetParameters.R- sets input parameters for model run
-* ASFFunctionSourcer.R- source all functions needed to run simulation
-* ML_R_Compare.R- takes output from ML/R models, make figures and summarise
-* RunASFSimReplicates.R- run ASF simulation in loops, with different parameter settings, saves different outputs at end of each loop
-* RunSimulationModel.R- runs each replicate of the ASF simulation-- initializes population and runs the model
 
-### Simulation functions
+### Updates
 
-### Output generating functions
+
+
+
