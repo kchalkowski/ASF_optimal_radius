@@ -11,7 +11,7 @@ Readme/scripts updated periodically.
 4. If needed, change parameters in SetParameters.R
 
 ## Recent Updates
-**September 18, 2024:**
+**September 18, 2024:**   
 Added options to initialize (neutral landscape model) heterogeneous landscape, initialize population according to RSF probabilities assigned to landscape, and allow for RSF-driven movement preference. Made movement function more general to allow for different movement preference types (distance-only, abundance-avoidant, and rsf land class preference).    
 
 **September 18, 2024:**    
