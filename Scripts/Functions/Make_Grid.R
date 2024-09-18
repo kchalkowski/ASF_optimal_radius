@@ -1,3 +1,16 @@
+
+#########################
+######## Purpose ######## 
+#########################
+
+#Initializes grid to run spatially-explicit meta-population disease spread model
+#Includes options for either homogeneous, uniform grid, or grid with land class preference probabilities
+  #Currently only option is random landscape, alternative clustering options will be available in future updates.
+
+##########################
+######## Function ######## 
+##########################
+
 #Inputs: area of grid (in kilometers2); resolution of grid (in km2); type.opt="homogenous" or "clustered"
 #Outputs: 
 #1-grid matrix: 
@@ -8,41 +21,35 @@
   #col5- lower-most y coord of cell
   #col6- center x coordinate of cell
   #col7- center y coordinate of cell
+  #if grid.opt="heterogeneous":
+  #col8- preference probability
 #2- cells, integer of number of cells in grid
 #3- centroids, two col x/y of just centroids of grid of each cell
-
-#area=80^2
-#inc=0.4
-#0.4*200
-
-#Note: stuck on running clustered simulated landscape with NLMR due to pkg install issues
-# install.packages("remotes")
-#remotes::install_github("cran/RandomFieldsUtils")
-#remotes::install_github("cran/RandomFields")
-#remotes::install_github("ropensci/NLMR")
-
-#require(NLMR)
-#Make_Grid(100,0.4,"homogenous")
-#len=100
-#inc=0.4
-#grid.opt="homogenous"
-###
-#troubleshooting:
-#grid<-readMat(paste0(home,"/Input/Grid_80x80_0pt4km.mat"))
-#gridml<-grid$grid
-#centroidsml=gridml[,6:7]
-###
-
 Make_Grid<-function(len,inc,grid.opt){
+  require(raster)
+  require(NLMR)
+  
+  if(missing(grid.opt)){
+    grid.opt=="homogeneous"
+  } 
   
   #get number of cells in grid
   cells=len^2
   
   #if grid homogenous-- will later enter ability to alter LULC
-  if(grid.opt=="homogenous"){
+  if("homogenous"%in%grid.opt){
   
   #initialize empty grid matrix
   grid=matrix(nrow=round(cells),ncol=7)
+  
+  }
+  
+  if(!("homogenous"%in%grid.opt)){
+    
+    #initialize empty grid matrix
+    grid=matrix(nrow=round(cells),ncol=8)
+    
+  }
   
   #first column is just cell indices
   grid[,1]=1:cells
@@ -67,21 +74,17 @@ Make_Grid<-function(len,inc,grid.opt){
   
   #get centroids-only object
   centroids=grid[,c(6,7)]
-  }
 
-  
-  #if(grid.opt=="test_pref_binary"){
-  #  grid=matrix(nrow=round(cells),ncol=8)
-  #  grid[,1]=1:cells
-  #  grid[,2]=rep(seq(0,((inc*nrow.grid)-inc),0.4),nrow.grid)
-  #  grid[,3]=rep(seq(0,((inc*nrow.grid)-inc),0.4),nrow.grid)
-  #  grid[,4]=rep(seq(inc,(inc*nrow.grid),0.4),nrow.grid)
-  #  grid[,5]=rep(seq(inc,(inc*nrow.grid),0.4),nrow.grid)
-  #  grid[,6]=rep(seq(((0+inc)/2),(((inc*nrow.grid)-inc)+(inc*nrow.grid))/2,0.4),nrow.grid)
-  #  grid[,7]=rep(seq(((0+inc)/2),(((inc*nrow.grid)-inc)+(inc*nrow.grid))/2,0.4),nrow.grid)
-  #  grid[,8]=rbinom(round(cells),1,0.2)
-  #  centroids=grid[,c(6,7)]
-  #}
+  if(!("homogenous"%in%grid.opt)){
+
+    #simulates a spatially random neutral landscape model with values drawn from a uniform distribution
+    #values rescaled to range from 0-1
+    if("random"%in%grid.opt){
+    r=NLMR::nlm_random(len,len,inc,rescale=TRUE)
+    grid[,8]=values(r)
+    }
+    
+  }
   
   grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids)
   return(grid.list)
