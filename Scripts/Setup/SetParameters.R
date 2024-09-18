@@ -10,37 +10,46 @@ detectday=73
 ss=2 #sounder size
 
 
-#########################
-#### Toggle switches ####
-#########################
-#ML- use original grid made in ML by Kim-- is 80kmx80km, 400m resolution
-#DIY- make grid in R with preset options using Make_Grid.R
+##############################
+#### Grid option settings ####
+##############################
 
-#Grid settings
-grid.type="DIY"
-#len=200 #nrow/ncol of grid
-len=200
-inc=0.4 #resolution of grid (m)
+#DIY or ML:
+  #ML- use original grid made in ML by Kim-- is 80kmx80km, 400m resolution
+  #DIY- make grid in R with preset options using Make_Grid.R
+  grid.type="DIY"
+  len=200 #nrow/ncol of grid
+  inc=0.4 #resolution of grid (m)
+  #grid.type="ML"
 
-#grid.type="ML"
-
-#Surveillance settings
-#DetP=NULL #DetP=NULL if no detection probability, means DetP=1
-DetP=1 #otherwise, set detection probability-- of all tested pigs that are positive
-#this probability will determine how many of those are actually detected
-  #Later-- get this probability from sensitivity/specificity (whichever one relates to false negatives)
-  #Later-- consider whether should incorporate false positives, or if this matters
-  #Also-- for now, not incorporatig DetP into FirstDetect. Point of that is to initiate a detection, and response. 
-    #probably better ways to look at effect of late response due to missed detections
-  #also assuming DetP is same for live and dead pigs for now
-
-pop_init_grid_opts="homogeneous"
+#grid.opt: "homogeneous" or "random", optional input  
+  #default is "homogeneous"
+  #homogeneous- grid with 7 cols is created, no land class designations
+  #random- random neutral landscape model created, with land class values draw from uniform distribution and rescaled from 0 to 1.
+  grid.opt="random"
+  #grid.opt="homogeneous"
+  
+#How to initialize the population
+  #pop_init_grid_opts="homogeneous", random distribution
+  #pop_init_grid_opts="heterogeneous", distribute pigs according to land class preference
+    #if "heterogeneous", initialized grid MUST be something other than "homogeneous" or InitializeSounders will throw error.
+  #pop_init_grid_opts="homogeneous"
+  pop_init_grid_opts="heterogeneous"
+  
+######################################
+#### Surveillance option settings ####
+######################################
+  
+DetP=1 
+  #probability of infected pigs sampled as positive
+  #for now, is just used as an input in some of the sounderlocs output processing steps.
+  #later, may be integrated into culling/surveillance process within simulation.
 
 #########################
 ####Load fixed parameters
 #########################
 #parameters that stay the same
-grid.opts="homogenous"
+
 Pir = 0.05 #; %proportion of individuals that recover instead of die
 death=0.00639 # probability of natural death
 alphaC = 1.1 #% scaling parameter on relationship of effort to capture success

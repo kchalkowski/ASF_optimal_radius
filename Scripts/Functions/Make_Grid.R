@@ -81,7 +81,7 @@ Make_Grid<-function(len,inc,grid.opt){
     #values rescaled to range from 0-1
     if("random"%in%grid.opt){
     r=NLMR::nlm_random(len,len,inc,rescale=TRUE)
-    grid[,8]=values(r)
+    grid[,8]=round(values(r),2)
     }
     
   }

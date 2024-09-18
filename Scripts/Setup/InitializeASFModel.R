@@ -55,7 +55,7 @@ midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
 } 
 
 if(grid.type=="DIY"){
-  grid.list=Make_Grid(len,inc,"homogenous")
+  grid.list=Make_Grid(len,inc,grid.opt)
   cells=grid.list$cells
   grid=grid.list$grid
   centroids=grid.list$centroids
@@ -139,5 +139,5 @@ F2i_B=F2i$coef[[2]]
 #runs gamma for approximate number of distances that will be generated
 #This will be used to determine cutoff of distances for which FOI will be calculated
 #helps to cut down on FOI calculation time, and reduces inaccurate calculations with numbers < machine.epsilon
-FOI_cutoff=round(max(rgamma(2*nrow(pop)*thyme,shape=shift[1],scale=shift[2])),2)
+#FOI_cutoff=round(max(rgamma(2*nrow(pop)*thyme,shape=shift[1],scale=shift[2])),2)
 

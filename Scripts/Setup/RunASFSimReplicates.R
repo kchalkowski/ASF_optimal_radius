@@ -18,8 +18,6 @@ setwd(home)
 ########## Setup ##########
 ###########################
 
-#Run InitializeASFModel.R once per session
-
 #Run SetParameters once per session, or as needed to update parameters
 source(paste0(home,"/Scripts/Setup/SetParameters.R"))
 
