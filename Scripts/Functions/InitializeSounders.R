@@ -26,8 +26,17 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   ############## Parse input args and check input formatting ############## 
   #########################################################################  
   
+  
+  if(missing(pop_init_type)){
+    pop_init_type="init_pop"
+  }
+  
+  if(missing(pop_init_grid_opts)){
+    pop_init_grid_opts="homogeneous"
+  }
+  
   #Check main input args
-  if(missing(pop_init_type)|pop_init_type=="init_pop"){
+  if(pop_init_type=="init_pop"){
     if(length(pop_init_args)<2){
       stop("Missing input args to initialize population")
     }
@@ -50,22 +59,19 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   }
   
   #Check grid input args
-  if(!missing(pop_init_grid_opts)){
     if(pop_init_grid_opts=="heterogenous"&ncol(grid)<8){
       stop("Specified heterogeneous land class preference option, but land class values missing in grid.")
     }
     if(pop_init_grid_opts!="heterogeneous" & pop_init_grid_opts!="homogeneous"){
       stop("Unrecognized grid input option")
     }
-    
-  }
-
   
+
   ###################################################
   ############## Initialize Population ############## 
   ###################################################
 
-  if(missing(pop_init_type)|pop_init_type=="init_pop"){ 
+  if(pop_init_type=="init_pop"){ 
   
     #initialize needed objects
     cells=nrow(centroids)
@@ -74,7 +80,7 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
     sn_i<-N0/ss 
   
     #default option, randomly assign sounders to cells
-    if(missing(pop_init_grid_opts)|pop_init_grid_opts=="homogeneous"){
+    if(pop_init_grid_opts=="homogeneous"){
     assigns<-rbinom(cells,1,sn_i/cells) 
     } else{
 
@@ -123,7 +129,7 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   ############## Initialize Single Group/Individual ############## 
   ################################################################
   
-  if(!missing(pop_init_type) & pop_init_type=="init_single"){
+  if(pop_init_type=="init_single"){
   #for initializing initial infected individual introduction
   pop<-matrix(nrow=1,ncol=13)
   pop[,1]=n #sounder size with avg as lambda in a poisson
