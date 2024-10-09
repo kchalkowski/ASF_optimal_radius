@@ -24,9 +24,9 @@ Added functionality for additional output/aggregation options for sounderlocs ou
 Optimized FOI function-- created FOI_Fast_Matrix.cpp to speed up FOI calcs via Rcpp armadillo, loop unrolling, and added distance cutoff for calculations.
 
 ## Pending/Upcoming Updates
+* Add functionality to input raster with lc values.    
 * Add external input option to FOI_Fast_Matrix.cpp for FOI_cutoff to allow more flexiblity in determining calculation cutoffs-- currently just hardcoded to 5km in code on line 67
 * Add functionality to determine gamma-distributed movement from national-scale prediction model from given env covs
-* Add functionality to determine RSF preferences from available land classes
 
 
 
