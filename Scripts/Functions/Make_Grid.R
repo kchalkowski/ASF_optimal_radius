@@ -11,7 +11,12 @@
 ######## Function ######## 
 ##########################
 
-#Inputs: area of grid (in kilometers2); resolution of grid (in km2); type.opt="homogenous" or "clustered"
+#Inputs: 
+  #len of each side (in cells);
+  #resolution of grid (in km2); 
+  #grid.opt="homogenous","random", or "ras"
+  #ras, raster object, optional input
+
 #Outputs: 
 #1-grid matrix: 
   #col1- list of cells 1:ncell
@@ -25,13 +30,40 @@
   #col8- preference probability
 #2- cells, integer of number of cells in grid
 #3- centroids, two col x/y of just centroids of grid of each cell
-Make_Grid<-function(len,inc,grid.opt){
+Make_Grid<-function(len,inc,grid.opt,ras){
   require(raster)
   require(NLMR)
   
   if(missing(grid.opt)){
     grid.opt=="homogeneous"
-  } 
+  } else{
+    #add stops to check inputs
+    if("ras"%in%grid.opt){
+      if(missing(ras)){
+        stop("ras grid option selected, but no input raster")
+      } else{
+        
+      #checking raster input formatting
+      if (!is(ras, "RasterLayer")){
+        stop("ras needs to be RasterLayer format")
+      }
+        
+      if(dim(ras)[1]!=len){
+        stop("dimensions of raster do not match input len")
+      }
+      
+      if(res(ras)[1]!=inc){
+        stop("resolution of raster does not match input inc")
+      }
+        
+      }
+    } else{ #ras not in grid.opt
+      if(!missing(ras)){ #ras not missing
+        message("ras grid option not selected, but raster input. Raster input ignored.")
+      }
+    }
+    
+  }
   
   #get number of cells in grid
   cells=len^2
@@ -45,10 +77,8 @@ Make_Grid<-function(len,inc,grid.opt){
   }
   
   if(!("homogenous"%in%grid.opt)){
-    
     #initialize empty grid matrix
     grid=matrix(nrow=round(cells),ncol=8)
-    
   }
   
   #first column is just cell indices
@@ -82,11 +112,18 @@ Make_Grid<-function(len,inc,grid.opt){
     if("random"%in%grid.opt){
     r=NLMR::nlm_random(len,len,inc,rescale=TRUE)
     grid[,8]=round(values(r),2)
-    
-    
+
     centroids=cbind(centroids,grid[,8])
     grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids,"r"=r)
     
+    }
+    
+    if("ras"%in%grid.opt){
+      #need to get values from ras
+      grid[,8]=round(values(ras),2)
+      #assign to centroids
+      centroids=cbind(centroids,grid[,8])
+      grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids)
     }
     
   } else{
@@ -96,14 +133,6 @@ Make_Grid<-function(len,inc,grid.opt){
   return(grid.list)
   
 }
-
-
-set.seed(1984)
-m = matrix(sample.int(25,25), 5)
-
-col_indexes = c(1, 3)
-col_indexes
-min_loc_r = which(m[, col_indexes] == min(m[, col_indexes]), arr.ind = TRUE)
 
 
 
