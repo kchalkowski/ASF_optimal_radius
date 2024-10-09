@@ -11,6 +11,9 @@ Readme/scripts updated periodically.
 4. If needed, change parameters in SetParameters.R
 
 ## Recent Updates
+**October 9, 2024:**  
+Incorporated new movement function, Movement_Fast_RSFavail.cpp (parm setting mv_pref=3 to use), which allows for flexibility in RSF preferences according to availability. Requires matrix of RSF probabilities with different combinations, with corresponding dummy coded RSF availability matrix.
+
 **September 18, 2024:**   
 Added options to initialize (neutral landscape model) heterogeneous landscape, initialize population according to RSF probabilities assigned to landscape, and allow for RSF-driven movement preference. Made movement function more general to allow for different movement preference types (distance-only, abundance-avoidant, and rsf land class preference).    
 
