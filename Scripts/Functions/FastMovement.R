@@ -1,4 +1,18 @@
-FastMovement=function(pop,centroids,shift,inc,mv_pref){
+FastMovement=function(pop,centroids,shift,inc,mv_pref,RSF_mat,RSF_mat0){
+  
+  #run checks to make sure objects input correctly
+  if(mv_pref!=3){
+    if(!missing(RSF_mat0)|!missing(RSF_mat)){
+      message("mv_pref not set to RSF-availability (3), but RSF_mat supplied. Ignoring RSF_mat/RSF_mat0 input.")
+    }
+  } else{
+    if(mv_pref==3){
+      if(missing(RSF_mat0)|missing(RSF_mat)){
+      stop("mv_pref set to RSF-availability movement (3), but RSF matrices not supplied")
+      }
+    }
+  }
+  
   
   #get distances from gamma distribution
   pop[,4]=rgamma(nrow(pop),shape=shift[1],scale=shift[2])
@@ -17,12 +31,17 @@ FastMovement=function(pop,centroids,shift,inc,mv_pref){
   abund.df=left_join(cells,abund.df,by="cell")
   abund.df$abund[is.na(abund.df$abund)]<-0
   abund.mat[,1]=abund.df$abund
-  #pop[,4]=0
-  #pop[1,4]=0.6347192
-  m1=parallelMovementRcpp_portion(pop,abund.mat[,1,drop=FALSE],pop[,3,drop=FALSE],centroids,mv_pref)
-  #abund.mat[1,1]
-  
-  
+
+  #different functions for each movement pref version, temporary workaround.
+  #mv_pref=3 in separate function because not sure how to use Nullify class input to rcpp parallel for optional args. 
+  if(mv_pref!=3){
+    m1=parallelMovementRcpp_portion(pop,abund.mat[,1,drop=FALSE],pop[,3,drop=FALSE],centroids,mv_pref)
+  } else{
+    if(mv_pref==3){
+      m1=parallelMovement_RSFavail(pop,abund.mat[,1,drop=FALSE],pop[,3,drop=FALSE],centroids,RSF_mat0,RSF_mat,mv_pref)
+    }
+  }
+
   pop[,3]=m1
   
   #if old locs same as new locs, print
