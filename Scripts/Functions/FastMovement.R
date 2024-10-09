@@ -44,6 +44,12 @@ FastMovement=function(pop,centroids,shift,inc,mv_pref,RSF_mat,RSF_mat0){
 
   pop[,3]=m1
   
+  
+  if(mv_pref==2|mv_pref==3){
+    #update lc vals of current new cell to pop
+    pop[,2]=centroids[pop[,3],3]
+  }
+  
   #if old locs same as new locs, print
   #if(all(pop[,3]==pop[,7])){
   #warning("all old locs same as new locs")
