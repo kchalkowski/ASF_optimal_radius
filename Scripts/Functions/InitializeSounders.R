@@ -19,8 +19,8 @@
   #for pop_init_type="init_pop", need a vector with N0 (initial pop size) and ss (sounder size)
   #for pop_init_type="init_single", need a vector with init_loc (cell number to initialize group/individual) and n (number of individuals to initialize)
 #pop_init_type: string, "init_pop" or "init_single"
-#pop_init_grid_opts: string, "homogeneous" or "heterogeneous"
-InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init_grid_opts){
+#pop_init_grid_opts: string, "homogeneous" or "ras" or "heterogeneous"
+InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init_grid_opts,RSF0_lc){
 
   #########################################################################
   ############## Parse input args and check input formatting ############## 
@@ -62,7 +62,9 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
     if(pop_init_grid_opts=="heterogenous"&ncol(grid)<8){
       stop("Specified heterogeneous land class preference option, but land class values missing in grid.")
     }
-    if(pop_init_grid_opts!="heterogeneous" & pop_init_grid_opts!="homogeneous"){
+    if(pop_init_grid_opts!="heterogeneous" & 
+       pop_init_grid_opts!="homogeneous" & 
+       pop_init_grid_opts!="ras"){
       stop("Unrecognized grid input option")
     }
   
@@ -80,7 +82,8 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
     sn_i<-N0/ss 
   
     #default option, randomly assign sounders to cells
-    if(pop_init_grid_opts=="homogeneous"){
+    if(pop_init_grid_opts=="homogeneous"|
+       pop_init_grid_opts=="ras"){
     assigns<-rbinom(cells,1,sn_i/cells) 
     } else{
 
@@ -116,12 +119,46 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   #for homogenous grid, pref col is just uniform 0
   if(pop_init_grid_opts=="homogeneous"){pop[,2]=0} 
 
-  #for heterogenous grid, pref col indicates preference val of current cell
-  if(pop_init_grid_opts=="heterogeneous"){pop[,2]=grid[pop[,3],8]} 
-
+  #for heterogenous or ras grid, pref col indicates preference val of current cell
+  if(pop_init_grid_opts=="heterogeneous"|pop_init_grid_opts=="ras"){pop[,2]=grid[pop[,3],8]} 
+  
   if(any(pop[,3]>nrow(centroids))){
     stop("agents initialized off the grid")
   }
+  
+  if((pop_init_grid_opts == "heterogeneous" | 
+      pop_init_grid_opts == "ras") & !missing(RSF0_lc)){
+    #RSF0_lc value is lc with 0 probability to move to (e.g., water body)
+    #if(centroids[init_locs,3]==RSF0_lc){
+      #stop condition. will need to do some checking before runs to look at center of each lc 
+      #for initializing infected individual.
+      #stop("individual initialized in unsuitable location (RSF probability = 0)")
+    #while loop-- 
+      #check if any initialized in lc=0
+      #while any initialized in lc=0
+        #subset those and randomly sample new location not already occupied by another sounder
+      if(any(pop[,2]==RSF0_lc)){
+        RSF0.r=which(pop[,2]==RSF0_lc)
+        
+        for(r in 1:length(RSF0.r)){
+          cellsq=1:cells
+          cellsq=cellsq[-pop[,3]]
+          if(all(centroids[cellsq,3]==RSF0lc)){
+            stop("No suitable habitat available")
+          }
+          cellsq=cellsq[-which(centroids[cellsq,3]==RSF0lc)]
+          new.cell=sample(cellsq,1)
+          pop[RSF0.r[r],3]=new.cell
+          #pop[,5]=centroids[pop[,3],1] #present location X 
+          #pop[,6]=centroids[pop[,3],2] 
+          pop[RSF0.r[r],5]=centroids[new.cell,1] #x
+          pop[RSF0.r[r],6]=centroids[new.cell,2] #y
+          pop[RSF0.r[r],2]=centroids[new.cell,3] #lc
+          }
+        
+      }
+
+    }
 
   }
 
@@ -130,6 +167,20 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   ################################################################
   
   if(pop_init_type=="init_single"){
+   
+    if((pop_init_grid_opts == "heterogeneous" | 
+        pop_init_grid_opts == "ras") & !missing(RSF0_lc)){
+      #RSF0_lc value is lc with 0 probability to move to (e.g., water body)
+      if(centroids[init_locs,3]==RSF0_lc){
+        #stop condition. will need to do some checking before runs to look at center of each lc 
+        #for initializing infected individual.
+        stop("individual initialized in unsuitable location (RSF probability = 0)")
+      }
+      
+    }
+    #check that initialization location is not in a zero-RSF prob area 
+  #init_locs  
+    
   #for initializing initial infected individual introduction
   pop<-matrix(nrow=1,ncol=13)
   pop[,1]=n #sounder size with avg as lambda in a poisson
@@ -145,6 +196,10 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   pop[,11]=0 #number of R status in sounder
   pop[,12]=0 #number of C status in sounder
   pop[,13]=0 #number of Z status in sounder
+  
+  
+  
+  
   	}
 
   
