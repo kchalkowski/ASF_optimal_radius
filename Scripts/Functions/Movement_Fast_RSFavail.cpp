@@ -351,7 +351,19 @@ void operator()(std::size_t begin, std::size_t end) {
     } //for vals in rsf_group
 
     //result should be rsf_vals with probabilities, not whole number lc integers
-    //add stop condition for this
+    //add stop condition for ?
+
+   
+
+    //if all in set are 0... could mean pig ended up on island-- single cells of diff lc type
+    if(rsf_vals.is_zero()){
+        //Rcout << "rsf_vals: " << rsf_vals << "\n";
+        //Rcout << "pop row index: " << j << "\n";
+        //Rcout << "set cells: " << set << "\n";
+        //Rcpp::stop("Group can only move to 0-probability cells");
+    //just stay in same place
+    truemin = apoplocs(j,0);
+        }
 
     //do weighted selection using probabilities as before
     //use rsf_vals as probabilities for which cell to move to
