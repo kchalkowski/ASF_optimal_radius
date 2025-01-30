@@ -11,7 +11,8 @@
 
 #set home directory, location of ASF_Optimal_Rdius
 #home="local/path/to/ASF_Optimal_Radius/repo"
-home="/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius"
+#home="/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius" # mac option
+home <- file.path("C:", "Users", "kayleigh.chalkowski", "path", "to", "working", "directory") # cross platform option
 setwd(home)
 
 ###########################
@@ -66,8 +67,10 @@ if("sounderlocs"%in%out.opts){
 ########## Save outputs ##########
 ##################################
 
-saveRDS(out.list,paste0("/Output/",run_folder,"/out_list.rds"))
-saveRDS(SEIRCZ.summary,paste0("/Output/",run_folder,"/SEIRCZ.summary.rds"))
+#saveRDS(out.list,paste0("/Output/",run_folder,"/out_list.rds")) # mac option
+saveRDS(out.list, file.path("Output", run_folder, "out_list.rds")) #cross platform option
+#saveRDS(SEIRCZ.summary,paste0("/Output/",run_folder,"/SEIRCZ.summary.rds")) # mac option
+saveRDS(SEIRCZ.summary, file.path("Output", run_folder, "SEIRCZ.summary.rds")) # cross platform option
 
 ###here
 
