@@ -59,7 +59,7 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   }
   
   #Check grid input args
-    if(pop_init_grid_opts=="heterogenous"&ncol(grid)<8){
+    if(pop_init_grid_opts=="heterogeneous"&ncol(grid)<8){
       stop("Specified heterogeneous land class preference option, but land class values missing in grid.")
     }
     if(pop_init_grid_opts!="heterogeneous" & 
@@ -116,10 +116,10 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   pop[,12]=0 #number of C status in sounder
   pop[,13]=0 #number of Z status in sounder
 
-  #for homogenous grid, pref col is just uniform 0
+  #for homogeneous grid, pref col is just uniform 0
   if(pop_init_grid_opts=="homogeneous"){pop[,2]=0} 
 
-  #for heterogenous or ras grid, pref col indicates preference val of current cell
+  #for heterogeneous or ras grid, pref col indicates preference val of current cell
   if(pop_init_grid_opts=="heterogeneous"|pop_init_grid_opts=="ras"){pop[,2]=grid[pop[,3],8]} 
   
   if(any(pop[,3]>nrow(centroids))){

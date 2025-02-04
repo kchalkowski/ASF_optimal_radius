@@ -40,7 +40,7 @@ grid<-readMat(paste0(home,"/Input/Grid_80x80_0pt4km.mat"))
 grid<-grid$grid
 
 #scale land class values by RSFs
-#if(grid.opts!="homogenous"){
+#if(grid.opts!="homogeneous"){
 #  prefs=grid[,8]
 #  prefs[prefs==1]=RSF_mat[RSF_mat[,1]==1,2] #convert to RSF_prefs
 #  prefs[prefs==0]=RSF_mat[RSF_mat[,1]==0,2] #convert to RSF_prefs
