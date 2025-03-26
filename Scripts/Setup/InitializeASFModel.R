@@ -16,6 +16,7 @@ library(microbenchmark)
 library(RcppArmadillo)
 library(RcppParallel)
 library(stringr)
+library(sf)
 library(dplyr, warn.conflicts = FALSE)
 
 # Suppress summarise info from dplyr
@@ -40,7 +41,7 @@ grid<-readMat(paste0(home,"/Input/Grid_80x80_0pt4km.mat"))
 grid<-grid$grid
 
 #scale land class values by RSFs
-#if(grid.opts!="homogenous"){
+#if(grid.opts!="homogeneous"){
 #  prefs=grid[,8]
 #  prefs[prefs==1]=RSF_mat[RSF_mat[,1]==1,2] #convert to RSF_prefs
 #  prefs[prefs==0]=RSF_mat[RSF_mat[,1]==0,2] #convert to RSF_prefs
@@ -55,7 +56,9 @@ midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
 } 
 
 if(grid.type=="DIY"){
-  grid.list=Make_Grid(len,inc,grid.opt)
+  result=Make_Grid(len,inc,grid.opt)
+  grid.list <- result$grid.list
+  sample.design <- result$sample.design
   cells=grid.list$cells
   grid=grid.list$grid
   centroids=grid.list$centroids
@@ -66,6 +69,21 @@ if(grid.type=="DIY"){
 area=len^2*inc #total area of grid
 N0=density*area #initial population size
 K=N0*1.5 #carrying capacity for whole population
+}
+
+if(grid.type=="County"){
+  result=Make_Grid(len,inc,grid.opt)
+  grid.list <- result$grid.list
+  sample.design <- result$sample.design  
+  cells=grid.list$cells
+  grid=grid.list$grid
+  centroids=grid.list$centroids
+  area=cells*inc
+  midpoint=c(mean(centroids[,1]),mean(centroids[,2]))
+  
+  #grid-dependent parms
+  N0=density*area #initial population size
+  K=N0*1.5 #carrying capacity for whole population
 }
 
 #########################
