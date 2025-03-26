@@ -36,14 +36,15 @@ tar_option_set(packages = c("Rcpp",
 list(
   
   ## Input raw data files -----  
-  #Example:
-  #tar_target(predlands_path,
-  #           "/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius/Not_Pipeline/Setup/Pipeline_SSF_Weekly/4_Output/indiv_plands",
-  #           format="file"),
-  
+
   ### Input parameters file: -----------
   #tar_target(parameters_txt,
   #           "/rel/path/parms.txt",
+  #           format="file"),
+  
+  ### Input landscapes directory: -----------
+  #tar_target(lands_path,
+  #           "/rel/path/ras_dir",
   #           format="file"),
   
   ## Read and format input data -----  
@@ -54,6 +55,9 @@ list(
   ### Read and format parameters file: -----------
   #tar_target(parameters,
               #FormatParameters(parameters_txt)),
+  
+  ### Read and format landscapes: -----------
+  #tar_terra_sprc(lands_sprc, ReadLands(predlands_path)), 
   
   ## Input cpp scripts as files to enable tracking -----  
   #Example:
