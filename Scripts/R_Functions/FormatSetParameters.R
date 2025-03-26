@@ -1,6 +1,15 @@
 #input path to parameters_txt file
 #parameters_txt="Parameters.txt"
+
+#Future updates:
+  #1-haven't tested some formats not currently used, i.e. nv_vars, may break
+  #2-need input switch for manual inputs for B1, ss
+  #3-stop check for nonsensical combinations of parameters
+  #4-stop check if needed parameters missing
+  #5-stop check if needed parameters are incorrectly formatted
+
 FormatSetParameters<-function(parameters_txt){
+  
   #read text file
   raw=readLines("Parameters.txt")
   
@@ -87,6 +96,31 @@ FormatSetParameters<-function(parameters_txt){
       names(templist)=nv_varnames
       list.all=append(list.all,templist)
     }
+  
+  #Now, use vals in list.all to auto-set certain parameters
+  dens=list.all$density
+    #ss
+    #B2?? automatically calculated as B1*0.5
+  
+  if(dens==1.5){
+    ss=2
+    B1=0.9
+  }
+  if(dens==3){
+    ss=4
+    B1=0.4
+  }
+  if(dens==5){
+    ss=2
+    B1=0.2
+  }
+  
+  B2=B1*0.5
+  
+  #add addl calc'd parameters to list
+  templist=list(ss,B1,B2)
+  names(templist)=c("ss","B1","B2")
+  list.all=append(list.all,templist)
   
   return(list.all)
     

@@ -11,9 +11,9 @@ Changes needed:
 
 All parameters start with a '~'. this is how they are regex'd into a list with the SetParameters function. All parameteres are described starting with the *. This is not regex'd anywhere, but is formatted this way for clarity.
 
-To add a new parameter, just use the following format:
+To add a new parameter, just use the following format. Make sure there's a space between '='
 
-~ Parm = val
+# ~ Parm = val
 
 To temporarily remove a parameter, just remove the ~ and they will be ignored
 
@@ -157,22 +157,21 @@ These two parameters only need to be set if manually creating heterogeneous or h
 
 * Pir, proportion of individuals that recover instead of die
 * num_inf_0=1, how many pigs to infect starting off
-* mc_time, ????
-* Pcr, ????
-* Pbd, ??? 'From opt rad ms'
+* Pcr, transition probability from carcass to removal from landscape
 
 ~ Pir = 0.05
 ~ num_inf_0 = 1
-~ mc_time = 0.0027
 ~ Pcr = 0.23
-~ Pbd = 0.0192
 
 #########################################
 #### Population dynamics parameters #####
 #########################################
 
 * death, probability of natural death
- ~ death = 0.00639
+* Pbd, weekly birth rate
+
+~ death = 0.00639
+~ Pbd = 0.0192
 
 #########################
 #### Output options #####
@@ -188,5 +187,5 @@ These two parameters only need to be set if manually creating heterogeneous or h
 
 	** incidence: matrix with timestep, num exposed, num infected, and assoc. locs. can get large, cross-replicate summaries for now ignore locs, just summarise num exp/inf across timestep. in future, will add num susc to this to calculate different measures of Rt.
 
-~ out.opts=c("sounderlocs")
+~ out.opts = c("sounderlocs")
 

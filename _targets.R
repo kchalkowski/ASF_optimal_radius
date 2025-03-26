@@ -29,7 +29,9 @@ tar_option_set(packages = c("Rcpp",
                             "RcppArmadillo",
                             "RcppParallel",
                             "stringr",
-                            "dplyr"))
+                            "dplyr",
+                            "sf",
+                            "terra"))
 
 # Pipeline ---------------------------------------------------------
 
@@ -46,7 +48,7 @@ list(
   #tar_target(lands_path,
   #           "/rel/path/ras_dir",
   #           format="file"),
-  
+
   ## Read and format input data -----  
   #Examples:
   #tar_terra_sprc(plands_sprc, ReadLands(predlands_path)), 
@@ -85,7 +87,7 @@ list(
     #Method for class 'numeric'
         #Initialize_Grids(object,grid.opts="homogenous")
     #Arguments
-      #type- 
+      #grid.opts- 
         #"homogenous" or "heterogeneous", default for class numeric is "homogenous" and default for type SpatRaster and SpatRasterCollection is "ras"
           #ras- 
             #use input raster to create grid
@@ -98,10 +100,12 @@ list(
         
   #tar_target(land_grid_list,InitializeGrids(lands_sprc)),
     
-  ### Run Model: ---------------
+  ## Run Model: ---------------
   #Use tar_force format here because otherwise will only run if code has been updated
-  #tar_force(x,RunSimulation(lands_sprc), force=TRUE)
-
+  #iniitalize output objects
+  #tar_force(x,RunSimulation(land_grid_list, parameters, movement), force=TRUE)
+      #add nrep
+  
   #qs for Madison
     #help dev parms setup file? txt file good idea?--
       #surveillance options laid out
@@ -111,6 +115,9 @@ list(
     #experience making own grid with DIY opt, addl switches needed?
     #other switches/error catching identified?
   
+  #updates needed
+    #gitignore parameters.txt
+    #time lag between first detect and culling
   )
 
 
