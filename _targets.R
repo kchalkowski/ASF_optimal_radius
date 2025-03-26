@@ -38,9 +38,9 @@ list(
   ## Input raw data files -----  
 
   ### Input parameters file: -----------
-  #tar_target(parameters_txt,
-  #           "/rel/path/parms.txt",
-  #           format="file"),
+  tar_target(parameters_txt,
+             file.path("Parameters.txt"),
+             format="file"),
   
   ### Input landscapes directory: -----------
   #tar_target(lands_path,
@@ -60,10 +60,21 @@ list(
   #tar_terra_sprc(lands_sprc, ReadLands(predlands_path)), 
   
   ## Input cpp scripts as files to enable tracking -----  
-  #Example:
-  #tar_target(cpp_func,
-  #           "rel/path/to/script.cpp",
-  #           format="file"),
+  tar_target(Fast_FOI_Matrix_script,
+            file.path("Scripts","cpp_Functions","Fast_FOI_Matrix.cpp"),
+            format="file"),
+  tar_target(FindCellfromCentroid_script,
+             file.path("Scripts","cpp_Functions","FindCellfromCentroid.cpp"),
+             format="file"),
+  tar_target(Movement_Fast_Generalized_script,
+             file.path("Scripts","cpp_Functions","Movement_Fast_Generalized.cpp"),
+             format="file"),
+  tar_target(Movement_Fast_RSFavail_script,
+             file.path("Scripts","cpp_Functions","Movement_Fast_RSFavail.cpp"),
+             format="file"),
+  tar_target(SpatialZones_fast_script,
+             file.path("Scripts","cpp_Functions","SpatialZones_fast.cpp"),
+             format="file")#,
   
   ## Initialize model -----
   ### Initialize grid(s): ---------------
