@@ -1,103 +1,103 @@
-#Warning: this file/format is in development. Proceed with caution!
-#Changes needed:
-	#1. remove state switch, just add way to put in parameters manually that state switch gets
+Warning: this file/format is in development. Proceed with caution. Godspeed!
 
+Changes needed:
+1. remove state switch, just add way to put in parameters manually that state switch gets
+2. add regex for all parameters
+3. write how to
 
-#set number of replicates to run
-nrep=100
+#############################
+#### How to use this file ###
+#############################
 
-#########################
-####Import State contact rules
-#########################
+All parameters start with a '~' -- this is how they are regex'd into a list with the SetParameters function. 
 
-#Need get data and script for data
-#generate FL and SC contact rules with a glm in R
-#for now, generate fake data for glm for indirect contact rules
+To add a new parameter, just use the following format:
 
-#F1- pig contact probability if in same cell
-#F2- pig contact probability with distance
-#F2i- pig contact probability with carcass
+~ Parm = val
 
-#Movement parms
+To temporarily remove a parameter, just remove the ~ and they will be ignored
+
+###########################
+#### General parameters ###
+###########################
+Change how the model is run
+
+Set number of replicates to run
+~ nrep = 2
+
+############################
+#### Movement parameters ###
+############################
+
+These are original movement gamma distribution parameters from Kim's state switch model (FL= slow pigs, SC= fast pigs)
 xFL=c(0.7515,0.3550)
 xSC=c(0.5657,1.9082)
 
-#source F2_FL and F2_SC
-source(paste0(home,"/Scripts/Setup/Model_State_Data.R"))
+If using movement parameters fed in from landscapes, remove the ~
 
-if(state == 1){
-  #specify which set if gamma fit parameters to use: xSC or xFL
-  shift=xFL
-  #specify which contact data to use (SC vs FL)
-  F1=F1.list$FL
-  F2=F2.list$FL
-  F2i=F2i.list$FL
-  if(density == 1.5){
-    B1=0.9
-    ss=2
-  } else if(density == 3){
-    B1=0.4
-    ss=4
-  } else if(density == 5){
-    B1=0.2
-    ss=6
-  }
-} else if(state == 2){
-  #specify which set if gamma fit parameters to use: xSC or xFL
-  shift=xSC
-  #specify which contact data to use (SC vs FL)
-  F1=F1.list$SC
-  F2=F2.list$SC
-  F2i=F2i.list$SC
-  if(density == 1.5){
-    B1=0.009
-    ss=2
-  } else if(density == 3){
-    B1=0.004
-    ss=4
-  } else if(density == 5){
-    B1=0.002
-    ss=6
-  }
-}
+~ shape = 0.7515
+~ rate = 0.3550
 
-B2 = B1*0.5;
+###########################
+#### Contact parameters ###
+###########################
 
-#######################
-#### Set Variables ####
-#######################
-#parameters that may need to vary
+originally, these were pulled into model with 'ModelStateSwitch.R' by reading in pairwise contact data from field studies
 
-state=1 #state switch, FL or SC params. 1=FL, 2=SC
-density=1.5 #density per X
-detectday=73
-ss=2 #sounder size
+F1, pig contact probability if in same cell, numeric
+	F1 FL - 0.7380952
+	F1 SC - 0.9375
+F2, pig contact probability with distance, glm model object
+F2i, pig contact probability with distance from 'carcass', glm model object
+	^ currently, F2 and F2i need to be read in as glms as rds objects. 
+	in future, want to manually input the intercept and coefficient
+
+~ F1 = 0.7380952
+
+##################################
+#### Pig population parameters ###
+##################################
+
+Recommended density levels: 1.5, 3, 5 pigs/km2
+For now, sounder size (ss) and probability of infection given contact (B1) will be automatically determined based on input density levels as follows:
+	FL:
+		density 1.5, ss=2, B1=0.9
+		density 3, ss=4, B1=0.4
+		density 5, ss=6, B1=0.2
+	SC:
+		density 1.5, ss=2, B1=0.009
+		density 3, ss=4, B1=0.004
+		density 5, ss=6, B1=0.002
+
+B2?? automaically calculated as B1*0.5
+
+~ density = 1.5
+
+#################################
+#### Surveillance parameters ####
+#################################
+
+Timestep of simulation to start surveillance. Yes it's named 'detectday' even though timesteps are in weeks.
+
+~ detectday=73
 
 ##############################
 #### Grid option settings ####
 ##############################
 
-#DIY or ML:
-  #ML- use original grid made in ML by Kim-- is 80kmx80km, 400m resolution
-  #DIY- make grid in R with preset options using Make_Grid.R
-  grid.type="DIY"
-  len=200 #nrow/ncol of grid
-  inc=0.4 #resolution of grid (m)
-  #grid.type="ML"
+These two parameters only need to be set if manually creating heterogeneous or homogeneous grids. If using a raster/raster collection, no need:
+len, nrow/ncol of grid. note that there is only one number for the grid dimensions! grid must be square
+inc, resolution of the grid in kilometers
 
-#grid.opt: "homogeneous" or "random", optional input  
-  #default is "homogeneous"
-  #homogeneous- grid with 7 cols is created, no land class designations
-  #random- random neutral landscape model created, with land class values draw from uniform distribution and rescaled from 0 to 1.
-  grid.opt="ras"
-  #grid.opt="homogeneous"
-  
-#How to initialize the population
-  #pop_init_grid_opts="homogeneous", random distribution
-  #pop_init_grid_opts="heterogeneous", distribute pigs according to land class preference
-    #if "heterogeneous", initialized grid MUST be something other than "homogeneous" or InitializeSounders will throw error.
-  #pop_init_grid_opts="homogeneous"
-  pop_init_grid_opts="heterogeneous"
+~ len=200
+~ inc=0.4 
+
+grid.opts, character, grid option for input type and whether to incorporate land class if creating grid from scratch. If using a raster input, you can ignore this input. If inputting a raster to the InitializeGrids function, this value defaults to 'ras'. If making a grid by inputting len/inc, default is homogeneous.
+	ras- use input raster to create grid
+	homogeneous- creates grid with 7 columns, no land class variables
+    heterogeneous- creates a neutral random landscape model with land class values draw from uniform distribution and rescaled from 0 to 1. Note, if pop_init_grid_opts='heterogeneous', grid.opts MUST be something other than 'homogeneous or InitializeSounders will throw an error.
+
+~ grid.opts = "homogeneous"
   
 ##################################
 #### Movement option settings ####
