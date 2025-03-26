@@ -45,9 +45,9 @@ list(
              format="file"),
   
   ### Input landscapes directory: -----------
-  #tar_target(lands_path,
-  #           "/rel/path/ras_dir",
-  #           format="file"),
+  tar_target(lands_path,
+             file.path("Input","lands"),
+             format="file"),
 
   ## Read and format input data -----  
   #Examples:
