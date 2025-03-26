@@ -115,8 +115,8 @@ These two parameters only need to be set if manually creating heterogeneous or h
     heterogeneous- creates a neutral random landscape model with land class values draw from uniform distribution and rescaled from 0 to 1. Note, if pop_init_grid_opts='heterogeneous', grid.opts MUST be something other than 'homogeneous or InitializeSounders will throw an error.
 * pop_init_grid_opts = how to initialize sounders on the grid-- do it with biased preference according to lscape vals or just randomly   
 
-~ grid.opts = "homogeneous"
-~ pop_init_grid_opts = "homogeneous"
+~ grid.opts = "homogenous"
+~ pop_init_grid_opts = "homogenous"
   
 ##################################
 #### Movement option settings ####
