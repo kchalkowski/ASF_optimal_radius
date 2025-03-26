@@ -4,22 +4,11 @@
 setwd(this.path::this.dir())
 
 #load libraries for targets script
+#install.packages("geotargets", repos = c("https://njtierney.r-universe.dev", "https://cran.r-project.org"))
 library(targets)
 library(tarchetypes)
-#install.packages("geotargets", repos = c("https://njtierney.r-universe.dev", "https://cran.r-project.org"))
 library(geotargets)
 
-
-# here::here() returns an absolute path, which then gets stored in tar_meta and
-# becomes computer-specific (i.e. /Users/andrew/Research/blah/thing.Rmd).
-# There's no way to get a relative path directly out of here::here(), but
-# fs::path_rel() works fine with it (see
-# https://github.com/r-lib/here/issues/36#issuecomment-530894167)
-#here_rel <- function(...) {fs::path_rel(here::here(...))}
-
-# Set the _targets store so that scripts in subdirectories can access targets
-# without using withr::with_dir() (see https://github.com/ropensci/targets/discussions/885)
-#
 # This hardcodes the absolute path in _targets.yaml, so to make this more
 # portable, we rewrite it every time this pipeline is run (and we don't track
 # _targets.yaml with git)
@@ -29,7 +18,7 @@ tar_config_set(
 )
 
 #Source functions in pipeline
-lapply(list.files(file.path("1_Scripts","Functions"), full.names = TRUE, recursive = TRUE), source)
+lapply(list.files(file.path("Scripts","Functions"), full.names = TRUE, recursive = TRUE), source)
 
 #Load packages
 tar_option_set(packages = c("Rcpp",
@@ -52,16 +41,39 @@ list(
   #           "/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius/Not_Pipeline/Setup/Pipeline_SSF_Weekly/4_Output/indiv_plands",
   #           format="file"),
   
-  ## Read data -----  
-  #Example:
+  ## Read input data -----  
+  #Examples:
   #tar_terra_sprc(plands_sprc, ReadLands(predlands_path)), 
   #tar_target(pdisp,ReadRDS(preddisp_path)),
   
-  ## Format data -----
-  #Need to average probs across season for each grid for nnd calcs
+  ## Input cpp scripts as files to enable tracking -----  
+  #Example:
+  #tar_target(cpp_func,
+  #           "rel/path/to/script.cpp",
+  #           format="file"),
+  
+  ## Initialize model -----
+  ### Initialize grid(s): ---------------
+    #Method for class 'SpatRaster'
+        #Initialize_Grids(object)
+    #Method for class 'SpatRasterCollection': 
+        #Initialize_Grids(object)
+    #Method for class 'numeric'
+        #Initialize_Grids(object,grid.opts="")
+    #Arguments
+        #type- 
+          #"homogenous" or "heterogeneous", if object is SpatRaster or SpatRasterCollection, type is automatically 'ras'
+            #ras- 
+              #use input raster to create grid
+            #homogeneous- 
+              #creates grid with 7 columns, no land class variables
+            #heterogeneous-
+              #creates a neutral random landscape model with X lc variables
+    #tar_target(land_grids,InitializeGrids(lands_sprc)),
   
   
-)
+  
+  )
 
 
 
