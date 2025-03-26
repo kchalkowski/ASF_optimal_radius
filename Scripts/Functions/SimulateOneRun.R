@@ -68,7 +68,7 @@ if("idzone"%in%out.opts){
 id=which(centroids[,1]>=midpoint[1]&centroids[,2]>=midpoint[2])[1] #location on grid closest to midpoint
 
 #infected<-InitializeSounders(N0,ss,cells,centroids,1,id,1)
-#infected<-InitializeSounders(N0,ss,cells,centroids,num_inf_0,id,1,"homogenous")
+#infected<-InitializeSounders(N0,ss,cells,centroids,num_inf_0,id,1,"homogeneous")
 infected=InitializeSounders(centroids,grid,c(id,1),"init_single","homogeneous")
 infected[,8]<-0
 infected[,10]<-1
