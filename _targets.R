@@ -75,7 +75,7 @@ list(
              format="file"),
   tar_target(SpatialZones_fast_script,
              file.path("Scripts","cpp_Functions","SpatialZones_fast.cpp"),
-             format="file")#,
+             format="file"),
   
   ## Initialize model -----
   ### Initialize grid(s): ---------------
@@ -98,7 +98,8 @@ list(
       #a nested list of grid parameters
         
   #tar_target(land_grid_list,InitializeGrids(lands_sprc)),
-    
+  tar_target(land_grid_list,InitializeGrids(c(parameters$len,parameters$inc),parameters$grid.opt))#,
+  
   ## Run Model: ---------------
   #Use tar_force format here because otherwise will only run if code has been updated
   #iniitalize output objects
