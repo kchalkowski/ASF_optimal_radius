@@ -26,7 +26,7 @@ ss=2 #sounder size
   #default is "homogeneous"
   #homogeneous- grid with 7 cols is created, no land class designations
   #random- random neutral landscape model created, with land class values draw from uniform distribution and rescaled from 0 to 1.
-  grid.opt="random"
+  grid.opt="ras"
   #grid.opt="homogeneous"
   
 #How to initialize the population
@@ -64,10 +64,10 @@ death=0.00639 # probability of natural death
 alphaC = 1.1 #% scaling parameter on relationship of effort to capture success
 loc=c("FL","SC") #state strings
 Rad=0 #culling radius
-thyme=72 #total number of time steps. is spelled 'thyme' bc 'time' is a function in stats namespace
+thyme=10 #total number of time steps. is spelled 'thyme' bc 'time' is a function in stats namespace
 intensity=0.05 #
 cullstyle="startOUT" #option in original ASF opt rad 2022 model
-inc=0.4 #width of cells in grid 
+inc=0.5 #width of cells in grid 
 Intensity = 0.05 #proportion of population targeted for removal per day based on capabilities
 num_inf_0=1 #how many pigs to infect starting off
 mc_time=0.0027

@@ -197,9 +197,6 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   pop[,12]=0 #number of C status in sounder
   pop[,13]=0 #number of Z status in sounder
   
-  
-  
-  
   	}
 
   
