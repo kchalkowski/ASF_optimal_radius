@@ -9,7 +9,6 @@ density=1.5 #density per X
 detectday=60
 ss=2 #sounder size
 
-
 ##############################
 #### Grid option settings ####
 ##############################
@@ -27,7 +26,11 @@ ss=2 #sounder size
   #default is "homogeneous"
   #homogeneous- grid with 7 cols is created, no land class designations
   #random- random neutral landscape model created, with land class values draw from uniform distribution and rescaled from 0 to 1.
+<<<<<<< HEAD
   grid.opt="homogeneous"
+=======
+  grid.opt="ras"
+>>>>>>> 627b6a0d1328a0d815d19c532d423ff2f20a152e
   #grid.opt="homogeneous"
   
 #How to initialize the population
@@ -77,10 +80,18 @@ Pir = 0.05 #; %proportion of individuals that recover instead of die
 death=0.00639 # probability of natural death
 alphaC = 1.1 #% scaling parameter on relationship of effort to capture success
 loc=c("FL","SC") #state strings
+<<<<<<< HEAD
 Rad=10 #culling radius
 thyme=52 #total number of time steps. is spelled 'thyme' bc 'time' is a function in stats namespace
 intensity=0.05 #
 cullstyle="startOUT" #option in original ASF opt rad 2022 model
+=======
+Rad=0 #culling radius
+thyme=10 #total number of time steps. is spelled 'thyme' bc 'time' is a function in stats namespace
+intensity=0.05 #
+cullstyle="startOUT" #option in original ASF opt rad 2022 model
+inc=0.5 #width of cells in grid 
+>>>>>>> 627b6a0d1328a0d815d19c532d423ff2f20a152e
 Intensity = 0.05 #proportion of population targeted for removal per day based on capabilities
 num_inf_0=1 #how many pigs to infect starting off
 mc_time=0.0027

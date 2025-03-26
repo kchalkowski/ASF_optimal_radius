@@ -1,0 +1,191 @@
+Warning: this file/format is in development. Proceed with caution. Godspeed!
+
+Changes needed:
+1. remove state switch, just add way to put in parameters manually that state switch gets
+2. add regex for all parameters
+3. write how to
+
+#############################
+#### How to use this file ###
+#############################
+
+All parameters start with a '~'. this is how they are regex'd into a list with the SetParameters function. All parameteres are described starting with the *. This is not regex'd anywhere, but is formatted this way for clarity.
+
+To add a new parameter, just use the following format. Make sure there's a space between '='
+
+# ~ Parm = val
+
+To temporarily remove a parameter, just remove the ~ and they will be ignored
+
+###########################
+#### General parameters ###
+###########################
+* nrep, number of replicates
+* thyme, total number of time steps. is spelled 'thyme' bc 'time' is a function in stats namespace 
+
+~ nrep = 2
+~ thyme = 10
+
+############################
+#### Movement parameters ###
+############################
+
+* shape, gamma distribution shape parameter
+* rate, gamma distribution rate parameter
+
+These are original movement gamma distribution parameters from Kim's state switch model (FL= slow pigs, SC= fast pigs)
+xFL=c(0.7515,0.3550)
+xSC=c(0.5657,1.9082)
+
+If using movement parameters fed in from landscapes, remove the ~
+
+~ shape = 0.7515
+~ rate = 0.3550
+
+##################################
+#### Movement option settings ####
+##################################
+* mv_pref, movement preference switch
+  0=random movement preference (distance-only)
+  1=abundance-avoidance movement preference
+  2=rsf preference (only works when pop_init_grid_opts="heterogeneous" and grid_opts!="homogeneous")
+  
+~ mv_pref=0
+
+###########################
+#### Contact parameters ###
+###########################
+
+* F1, pig contact probability if in same cell, numeric
+	F1 FL - 0.7380952
+	F1 SC - 0.9375
+* F2, pig contact probability with distance, glm model object
+* F2i, pig contact probability with distance from 'carcass', glm model object
+	^ currently, F2 and F2i need to be read in as glms as rds objects. 
+	in future, want to manually input the intercept and coefficient
+
+Originally, these were all pulled into model with 'ModelStateSwitch.R' by reading in pairwise contact data from field studies
+
+~ F1 = 0.7380952
+
+##################################
+#### Pig population parameters ###
+##################################
+
+* density, pigs/km2. Recommended density levels: 1.5, 3, 5 pigs/km2
+* ss, sounder size
+* B1, probability of infection given contact
+
+For now, sounder size (ss) and probability of infection given contact (B1) will be automatically determined based on input density levels as follows:
+	FL:
+		density 1.5, ss=2, B1=0.9
+		density 3, ss=4, B1=0.4
+		density 5, ss=6, B1=0.2
+	SC:
+		density 1.5, ss=2, B1=0.009
+		density 3, ss=4, B1=0.004
+		density 5, ss=6, B1=0.002
+
+B2?? automatically calculated as B1*0.5
+
+~ density = 1.5
+
+#################################
+#### Surveillance parameters ####
+#################################
+
+* detectday, Timestep of simulation to start surveillance. Yes it's named 'detectday' even though timesteps are in weeks.
+
+~ detectday=73
+
+##############################
+#### Grid option settings ####
+##############################
+
+These two parameters only need to be set if manually creating heterogeneous or homogeneous grids. If using a raster/raster collection, no need:
+* len, nrow/ncol of grid. note that there is only one number for the grid dimensions! grid must be square
+* inc, resolution of the grid in kilometers
+
+~ len=200
+~ inc=0.4 
+
+* grid.opts, character, grid option for input type and whether to incorporate land class if creating grid from scratch. If using a raster input, you can ignore this input. If inputting a raster to the InitializeGrids function, this value defaults to 'ras'. If making a grid by inputting len/inc, default is homogeneous.
+	ras- use input raster to create grid
+	homogeneous- creates grid with 7 columns, no land class variables
+    heterogeneous- creates a neutral random landscape model with land class values draw from uniform distribution and rescaled from 0 to 1. Note, if pop_init_grid_opts='heterogeneous', grid.opts MUST be something other than 'homogeneous or InitializeSounders will throw an error.
+* pop_init_grid_opts = how to initialize sounders on the grid-- do it with biased preference according to lscape vals or just randomly   
+
+~ grid.opts = "homogenous"
+~ pop_init_grid_opts = "homogenous"
+  
+##################################
+#### Movement option settings ####
+##################################
+* mv_pref, movement preference switch
+  0=random movement preference (distance-only)
+  1=abundance-avoidance movement preference
+  2=rsf preference (only works when pop_init_grid_opts="heterogeneous" and grid_opts!="homogeneous")
+  
+~ mv_pref=0
+  
+#################################
+#### Surveillance parameters ####
+#################################
+  
+* DetP, probability of infected pigs sampled as positive. for now, is just used as an input in some of the sounderlocs output processing steps. later, may be integrated into culling/surveillance process within simulation.
+
+~ DetP=1 
+
+#############################
+#### Culling parameters #####
+#############################
+* alphaC, scaling parameter on relationship of effort to capture success
+* Rad=0, culling radius
+* intensity=0.05, proportion of population targeted for removal per day based on capabilities
+* cullstyle="startOUT", option in original ASF opt rad 2022 model
+* Intensity = 0.05, proportion of population targeted for removal per day based on capabilities
+
+~ alphaC = 1.1
+~ Rad = 0
+~ intensity = 0.05
+~ cullstyle = "startOUT"
+~ Intensity = 0.05
+
+#####################################
+#### Epidemiological parameters #####
+#####################################
+
+* Pir, proportion of individuals that recover instead of die
+* num_inf_0=1, how many pigs to infect starting off
+* Pcr, transition probability from carcass to removal from landscape
+
+~ Pir = 0.05
+~ num_inf_0 = 1
+~ Pcr = 0.23
+
+#########################################
+#### Population dynamics parameters #####
+#########################################
+
+* death, probability of natural death
+* Pbd, weekly birth rate
+
+~ death = 0.00639
+~ Pbd = 0.0192
+
+#########################
+#### Output options #####
+#########################
+
+* out.opts, character vector of selected output options. options include "sounderlocs","idzone","alldetections","incidence". if none selected (i.e., out.opts=c()), just get standard outputs
+
+	** sounderlocs: subset of pop matrix taken at each timestep: rows where there is a pig in any state, number in each status, and the cell number (location). first col is timestep number. this can get quite large-- not good practice to just merge across 500-1000 reps. summary options for replicates: sum of num SEIRCZ across each timestep, each replicate (tracking population/state changes)
+
+	** idzone: matrix with timestep in first column, second column is each cell within control zone at each timestep. This can also get quite large. Mostly for plotting/visualization for checking individual replicates. No cross-replicate summary options at the moment.
+
+	** alldetections: matrix with each row timestep, col1 timestep, col2=type (1 is live, 0 is dead), col3 is number of live/dead detected at each timestep, col4 is locations of detections. cross replicate summary-- just add rep column, rbind for each replicate. for now only include number.. later can add opt to output locs if/when needed
+
+	** incidence: matrix with timestep, num exposed, num infected, and assoc. locs. can get large, cross-replicate summaries for now ignore locs, just summarise num exp/inf across timestep. in future, will add num susc to this to calculate different measures of Rt.
+
+~ out.opts = c("sounderlocs")
+

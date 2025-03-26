@@ -56,9 +56,19 @@ midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
 } 
 
 if(grid.type=="DIY"){
+<<<<<<< HEAD
   result=Make_Grid(len,inc,grid.opt)
   grid.list <- result$grid.list
   sample.design <- result$sample.design
+=======
+  if(grid.opt=="homogeneous"|grid.opt=="heterogeneous"){
+  grid.list=Make_Grid(len,inc,grid.opt)
+  } else{
+    if(grid.opt=="ras"){
+      grid.list=Make_Grid(len,inc,"ras",ras)
+    }
+  }
+>>>>>>> 627b6a0d1328a0d815d19c532d423ff2f20a152e
   cells=grid.list$cells
   grid=grid.list$grid
   centroids=grid.list$centroids

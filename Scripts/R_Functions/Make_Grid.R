@@ -34,7 +34,7 @@ Make_Grid<-function(len,inc,grid.opt,ras){
   require(raster)
   require(NLMR)
   
-  if(missing(grid.opt)){
+  if(missing(grid.opt)&missing(ras)){
     grid.opt=="homogeneous"
   } else{
     #add stops to check inputs
