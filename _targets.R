@@ -18,7 +18,7 @@ tar_config_set(
 )
 
 #Source functions in pipeline
-lapply(list.files(file.path("Scripts","Functions"), full.names = TRUE, recursive = TRUE), source)
+lapply(list.files(file.path("Scripts","R_Functions"), full.names = TRUE, recursive = TRUE), source)
 
 #Load packages
 tar_option_set(packages = c("Rcpp",
@@ -55,8 +55,7 @@ list(
   #tar_target(pdisp,ReadRDS(preddisp_path)),
   
   ### Read and format parameters file: -----------
-  #tar_target(parameters,
-              #FormatParameters(parameters_txt)),
+  tar_target(parameters,FormatSetParameters(parameters_txt)),
   
   ### Read and format landscapes: -----------
   #tar_terra_sprc(lands_sprc, ReadLands(predlands_path)), 

@@ -12,6 +12,6 @@ tar_manifest()
 #Make pipeline
 tar_make()
 
-tar_visnetwork()
+#tar_visnetwork()
 
 #list("SurvDetProb"=0.9,"Detp"=1)
