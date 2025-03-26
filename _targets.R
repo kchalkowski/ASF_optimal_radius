@@ -41,10 +41,19 @@ list(
   #           "/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius/Not_Pipeline/Setup/Pipeline_SSF_Weekly/4_Output/indiv_plands",
   #           format="file"),
   
-  ## Read input data -----  
+  ### Input parameters file: -----------
+  #tar_target(parameters_txt,
+  #           "/rel/path/parms.txt",
+  #           format="file"),
+  
+  ## Read and format input data -----  
   #Examples:
   #tar_terra_sprc(plands_sprc, ReadLands(predlands_path)), 
   #tar_target(pdisp,ReadRDS(preddisp_path)),
+  
+  ### Read and format parameters file: -----------
+  #tar_target(parameters,
+              #FormatParameters(parameters_txt)),
   
   ## Input cpp scripts as files to enable tracking -----  
   #Example:
@@ -59,19 +68,25 @@ list(
     #Method for class 'SpatRasterCollection': 
         #Initialize_Grids(object)
     #Method for class 'numeric'
-        #Initialize_Grids(object,grid.opts="")
+        #Initialize_Grids(object,grid.opts="homogenous")
     #Arguments
-        #type- 
-          #"homogenous" or "heterogeneous", if object is SpatRaster or SpatRasterCollection, type is automatically 'ras'
-            #ras- 
-              #use input raster to create grid
-            #homogeneous- 
-              #creates grid with 7 columns, no land class variables
-            #heterogeneous-
-              #creates a neutral random landscape model with X lc variables
-    #tar_target(land_grids,InitializeGrids(lands_sprc)),
-  
-  
+      #type- 
+        #"homogenous" or "heterogeneous", default for class numeric is "homogenous" and default for type SpatRaster and SpatRasterCollection is "ras"
+          #ras- 
+            #use input raster to create grid
+          #homogeneous- 
+            #creates grid with 7 columns, no land class variables
+          #heterogeneous-
+            #creates a neutral random landscape model with X lc variables
+    #Value
+      #a nested list of grid parameters
+        
+  #tar_target(land_grid_list,InitializeGrids(lands_sprc)),
+    
+  ### Run Model: ---------------
+  #Use tar_force format here because otherwise will only run if code has been updated
+  #tar_force(x,RunSimulation(lands_sprc), force=TRUE)
+
   
   )
 

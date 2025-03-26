@@ -9,7 +9,6 @@ density=1.5 #density per X
 detectday=73
 ss=2 #sounder size
 
-
 ##############################
 #### Grid option settings ####
 ##############################
