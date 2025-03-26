@@ -91,6 +91,14 @@ list(
   #Use tar_force format here because otherwise will only run if code has been updated
   #tar_force(x,RunSimulation(lands_sprc), force=TRUE)
 
+  #qs for Madison
+    #help dev parms setup file? txt file good idea?--
+      #surveillance options laid out
+    #grid setup good? sep pipeline for formatting the grids? collab on that?
+    #how to handle changing parms file while still tracking? gitignore?
+    #thinking of removing grid.type=ML
+    #experience making own grid with DIY opt, addl switches needed?
+    #other switches/error catching identified?
   
   )
 
