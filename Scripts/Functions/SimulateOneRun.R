@@ -6,6 +6,7 @@ SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,th
 ###########################################
 ######## Initialize Output Objects ######## 
 ###########################################
+
 {
 Nall=matrix(nrow=thyme) #track total abundance
 BB=matrix(nrow=thyme) #track births
@@ -14,6 +15,7 @@ POSlive=as.list(rep(0,thyme)) #Positive cases observed and removed from landscap
 POSdead=as.list(rep(0,thyme))#Positive carcasses observed and removed from landscape
 NEGlive=as.list(rep(0,thyme)) #Negative tests of detected carcasses that are removed from landscape
 NEGdead=as.list(rep(0,thyme)) #Negative tests of carcasses that are removed from landscape
+pigs_sampled_timestep=as.list(rep(0,thyme))  # Initialize an empty list to hold the number of pigs sampled at each timestep
 
 POSlive_locs<-as.list(rep(0,thyme))
 POSdead_locs<-as.list(rep(0,thyme))
@@ -66,7 +68,6 @@ if("idzone"%in%out.opts){
 
 #find the midpoint of the grid
 id=which(centroids[,1]>=midpoint[1]&centroids[,2]>=midpoint[2])[1] #location on grid closest to midpoint
-
 #infected<-InitializeSounders(N0,ss,cells,centroids,1,id,1)
 #infected<-InitializeSounders(N0,ss,cells,centroids,num_inf_0,id,1,"homogeneous")
 infected=InitializeSounders(centroids,grid,c(id,1),"init_single","homogeneous")
@@ -202,17 +203,32 @@ BB<-st.list[[3]]
 ######## Initiate Response ######## 
 ###################################
 
-
-#if it's detect day, and there are infected pigs to detect, and Rad>0
-if(i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
-  #print("First detection")
-fd.list<-FirstDetect(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs)
-pop=fd.list[[1]]
-POSlive=fd.list[[2]]
-POSdead=fd.list[[3]]
-POSlive_locs=fd.list[[4]]
-POSdead_locs=fd.list[[5]]
+# If sampling turned on, run surveillance scheme based on user's input
+# for the current week
+if(sample == 1){
+  surv.list<-Surveillance(pop,i,sample.design,grid.list,inc,POSlive,POSdead,POSlive_locs,POSdead_locs,pigs_sampled_timestep) # Madison
+  pop=surv.list[[1]]
+  POSlive=surv.list[[2]]
+  POSdead=surv.list[[3]]
+  POSlive_locs=surv.list[[4]]
+  POSdead_locs=surv.list[[5]]
+  pigs_sampled_timestep=surv.list[[6]]
+  #print(paste0("Printing pigs_sampled_timestep: ", pigs_sampled_timestep))
 }
+
+# If sampling turned off and it's detect day based on user input,
+# run FirstDetect because there are infected pigs to detect, and Rad>0
+if(sample != 1 & i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
+  #print("First detection")
+  fd.list<-FirstDetect(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs)
+  pop=fd.list[[1]]
+  POSlive=fd.list[[2]]
+  POSdead=fd.list[[3]]
+  POSlive_locs=fd.list[[4]]
+  POSdead_locs=fd.list[[5]]
+}
+
+
 
 ###**start day after day of first detection
 #######################################
@@ -220,9 +236,8 @@ POSdead_locs=fd.list[[5]]
 #######################################
 
 #if it is at least day after detect day, and Rad>0
-if(i > detectday & Rad > 0){
-  #print("Initiating Culling")
-  
+if(sample != 1 & i > detectday & Rad > 0) {
+
 	#new detections from last step, bc day lag 
 	#(either from initial detection or last culling period)
 	#get locations in grid for detections
@@ -336,25 +351,27 @@ if("idzone"%in%out.opts){
 }
 
 if("alldetections"%in%out.opts){
-  templist=vector(mode="list",length=1)
-  templist[[1]]=POSlive
-  input.opts=append(input.opts,templist)
-  names(input.opts)[length(input.opts)]="POSlive"
+  templist = list(POSlive)  # directly create a list with POSlive
+  input.opts = append(input.opts, templist)
+  names(input.opts)[length(input.opts)] = "POSlive"
   
-  templist=vector(mode="list",length=1)
-  templist[[1]]=POSdead
-  input.opts=append(input.opts,templist)
-  names(input.opts)[length(input.opts)]="POSdead"
+  templist = list(POSdead)
+  input.opts = append(input.opts, templist)
+  names(input.opts)[length(input.opts)] = "POSdead"
   
-  templist=vector(mode="list",length=1)
-  templist[[1]]=POSlive_locs
-  input.opts=append(input.opts,templist)
-  names(input.opts)[length(input.opts)]="POSlive_locs"
+  templist = list(POSlive_locs)
+  input.opts = append(input.opts, templist)
+  names(input.opts)[length(input.opts)] = "POSlive_locs"
   
-  templist=vector(mode="list",length=1)
-  templist[[1]]=POSdead_locs
-  input.opts=append(input.opts,templist)
-  names(input.opts)[length(input.opts)]="POSdead_locs"
+  templist = list(POSdead_locs)
+  input.opts = append(input.opts, templist)
+  names(input.opts)[length(input.opts)] = "POSdead_locs"
+  
+  if(sample == 1){
+    templist = list(pigs_sampled_timestep)  # directly create a list with pigs_sampled_timestep
+    input.opts=append(input.opts,templist)
+    names(input.opts)[length(input.opts)]="pigs_sampled_timestep"
+  }
 }
 
 if("incidence"%in%out.opts){

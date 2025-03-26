@@ -121,33 +121,45 @@ for(i in 1:length(input.opts$loc.list)){
 
 #Get POSlive, dead, and all locs in datafame format from list
 if("alldetections"%in%out.opts){
-  #print("Summarizing alldetections")
-  
   #all should be same length, thyme
   POSlive=input.opts$POSlive
   POSlive_locs=input.opts$POSlive_locs
   POSdead=input.opts$POSdead
   POSdead_locs=input.opts$POSdead_locs
-  
+
   detections=matrix(nrow=0,ncol=4)
+  
   for(i in 1:length(POSlive)){
     live.detections.i=matrix(nrow=length(c(POSlive_locs[[i]])),ncol=4)
     live.detections.i[,1]=i
     live.detections.i[,2]=1 #code for live
     live.detections.i[,3]=POSlive[[i]]
     live.detections.i[,4]=c(POSlive_locs[[i]])
-    dead.detections.i=matrix(nrow=length(c(POSdead_locs[[i]])),ncol=4)
-    dead.detections.i[,1]=i
-    dead.detections.i[,2]=0 #code for dead
-    dead.detections.i[,3]=POSdead[[i]]
-    dead.detections.i[,4]=c(POSdead_locs[[i]])
-    
-    detections.i=rbind(live.detections.i,dead.detections.i)
-    detections=rbind(detections,detections.i)
-    }
-  
-}
 
+    # Create dead detections after live detections are populated
+    dead.detections.i = matrix(nrow = length(c(POSdead_locs[[i]])), ncol = 4)
+    dead.detections.i[, 1] = i  # Week
+    dead.detections.i[, 2] = 0  # Code for dead
+    dead.detections.i[, 3] = POSdead[[i]]  # POSdead values
+    dead.detections.i[, 4] = c(POSdead_locs[[i]])  # Locations
+    
+    # Combine live and dead detections into detections.i
+    detections.i = rbind(live.detections.i, dead.detections.i)
+    
+    # Add the combined detections to the final detections matrix
+    detections = rbind(detections, detections.i)
+  }
+  
+  # Now, outside of the loop, check if sample == 1 to combine live detections with sampled pigs
+  if (sample == 1) {
+    # Get the sampled pigs for the timestep
+    pigs_sampled_timestep = input.opts$pigs_sampled_timestep
+    sampled_pigs_column <- matrix(unlist(pigs_sampled_timestep), nrow = 52, ncol = 1)  # Convert to a matrix (1 row, 52 columns)
+    sampled_pigs_column_dup <- matrix(rep(sampled_pigs_column, each = 2), ncol = 1)
+    # Combine the live detections with the sampled pigs as a new column
+    detections = cbind(detections, sampled_pigs_column_dup)
+  }
+}
 
 #Get Incidence and R0 vals summarized in data frame
 if("incidence"%in%out.opts){

@@ -15,6 +15,8 @@ source(paste(home, "/Scripts/Functions/FOI_R.R", sep = ''))
 source(paste(home, "/Scripts/Functions/sounderlocsZone.R", sep = ''))
 source(paste(home, "/Scripts/Functions/sounderlocsSummarize.R", sep = ''))
 source(paste(home, "/Scripts/Functions/ExtApparentPrev.R", sep = ''))
+source(paste(home, "/Scripts/Functions/Surveillance.R", sep = ''))
+
 
 #cpp Functions
 Rcpp::sourceCpp(paste0(home,"/Scripts/Functions/Movement_Fast_Generalized.cpp"), verbose=TRUE)
