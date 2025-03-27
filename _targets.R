@@ -31,6 +31,7 @@ tar_option_set(packages = c("Rcpp",
                             "stringr",
                             "dplyr",
                             "sf",
+                            "raster",
                             "terra"))
 
 # Pipeline ---------------------------------------------------------
@@ -48,11 +49,16 @@ list(
   tar_target(lands_path,
              file.path("Input","lands"),
              format="file"),
+  
+  ### Input landscape predictions: -----------
+  tar_target(landmat_path,
+             file.path("Input","ldsel.rds"),
+             format="file"),
 
   ## Read and format input data -----  
   #Examples:
-  #tar_terra_sprc(plands_sprc, ReadLands(predlands_path)), 
-  #tar_target(pdisp,ReadRDS(preddisp_path)),
+  tar_terra_sprc(plands_sprc, ReadLands(lands_path)), 
+  tar_target(landmat,ReadRDS(landmat_path)),
   
   ### Read and format parameters file: -----------
   tar_target(parameters,FormatSetParameters(parameters_txt)),
@@ -97,27 +103,15 @@ list(
     #Value
       #a nested list of grid parameters
         
-  #tar_target(land_grid_list,InitializeGrids(lands_sprc)),
-  tar_target(land_grid_list,InitializeGrids(c(parameters$len,parameters$inc),parameters$grid.opt))#,
+  tar_target(land_grid_list,InitializeGrids(plands_sprc[1],"homogeneous"))#,
+  #tar_target(land_grid_list,InitializeGrids(c(parameters$len,parameters$inc),parameters$grid.opt))#,
   
   ## Run Model: ---------------
   #Use tar_force format here because otherwise will only run if code has been updated
   #iniitalize output objects
   #tar_force(x,RunSimulation(land_grid_list, parameters, movement), force=TRUE)
       #add nrep
-  
-  #qs for Madison
-    #help dev parms setup file? txt file good idea?--
-      #surveillance options laid out
-    #grid setup good? sep pipeline for formatting the grids? collab on that?
-    #how to handle changing parms file while still tracking? gitignore?
-    #thinking of removing grid.type=ML
-    #experience making own grid with DIY opt, addl switches needed?
-    #other switches/error catching identified?
-  
-  #updates needed
-    #gitignore parameters.txt
-    #time lag between first detect and culling
+
   )
 
 

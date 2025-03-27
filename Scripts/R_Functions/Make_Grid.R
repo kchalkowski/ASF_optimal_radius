@@ -55,20 +55,12 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
   if(class(object)=="RasterLayer"){
     ras=object
     len=dim(ras)[1]
-    inc=res(ras)/1000
-    if(dim[1]!=dim[2]){stop("raster needs to be square")}
+    inc=res(ras)[1]/1000
+    if(dim(ras)[1]!=dim(ras)[2]){stop("raster needs to be square")}
 
   
       if(dim(ras)[1]!=len){
         stop("dimensions of raster do not match input len")
-      }
-      
-      if(res(ras)[1]!=inc){
-        stop("resolution of raster does not match input inc")
-      }
-        
-      if(!missing(ras)){ #ras not missing
-        message("ras grid option not selected, but raster input. Raster input ignored.")
       }
   
   }
