@@ -30,9 +30,13 @@
   #col8- preference probability
 #2- cells, integer of number of cells in grid
 #3- centroids, two col x/y of just centroids of grid of each cell
-Make_Grid<-function(len,inc,grid.opt,ras){
+Make_Grid<-function(len,inc,grid.opt,ras,sample,sample.design){
   require(raster)
   require(NLMR)
+  
+  if(missing(sample)){
+    sample=0
+  }
   
   if(missing(grid.opt)&missing(ras)){
     grid.opt=="homogeneous"
@@ -197,6 +201,7 @@ Make_Grid<-function(len,inc,grid.opt,ras){
       "centroids" = centroids
     )
     
+    if(sample==1){
     # Process sampling file
     # Aggregate by week and store weeks to be sampled in variable
     # Convert "collection_date" to Date format
@@ -366,14 +371,18 @@ Make_Grid<-function(len,inc,grid.opt,ras){
     # st_bbox(grid_spatial)
     # st_geometry_type(county_shapefile)
     # st_geometry_type(grid_spatial)
-      
+    
+    #  return(list(grid.list = grid.list, sample.design = sample.design))
+    grid.list=list(grid.list = grid.list, sample.design = sample.design)
+    
+    }
     
     
   }
   
 
   
-  return(list(grid.list = grid.list, sample.design = sample.design))
+  return(grid.list)
   
 }
 
