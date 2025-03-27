@@ -30,28 +30,35 @@
   #col8- preference probability
 #2- cells, integer of number of cells in grid
 #3- centroids, two col x/y of just centroids of grid of each cell
-Make_Grid<-function(len,inc,grid.opt,ras,sample,sample.design){
+#Make_Grid(len,inc,grid.opt)
+
+
+#input options
+#required: object
+  #raster, or c(len, inc)
+#optional: grid.opt, 
+#Make_Grid(object)
+
+Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
   require(raster)
   require(NLMR)
   
-  if(missing(sample)){
-    sample=0
+  if(grid.opt=="homogenous"){
+    grid.opt="homogeneous"
+  }
+
+  if(class(object)=="numeric"){
+    len=object[1]
+    inc=object[2]
   }
   
-  if(missing(grid.opt)&missing(ras)){
-    grid.opt=="homogeneous"
-  } else{
-    #add stops to check inputs
-    if("ras"%in%grid.opt){
-      if(missing(ras)){
-        stop("ras grid option selected, but no input raster")
-      } else{
-        
-      #checking raster input formatting
-      if (!is(ras, "RasterLayer")){
-        stop("ras needs to be RasterLayer format")
-      }
-        
+  if(class(object)=="RasterLayer"){
+    ras=object
+    len=dim(ras)[1]
+    inc=res(ras)/1000
+    if(dim[1]!=dim[2]){stop("raster needs to be square")}
+
+  
       if(dim(ras)[1]!=len){
         stop("dimensions of raster do not match input len")
       }
@@ -60,13 +67,10 @@ Make_Grid<-function(len,inc,grid.opt,ras,sample,sample.design){
         stop("resolution of raster does not match input inc")
       }
         
-      }
-    } else{ #ras not in grid.opt
       if(!missing(ras)){ #ras not missing
         message("ras grid option not selected, but raster input. Raster input ignored.")
       }
-    }
-    
+  
   }
   
   #get number of cells in grid
@@ -82,33 +86,30 @@ Make_Grid<-function(len,inc,grid.opt,ras,sample,sample.design){
   }
   
 
-  
   #first column is just cell indices
   grid[,1]=1:cells
   
   #Top left X coordinate of each cell
   grid[,2]=rep(seq(0,((inc*len)-inc),inc),times=len)
-  
+
   #Top left Y coordinate of each cell
   grid[,3]=rep(seq(0,((inc*len)-inc),inc),each=len)
   
   #Top right X coordinate of each cell
   grid[,4]=rep(seq(inc,(inc*len),inc),times=len)
-  
+
   #Top right Y coordinate of each cell
   grid[,5]=rep(seq(inc,(inc*len),inc),each=len)
   
   #Center X coordinate of each cell
   grid[,6]=rep(seq(((0+inc)/2),(((inc*len)-inc)+(inc*len))/2,inc),times=len)
- 
+
   #Center Y coordinate of each cell
   grid[,7]=rep(seq(((0+inc)/2),(((inc*len)-inc)+(inc*len))/2,inc),each=len)
   
   #get centroids-only object
   centroids=grid[,c(6,7)]
   
-  #plot(centroids[, 1], centroids[, 2])
-
   if(!("homogeneous"%in%grid.opt & sample != 1)){
     
     #simulates a spatially random neutral landscape model with values drawn from a uniform distribution
@@ -379,8 +380,6 @@ Make_Grid<-function(len,inc,grid.opt,ras,sample,sample.design){
     
     
   }
-  
-
   
   return(grid.list)
   
