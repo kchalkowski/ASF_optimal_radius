@@ -102,8 +102,8 @@ list(
             #creates a neutral random landscape model with X lc variables
     #Value
       #a nested list of grid parameters
-        
-  tar_target(land_grid_list,InitializeGrids(plands_sprc[1],"homogeneous"))#,
+  tar_target(land_grid_list,InitializeGrids(plands_sprc,"homogeneous"))#,
+  #tar_target(land_grid_list,InitializeGrids(plands_sprc[1],"homogeneous"))#,
   #tar_target(land_grid_list,InitializeGrids(c(parameters$len,parameters$inc),parameters$grid.opt))#,
   
   ## Run Model: ---------------

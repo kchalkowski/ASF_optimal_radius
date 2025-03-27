@@ -17,9 +17,20 @@ InitializeGrids<-function(object,grid.opt="homogeneous"){
       grid.list=Make_Grid(object,grid.opt)
       tar.grid.list[[1]]=grid.list
     }
-    #add missing switch for spatraster type
+  
+    if(class(object)=="SpatRasterCollection"){
+      
+      tar.grid.list=vector(mode="list",length=length(object))
+      
+      for(g in 1:length(object)){
+        ras=object[g]
+        ras<-raster(ras)
+      grid.list=Make_Grid(ras,grid.opt)
+      tar.grid.list[[g]]=grid.list
+      }
+      
+    }
 
-    
     #vector of len, inc
     if(class(object)=="numeric"){
       if(length(object)==3){
