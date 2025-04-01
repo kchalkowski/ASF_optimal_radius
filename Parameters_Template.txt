@@ -137,6 +137,11 @@ These two parameters only need to be set if manually creating heterogeneous or h
 
 ~ DetP=1 
 
+* sample, option to include specific sampling scheme for a county. Sample format for this file can be found here: "Input/sampling_scheme_template.csv"
+* This feature currently requires a county landclass preference file to construct grid. Initial implementation required county shapefile but this is deprecated.
+
+~ sample = 0
+
 #############################
 #### Culling parameters #####
 #############################
