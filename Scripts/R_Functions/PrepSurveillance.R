@@ -20,8 +20,10 @@
   #col1-date
   #col2-lat
   #col3-long
-  #col4-fiscal week
-  # Madison, finish this.
+  #col4-quantity
+  #col5-acres
+  #col6-FY start date
+  #col7-week #
 
 
 PrepSurveillance<-function(sampling){
@@ -54,74 +56,6 @@ PrepSurveillance<-function(sampling){
   sample_sf_transformed <- st_transform(sample_coords, crs = 26917) # transform coordinates to meter based CRS
   sample_coords_transformed <- st_coordinates(sample_sf_transformed) # extract the coordinates only
   sample_coords_transformed <- sample_coords_transformed / scale_factor
-  
-  # Add column to sample.design so the cell # where sampling occurs can be updated
-  sample.design$sampling_loc <- 0L
-  
-  # Loop over each sampling point and check proximity to grid centroids
-  for (i in 1:nrow(sample_coords_transformed)) {
-    # Extract the x and y coordinates of the current sample point
-    sample_x <- sample_coords_transformed[i, 1]
-    sample_y <- sample_coords_transformed[i, 2]
-    
-    # Get the acreage for the current sample point (assuming you have an 'acres' column in the dataframe)
-    names(sample.design)[5] <- "acres"  # Rename the first column to 'dates'
-    acres <- sample.design$acres[i]
-    
-    # Convert acres to square kilometers
-    area_km2 <- acres * 0.00404686
-    
-    # Resolution of a grid cell in km2 calculation
-    numerator = inc * 1000 * inc * 1000
-    denominator = 1000000
-    grid_cell_area = numerator/denominator
-    
-    # Calculate the number of grid cells to sample based on the area (rounding up to ensure entire area is covered)
-    num_cells_to_sample <- ceiling(area_km2 / grid_cell_area)
-    
-    print(paste0("Number of cells to sample: ", num_cells_to_sample))
-    
-    # Calculate the Euclidean distance (dist between 2 points) from this sample point to each centroid in the grid
-    # square root [(xf-xi)^2 + (yf-yi)^2]
-    distances <- sqrt((grid[, 6] - sample_x)^2 + (grid[, 7] - sample_y)^2)
-    
-    # Check if the minimum distance is within the threshold
-    # Using threshold of 10 meters
-    if (min(distances) <= 10) {
-      # Find the index of the closest centroid and set its match to 1
-      closest_centroid_index <- which.min(distances)
-      grid[, 8][closest_centroid_index] <- 1
       
-      # Save the row number which corresponds to the grid cell number where sampling will occur
-      sample.design$sampling_loc[i] <- closest_centroid_index
-      
-      # Now sample additional grid cells based on the area
-      sampled_cells <- 1  # We've already sampled the closest one, so start counting from 1
-      
-      # We want to sample `num_cells_to_sample - 1` more cells
-      sampled_cell_indices <- c(closest_centroid_index)  # Initialize with the first sampled cell index
-      
-      # We want to sample `num_cells_to_sample - 1` more cells
-      while (sampled_cells < num_cells_to_sample) {
-        # Find the next closest grid cells that haven't been sampled yet
-        remaining_distances <- distances
-        remaining_distances[grid[, 8] == 1] <- Inf  # Exclude already sampled cells
-        
-        # Find the index of the next closest centroid
-        next_closest_index <- which.min(remaining_distances)
-        
-        # Mark this grid cell as sampled
-        grid[, 8][next_closest_index] <- 1
-        sampled_cells <- sampled_cells + 1  # Increment the counter of sampled cells
-        
-        # Append this grid cell index to the list of sampled cell indices
-        sampled_cell_indices <- c(sampled_cell_indices, next_closest_index) 
-      }  
-      
-      # Save the row number (cell number) in the sampling location
-      sample.design$sampling_loc[i] <- list(sampled_cell_indices)  # Store as a list
-      
-    }
-  }
   return(sample.design)
 }

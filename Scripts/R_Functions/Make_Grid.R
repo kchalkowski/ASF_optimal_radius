@@ -128,9 +128,6 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
   }
   
   if ("homogeneous"%in%grid.opt & sample == 1) { # this loop will address homogeneous landscape and builds its own grid (grid.type = "County")
-    if (is.null(county_shapefile)) {
-      stop("Shapefile path is missing. Please provide a valid shapefile path in SetParameters.R.")
-    }
     
     print("Making county sized proportional grid.")
     
@@ -193,34 +190,6 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
       "grid" = grid,
       "centroids" = centroids
     )
-    
-    if(sample==1){
-    # Process sampling file
-    # Aggregate by week and store weeks to be sampled in variable
-    # Convert "collection_date" to Date format
-    names(sample.design)[1] <- "dates"  # Rename the first column to 'dates'
-    sample.design$dates <- as.Date(sample.design$dates, format = "%m/%d/%Y") # change to standard date format
-    
-    # Apply mutate on the entire dataframe, not just on a vector
-    sample.design <- sample.design %>%
-      mutate(# if collection date is in october or later, fiscal year starts in that year
-        # can handle out of order dates from spreadsheet
-        fiscal_year_start = as.Date(paste0(ifelse(month(dates) >= 10, year(dates), year(dates) - 1), "-10-01")), 
-        # Which fiscal week are we in
-        fiscal_week = as.integer(difftime(dates, fiscal_year_start, units = "weeks")) + 1,
-        # Make week number stays between 1-52 (handle any overflow)
-        fiscal_week = ifelse(fiscal_week < 1, fiscal_week + 52, fiscal_week),  # Handle weeks that are before the fiscal year start
-        fiscal_week = ifelse(fiscal_week > 52, fiscal_week %% 52, fiscal_week)  # Ensure the week number stays between 1 and 52
-      )
-    
-    # Decide which cells are sampling locations and add "1" to 8th column of grid
-    names(sample.design)[2] <- "latitude"
-    names(sample.design)[3] <- "longitude"
-    
-    sample_coords <- st_as_sf(sample.design, coords = c("longitude", "latitude"), crs=4269) # pull out x and y coords from sample.design, convert to sf object
-    sample_sf_transformed <- st_transform(sample_coords, crs = 26917) # transform coordinates to meter based CRS
-    sample_coords_transformed <- st_coordinates(sample_sf_transformed) # extract the coordinates only
-    sample_coords_transformed <- sample_coords_transformed / scale_factor
 
     # Add column to sample.design so the cell # where sampling occurs can be updated
     sample.design$sampling_loc <- 0L
@@ -290,48 +259,7 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
         
       }
     }
-    
-    # The following code will plot the overall grid and highlight in green the cells being sampled
-    # based on property size found in input file
-    # csv_data <-read.csv("initial_pop.csv")
-    # csv_points <- data.frame(
-    #   x_csv = csv_data$ctrx,  # X-coordinate from CSV
-    #   y_csv = csv_data$ctry   # Y-coordinate from CSV
-    # )
-    # 
-    # grid_df <- data.frame(
-    #   x = grid[, 6],  # X-coordinate of centroids
-    #   y = grid[, 7],  # Y-coordinate of centroids
-    #   sampled = ifelse(grid[, 8] == 1, "Sampled", "NA")  # Sampled vs not sampled
-    # )
-    # 
-    # sampling_points <- data.frame(
-    #   x = sample_coords_transformed[, 1],  # X-coordinate of sample locations
-    #   y = sample_coords_transformed[, 2]   # Y-coordinate of sample locations
-    # )
-    # 
-    # ggplot() +
-    #   # Plot all grid centroids
-    #   geom_point(data = grid_df, aes(x = x, y = y, color = sampled), size = 2, shape = 16) +
-    #   
-    #   geom_point(data = csv_points, aes(x = x_csv, y = y_csv), color = "blue", size = 0.7, shape = 17) +  # Customize as needed
-    #   
-    # 
-    #   # Highlight the sampled grid cells
-    #   geom_point(data = sampling_points, aes(x = x, y = y), color = "red", size = 1) +
-    #   
-    # 
-    #   # Customize the plot appearance
-    #   theme_minimal() +
-    #   labs(
-    #     title = "Grid and Highlighted Sampling Locations",
-    #     x = "X Coordinate",
-    #     y = "Y Coordinate"
-    #   ) +
-    #   scale_color_manual(values = c("Sampled" = "green", "NA" = "blue")) +
-    #   theme(legend.position = "bottom") +
-    #   guides(color = guide_legend(title = "Grid Cells"))
-
+ 
     # Visualizing county with grid
     # Combine into a data frame
     combined_data <- data.frame(
@@ -349,29 +277,18 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
     # First, convert the grid data to an sf object (spatial points) with the CRS of the county (EPSG: 26917)
     grid_spatial <- st_as_sf(combined_data*scale_factor, coords = c("top_left_x", "top_left_y"), crs = 26917)
     
-    ggplot() +
-      geom_sf(data = grid_spatial, color = "blue", fill = NA, size = 0.5, alpha=0.5) +  # Plot the grid
-      geom_sf(data = county_reprojected, fill = "lightpink", color = "black") +  # Plot the county shapefile
-      geom_sf(data = sample_sf_transformed, color = "red", fill = NA) +
-      theme_minimal() +
-      ggtitle(paste("Grid with", inc, "km Resolution"))
+    # ggplot() +
+    #   geom_sf(data = grid_spatial, color = "blue", fill = NA, size = 0.5, alpha=0.5) +  # Plot the grid
+    #   geom_sf(data = county_reprojected, fill = "lightpink", color = "black") +  # Plot the county shapefile
+    #   geom_sf(data = sample_sf_transformed, color = "red", fill = NA) +
+    #   theme_minimal() +
+    #   ggtitle(paste("Grid with", inc, "km Resolution"))
 
-    #plot(centroids[, 1], centroids[, 2])
-    
-    # st_crs(county_shapefile)
-    # st_crs(grid_spatial)
-    # st_bbox(county_shapefile)
-    # st_bbox(grid_spatial)
-    # st_geometry_type(county_shapefile)
-    # st_geometry_type(grid_spatial)
     
     #  return(list(grid.list = grid.list, sample.design = sample.design))
     grid.list=list(grid.list = grid.list, sample.design = sample.design)
     
     }
-    
-    
-  }
   
   return(grid.list)
   
