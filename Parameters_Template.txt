@@ -90,14 +90,6 @@ B2?? automatically calculated as B1*0.5
 
 ~ density = 1.5
 
-#################################
-#### Surveillance parameters ####
-#################################
-
-* detectday, Timestep of simulation to start surveillance. Yes it's named 'detectday' even though timesteps are in weeks.
-
-~ detectday=73
-
 ##############################
 #### Grid option settings ####
 ##############################
@@ -132,6 +124,9 @@ These two parameters only need to be set if manually creating heterogeneous or h
 #################################
 #### Surveillance parameters ####
 #################################
+* detectday, Timestep of simulation to start surveillance. Yes it's named 'detectday' even though timesteps are in weeks.
+
+~ detectday=73
   
 * DetP, probability of infected pigs sampled as positive. for now, is just used as an input in some of the sounderlocs output processing steps. later, may be integrated into culling/surveillance process within simulation.
 
