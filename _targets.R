@@ -74,6 +74,7 @@ list(
   #tar_terra_sprc(lands_sprc, ReadLands(predlands_path)), 
   
   ### Read and format sampling design scheme: ---------
+  # Only need if sample = 1
   tar_target(sample.design,PrepSurveillance(sampling)),
   
   
