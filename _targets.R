@@ -54,6 +54,13 @@ list(
   tar_target(landmat_path,
              file.path("Input","ldsel.rds"),
              format="file"),
+  
+  ### Input sample design: ---------
+  # Only need if sample = 1
+  tar_target(sampling,
+             file.path("Input", "sampling_scheme.csv"),
+             format="file"),
+  
 
   ## Read and format input data -----  
   #Examples:
@@ -65,6 +72,10 @@ list(
   
   ### Read and format landscapes: -----------
   #tar_terra_sprc(lands_sprc, ReadLands(predlands_path)), 
+  
+  ### Read and format sampling design scheme: ---------
+  tar_target(sample.design,PrepSurveillance(sampling)),
+  
   
   ## Input cpp scripts as files to enable tracking -----  
   tar_target(Fast_FOI_Matrix_script,
