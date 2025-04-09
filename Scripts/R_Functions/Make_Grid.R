@@ -128,6 +128,8 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
   }
   
   if ("SpatRaster"%in%grid.opt & sample == 1) { # this loop will take in spatraster with land class pref
+    # NOTE: This if statement has not been tested. Madison is pausing and reverting back to original
+    # surveillance implementation.
     
     # Add a line to resize based on county (remove this in final version, just for testing purposes)
     r <- rast("Input/lands/pland_01.tif") # Not sure where the actual tif gets loaded in this pipeline
@@ -140,32 +142,18 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
     grid <- matrix(NA, nrow = ncell(r), ncol=8) # total number of cells in grid
     grid[, 1] <- rep(1:ncell(r), each = 1)  # total number of cells in grid
     
-    grid[, 2] <- rep(grid_x[-(len + 1)], times = len)  # create top left x coordinate but get rid of very last one
-    grid[, 2] <- (grid[, 2]) / scale_factor  # Convert from meters to kilometers
-    grid[, 3] <- rep(grid_y[-(len + 1)], each = len)  # create top left y coordinate but get rid of very last one
-    grid[, 3] <- (grid[, 3]) / scale_factor  # Convert from meters to kilometers
-    grid[, 4] <- rep(grid_x[-1], times = len)  # create top right x coordinate but get rid of first one
-    grid[, 4] <- (grid[, 4]) / scale_factor
-    grid[, 5] <- grid[, 3]  # Top-right Y is the same as Top-left Y
-    
-    
-    # Need to expand grid and make sure it's a square
-    # # Get the resolution (cell size) of the raster
-    # cell_size_x <- res(r)[1]  # Resolution in the x-direction
-    # cell_size_y <- res(r)[2]  # Resolution in the y-direction
-    # 
-    # # Calculate the top-left and top-right corner coordinates
-    # top_left_x <- coordinates_df[, 1] - (cell_size_x / 2)
-    # top_left_y <- coordinates_df[, 2] + (cell_size_y / 2)
-    # 
-    # top_right_x <- coordinates_df[, 1] + (cell_size_x / 2)
-    # top_right_y <- coordinates_df[, 2] + (cell_size_y / 2)
-    
-    
     centroids <- xyFromCell(r, 1:ncell(r))
     centroids_df <-as.data.frame(coordinates)
     grid[, 6] <- centroids_df[, 1]  # Centroid x value provided by terra
     grid[, 7] <- centroids_df[, 2]  # Centroid y value provided by terra
+    
+    # Get the resolution (cell size) of the raster
+    cell_size_x <- res(r)[1]  # Resolution in the x-direction
+    cell_size_y <- res(r)[2]  # Resolution in the y-direction
+    grid[, 2] <- rep(centroids_df[, 1] - (cell_size_x / 2)) # get rid of last one
+    grid[, 3] <- rep(centroids_df[, 2] + (cell_size_y / 2)) # get rid of last one
+    grid[, 4] <- rep(centroids_df[, 1] + (cell_size_x / 2)) # get rid of first one
+    grid[, 5] <- rep(centroids_df[, 2] + (cell_size_y / 2)) # same as grid[, 3]
 
     # Create centroids matrix
     centroids <- cbind(grid[, 6], grid[, 7])  # Combine center X and Y as a matrix
@@ -182,6 +170,12 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
       "grid" = grid,
       "centroids" = centroids
     )
+    
+    # Transform spat rast from 4326 to 26917 CRS
+    r_transformed <- project(r, crs = 26917)  # UTM Zone 33N (example)
+    res_x <- res(raster_utm)[1]  # Resolution in x direction (in meters)
+    res_y <- res(raster_utm)[2]  # Resolution in y direction (in meters)
+    grid_cell_area <- res_x * res_y
 
     # Add column to sample.design so the cell # where sampling occurs can be updated
     sample.design$sampling_loc <- 0L
@@ -193,16 +187,11 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
       sample_y <- sample_coords_transformed[i, 2]
       
       # Get the acreage for the current sample point (assuming you have an 'acres' column in the dataframe)
-      names(sample.design)[5] <- "acres"  # Rename the first column to 'dates'
+      names(sample.design)[5] <- "acres"  # Rename the fifth column to 'acres'
       acres <- sample.design$acres[i]
       
       # Convert acres to square kilometers
       area_km2 <- acres * 0.00404686
-      
-      # Resolution of a grid cell in km2 calculation
-      numerator = inc * 1000 * inc * 1000
-      denominator = 1000000
-      grid_cell_area = numerator/denominator
       
       # Calculate the number of grid cells to sample based on the area (rounding up to ensure entire area is covered)
       num_cells_to_sample <- ceiling(area_km2 / grid_cell_area)
@@ -237,7 +226,7 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
           # Find the index of the next closest centroid
           next_closest_index <- which.min(remaining_distances)
           
-          # Mark this grid cell as sampled
+          # Mark this grid cell as to be sampled
           grid[, 8][next_closest_index] <- 1
           sampled_cells <- sampled_cells + 1  # Increment the counter of sampled cells
           
@@ -249,6 +238,9 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
         sample.design$sampling_loc[i] <- list(sampled_cell_indices)  # Store as a list
         
       }
+      # Plot the raster and sampling locations
+      plot(r_transformed)
+      points(sample_coords_transformed$geometry, col = "red", pch = 19)
     }
     
     #  return(list(grid.list = grid.list, sample.design = sample.design))
