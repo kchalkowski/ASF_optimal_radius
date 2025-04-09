@@ -27,6 +27,7 @@ Added functionality for additional output/aggregation options for sounderlocs ou
 Optimized FOI function-- created FOI_Fast_Matrix.cpp to speed up FOI calcs via Rcpp armadillo, loop unrolling, and added distance cutoff for calculations.
 
 ## Pending/Upcoming Updates
+* Transitioning model to targets pipeline
 * Add external input option to FOI_Fast_Matrix.cpp for FOI_cutoff to allow more flexiblity in determining calculation cutoffs-- currently just hardcoded to 5km in code on line 67
 * Develop and test options for sounder initialization on grid when RSF varies with availability
 
