@@ -76,7 +76,6 @@ list(
   ### Read and format sampling design scheme: ---------
   # Only need if sample = 1
   tar_target(sample.design,PrepSurveillance(sampling)),
-
   ## Input cpp scripts as files to enable tracking -----  
   tar_target(Fast_FOI_Matrix_script,
             file.path("Scripts","cpp_Functions","Fast_FOI_Matrix.cpp"),
