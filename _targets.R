@@ -54,9 +54,15 @@ list(
   tar_target(landmat_path,
              file.path("Input","ldsel.rds"),
              format="file"),
+  
+  ### Input sample design: ---------
+  # Only need if sample = 1
+  tar_target(sampling,
+             file.path("Input", "sampling_scheme.csv"),
+             format="file"),
+  
 
   ## Read and format input data -----  
-  #Examples:
   tar_terra_sprc(plands_sprc, ReadLands(lands_path)), 
   tar_target(landmat,ReadRDS(landmat_path)),
   
@@ -64,8 +70,13 @@ list(
   tar_target(parameters,FormatSetParameters(parameters_txt)),
   
   ### Read and format landscapes: -----------
+
   #tar_terra_sprc(lands_sprc, ReadLands(predlands_path)), 
   
+  ### Read and format sampling design scheme: ---------
+  # Only need if sample = 1
+  tar_target(sample.design,PrepSurveillance(sampling)),
+
   ## Input cpp scripts as files to enable tracking -----  
   tar_target(Fast_FOI_Matrix_script,
             file.path("Scripts","cpp_Functions","Fast_FOI_Matrix.cpp"),
@@ -102,7 +113,7 @@ list(
             #creates a neutral random landscape model with X lc variables
     #Value
       #a nested list of grid parameters
-  tar_target(land_grid_list,InitializeGrids(plands_sprc,"homogeneous"))#,
+  tar_target(land_grid_list,InitializeGrids(plands_sprc,"heterogeneous"))#,
   #tar_target(land_grid_list,InitializeGrids(plands_sprc[1],"homogeneous"))#,
   #tar_target(land_grid_list,InitializeGrids(c(parameters$len,parameters$inc),parameters$grid.opt))#,
   
