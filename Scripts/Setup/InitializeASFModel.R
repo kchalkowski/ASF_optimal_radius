@@ -56,11 +56,15 @@ midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
 } 
 
 if(grid.type=="DIY"){
-<<<<<<< HEAD
   result=Make_Grid(len,inc,grid.opt)
   grid.list <- result$grid.list
   sample.design <- result$sample.design
-=======
+  cells=grid.list$cells
+  grid=grid.list$grid
+  centroids=grid.list$centroids
+  area=cells*inc
+  midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
+  
   if(grid.opt=="homogeneous"|grid.opt=="heterogeneous"){
   grid.list=Make_Grid(len,inc,grid.opt)
   } else{
@@ -68,17 +72,11 @@ if(grid.type=="DIY"){
       grid.list=Make_Grid(len,inc,"ras",ras)
     }
   }
->>>>>>> 627b6a0d1328a0d815d19c532d423ff2f20a152e
-  cells=grid.list$cells
-  grid=grid.list$grid
-  centroids=grid.list$centroids
-  area=cells*inc
-  midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
 
-#grid-dependent parms
-area=len^2*inc #total area of grid
-N0=density*area #initial population size
-K=N0*1.5 #carrying capacity for whole population
+  #grid-dependent parms
+  area=len^2*inc #total area of grid
+  N0=density*area #initial population size
+  K=N0*1.5 #carrying capacity for whole population
 }
 
 if(grid.type=="County"){
