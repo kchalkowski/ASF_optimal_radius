@@ -1,111 +1,46 @@
 ##The purpose of this script is to run a single rep of the ASF control optimization model
 #out.opts=c("sounderlocs","idzone","alldetections","incidence")
 
-SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop,out.opts,grid.opts,rep,DetP){
+#SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop,out.opts,grid.opts,rep,DetP){
+SimulateOneRun<-function(outputs,pop,centroids,grid,parameters,cpp_functions,K){
+require(dplyr)
+	
+	print("sourcing cpp functions")
+	for(i in 1:length(cpp_functions)){
+		print(paste0("sourcing ",cpp_functions[[i]]))
+		Rcpp::sourceCpp(cpp_functions[[i]])
+		}
 
+############################################################
+######## Release parameters to function environment ######## 
+############################################################
+list2env(parameters, .GlobalEnv)
+	
 ###########################################
 ######## Initialize Output Objects ######## 
 ###########################################
-
-{
-Nall=matrix(nrow=thyme) #track total abundance
-BB=matrix(nrow=thyme) #track births
-
-POSlive=as.list(rep(0,thyme)) #Positive cases observed and removed from landscape
-POSdead=as.list(rep(0,thyme))#Positive carcasses observed and removed from landscape
-NEGlive=as.list(rep(0,thyme)) #Negative tests of detected carcasses that are removed from landscape
-NEGdead=as.list(rep(0,thyme)) #Negative tests of carcasses that are removed from landscape
-pigs_sampled_timestep=as.list(rep(0,thyme))  # Initialize an empty list to hold the number of pigs sampled at each timestep
-
-POSlive_locs<-as.list(rep(0,thyme))
-POSdead_locs<-as.list(rep(0,thyme))
-
-idZONE=matrix(nrow=1,ncol=3) #grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-#idZONE<-as.list(rep(NA,thyme)) #comment out of list mar 28
-Tculled=matrix(0,nrow=thyme) #total number culled at each time step
-ZONEkm2=matrix(0,nrow=thyme) 
-Carea=matrix(0,nrow=thyme) #area of culling zone at each time step
-Spread=matrix(0,nrow=thyme, ncol=3) #number of infectious individuals, area of infection, max distance between any two cases
-Incidence=matrix(0,nrow=thyme) #store new cases for each time step
-I_locs=vector("list",thyme)
-C_locs=vector("list",thyme)
-removalcells=vector("list",thyme)
-I_locs[1:thyme]<-0
-C_locs[1:thyme]<-0
-Isums<-matrix(0,nrow=thyme)
-Csums<-matrix(0,nrow=thyme)
-out=matrix(c(0,0,0),nrow=thyme,ncol=3)
-ICtrue=matrix(0,nrow=thyme,ncol=1)
-
-#State change outputs when needed
-#list(pop,Incidence,BB,"Eep"=Eep,"Sdpb"=Sdpb,"Sdpd"=Sdpd,"Iep"=Iep,"Edp"=Edpd,"Rep"=Rep,"Cep"=Cep,"Rdp"=Rdpd,"Ccd"=Ccd,"Zcd"=Zcd)
-Eep_mat=matrix(0,nrow=thyme,ncol=1)
-Sdpb_mat=matrix(0,nrow=thyme,ncol=1)
-Sdpd_mat=matrix(0,nrow=thyme,ncol=1)
-Iep_mat=matrix(0,nrow=thyme,ncol=1)
-Rep_mat=matrix(0,nrow=thyme,ncol=1)
-Cep_mat=matrix(0,nrow=thyme,ncol=1)
-Rdpd_mat=matrix(0,nrow=thyme,ncol=1)
-Ccd_mat=matrix(0,nrow=thyme,ncol=1)
-Zcd_mat=matrix(0,nrow=thyme,ncol=1)
-
-##Initialize out.opts objects as needed
-if("sounderlocs"%in%out.opts){
-  #Initialize list to track locations
-  loc.list=vector(mode="list",length=thyme)
-}
-
-if("idzone"%in%out.opts){
-  #Initialize list of idzones
-  idzone.mat=matrix(nrow=0,ncol=2)
-}
-
-######################################
-######## Initialize Infection ######## 
-######################################
-#print("Initializing Infection")
-#num_inf_0=1 #how many pigs to infect starting off
-
-#find the midpoint of the grid
-id=which(centroids[,1]>=midpoint[1]&centroids[,2]>=midpoint[2])[1] #location on grid closest to midpoint
-#infected<-InitializeSounders(N0,ss,cells,centroids,1,id,1)
-#infected<-InitializeSounders(N0,ss,cells,centroids,num_inf_0,id,1,"homogeneous")
-infected=InitializeSounders(centroids,grid,c(id,1),"init_single","homogeneous")
-infected[,8]<-0
-infected[,10]<-1
-
-#combine infected pig with pop matrix
-pop<-rbind(pop,infected)
-
+list2env(outputs, .GlobalEnv)
+	
 #track first infection in Incidence matrix
 Incidence[1]<-num_inf_0
-
-
+	
 ##################################
 ######## Start simulation ######## 
 ##################################
-#print("Starting timestep loop")
-
-#start the timestep loop
-##i=1
-##detectday=i
-}
   
 for(i in 1:thyme){
 
 print(paste0("timestep: ",i))
 if(any(pop[,9,drop=FALSE]!=0|pop[,10,drop=FALSE]!=0|pop[,12,drop=FALSE]!=0)){
-#print(i)
+
 if("sounderlocs"%in%out.opts){
-  #print("Adding to loc.list")
   loc.list[[i]]=pop[,c(3,8:13)]
   }
-#for(i in 1:(detectday-1)){ #for manual troubleshooting of loop, in place of 1:thyme
-#for(i in detectday:thyme){ #for manual troubleshooting of loop, in place of 1:thyme
-  #print(nrow(pop))
+
 #####################################
 ######## Track I/C locations ######## 
 #####################################
+	print("Track I/C locs")
 
 if(nrow(pop[pop[,10]>0,,drop=FALSE])>0){
 Isums[i]<-nrow(pop[pop[,10]>0,,drop=FALSE])
@@ -117,26 +52,25 @@ Csums[i]<-nrow(pop[pop[,12]>0,,drop=FALSE])
 
 I_locs[[i]]<-pop[pop[,10]>0,3]
 C_locs[[i]]<-pop[pop[,12]>0,3]
-	
-#print(pop[pop[,10]!=0,,drop=FALSE])
-#print(pop[pop[,12]!=0,,drop=FALSE])
+
+
+
 ##########################
 ######## Movement ######## 
 ##########################
-#print("Moving pigs")
 
-pop<-FastMovement(pop,centroids,shift,inc,mv_pref)
-#try ML replicated Movement process
-#pop<-Movement(pop,centroids,shift,inc)
+	print("move")
+
+pop<-FastMovement(pop,centroids,shape,rate,inc,mv_pref)
 
 
 ###############################
 ######## State Changes ######## 
 ###############################
 #births, natural deaths, disease state changes (exposure, infection, recovery, death), carcass decay
-#print("Calculating state changes")
+	print("state changes")
 
-st.list<-StateChanges(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i)
+st.list<-StateChanges(pop,centroids,nrow(centroids),Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i)
 
 Eep_mat[i,]=st.list$Eep
 Sdpb_mat[i,]=st.list$Sdpb
@@ -149,8 +83,6 @@ Zcd_mat[i,]=st.list$Zcd
 Iep_mat[i,]=st.list$Iep
 
 if("incidence"%in%out.opts){
-  #print("Adding to incidence")
-  
   inf.locs=rep(pop[(pop[,10]>0),3],pop[(pop[,10]>0),10]) #locs infected
   inf.num=sum(pop[(pop[,10]>0),10]) #num infected
   exp.locs=rep(pop[st.list[[4]]>0,3],st.list[[4]][st.list[[4]]>0]) #locs exposed
@@ -196,16 +128,16 @@ pop<-st.list[[1]]
 Incidence<-st.list[[2]]
 BB<-st.list[[3]]
 
-
-
 ###**start on day of first detection
 ###################################
 ######## Initiate Response ######## 
 ###################################
 
+	print("response")
+
 # If sampling turned on, run surveillance scheme based on user's input
 # for the current week
-if(sample == 1){
+if(sampling == 1){
   surv.list<-Surveillance(pop,i,sample.design,grid.list,inc,POSlive,POSdead,POSlive_locs,POSdead_locs,pigs_sampled_timestep) # Madison
   pop=surv.list[[1]]
   POSlive=surv.list[[2]]
@@ -218,7 +150,7 @@ if(sample == 1){
 
 # If sampling turned off and it's detect day based on user input,
 # run FirstDetect because there are infected pigs to detect, and Rad>0
-if(sample != 1 & i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
+if(sampling != 1 & i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
   #print("First detection")
   fd.list<-FirstDetect(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs)
   pop=fd.list[[1]]
@@ -234,9 +166,10 @@ if(sample != 1 & i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
 #######################################
 ######## Initiate Culling Zone ######## 
 #######################################
+	print("init culling")
 
 #if it is at least day after detect day, and Rad>0
-if(sample != 1 & i > detectday & Rad > 0) {
+if(sampling != 1 & i > detectday & Rad > 0) {
 
 	#new detections from last step, bc day lag 
 	#(either from initial detection or last culling period)
@@ -298,6 +231,8 @@ if(sample != 1 & i > detectday & Rad > 0) {
 #############################
 ####Track true spatial spread
 #############################
+	print("track spread")
+
 #if any infected individuals
 if(nrow(pop[pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,12,drop=FALSE]>0,,drop=FALSE])>0){
   #print("Tracking true spatial spread")
@@ -307,6 +242,7 @@ if(nrow(pop[pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,12,drop=FALSE]>0,,dr
 #############################
 ####Summarize infections
 #############################
+	print("summarize infections")
 
 #sum all infectious cases (I,C,E) at each timestep
 #ICtrue = sum(I + C,2); sum of all infectious cases over time
@@ -332,6 +268,7 @@ pop=pop[which(rowSums(pop[,pigcols])!=0),]
 #############################
 #############################
 
+	print("finalize outputs")
 if(length(out.opts)>0){
 input.opts=vector(mode="list",length=1)
 input.opts[[1]]=out.opts
@@ -367,7 +304,7 @@ if("alldetections"%in%out.opts){
   input.opts = append(input.opts, templist)
   names(input.opts)[length(input.opts)] = "POSdead_locs"
   
-  if(sample == 1){
+  if(sampling == 1){
     templist = list(pigs_sampled_timestep)  # directly create a list with pigs_sampled_timestep
     input.opts=append(input.opts,templist)
     names(input.opts)[length(input.opts)]="pigs_sampled_timestep"
@@ -383,37 +320,10 @@ if("incidence"%in%out.opts){
   
 }
 }
-#print("Getting output")
-#print(names(input.opts))
 
-list.all<-GetOutputs(pop,BB,Incidence,Tculled,ICtrue,out,detectday,out.opts,input.opts)
+	print("get outputs")
 
-######For troubleshooting ML/R infection process diffs######
-#path=paste0("/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius/Output/Pse_Compare_Trblsht/temp/")
-#Pse.list=list.files(path,recursive=TRUE,full.names=TRUE)
-
-#for(i in 1:length(Pse.list)){
-#  Pse.i=readRDS(paste0(path,i,"/Pse.rds"))
-#  if(i==1){
-#    Pse.r=Pse.i
-#  } else{
-#    Pse.r=cbind(Pse.r,Pse.i)
-#  }
-#}
-
-#saveRDS(Pse.r,paste0(paste0("/Users/kayleigh.chalkowski/Library/CloudStorage/OneDrive-USDA/Projects/ASF_optimal_radius/Output/Pse_Compare_Trblsht/final/",rep,"_Pse.rds")))
-
-##########
-
-#list.all=list("Eep"=Eep_mat,
-#              "Sdpb"=Sdpb_mat,
-#              "Sdpd"=Sdpd_mat,
-#              "Rep"=Rep_mat,
-#              "Cep"=Cep_mat,
-#              "Rdpd"=Rdpd_mat,
-#              "Ccd"=Ccd_mat,
-#              "Zcd"=Zcd_mat,
-#              "Iep"=Iep_mat)
+list.all<-GetOutputs(pop,centroids,BB,Incidence,Tculled,ICtrue,out,detectday,out.opts,input.opts)
 
 
 return(list.all)

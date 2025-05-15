@@ -27,7 +27,7 @@ ch<-chull(xy)
 boundary<-xy[ch,,drop=FALSE]
 
 #get area within boundary
-A<-abs(polyarea(boundary[,1,drop=FALSE],boundary[,2,drop=FALSE]))
+A<-abs(pracma::polyarea(boundary[,1,drop=FALSE],boundary[,2,drop=FALSE]))
 
 #distmat = max(max(squareform(pdist(CT(id,:)))));
 #pdist- gets pairwise distance between pairs of observations

@@ -1,5 +1,5 @@
 
-GetOutputs<-function(pop,BB,Incidence,Tculled,ICtrue,out,detectday,out.opts,input.opts){
+GetOutputs<-function(pop,centroids,BB,Incidence,Tculled,ICtrue,out,detectday,out.opts,input.opts){
   #print("Entering GetOutputs")
   
   #List of outputs created here:	
@@ -83,19 +83,19 @@ list.all=list("Tinc"=Tinc,
 #loc.list: is pop[,c(3,8:13)] for each timestep in list of length thyme
 #cell num, S, E, I, R, C, Z
 #convert loc.list into dataframe
+
 if("sounderlocs"%in%out.opts){
   
   #print("Summarizing sounderlocs")
   #print(input.opts$loc.list)
   loc.list=input.opts$loc.list
 for(i in 1:length(input.opts$loc.list)){
-  #print(i)
-  #print(length(loc.list[[i]]))
-  #print(length(loc.list))
-  if(length(loc.list[[i]]!=0)){
+
+
+  if(length(loc.list[[i]])!=0){
   #print(loc.list[[i]][,1])
+
   locs.i=as.data.frame(centroids[loc.list[[i]][,1],])
-  #print(locs.i)
   colnames(locs.i)=c("x","y","unknown")
   locs.i$timestep=i
   locs.i$S=loc.list[[i]][,2]
@@ -104,7 +104,6 @@ for(i in 1:length(input.opts$loc.list)){
   locs.i$R=loc.list[[i]][,5]
   locs.i$C=loc.list[[i]][,6]
   locs.i$Z=loc.list[[i]][,7]
-  
   #print(locs.i)
   if(i==1){
     locs.df=locs.i
@@ -117,7 +116,6 @@ for(i in 1:length(input.opts$loc.list)){
   #locs.df$x=as.integer(locs.df$x)
   #locs.df$y=as.integer(locs.df$y)
 }
-
 
 #Get POSlive, dead, and all locs in datafame format from list
 if("alldetections"%in%out.opts){
@@ -160,7 +158,6 @@ if("alldetections"%in%out.opts){
     detections = cbind(detections, sampled_pigs_column_dup)
   }
 }
-
 #Get Incidence and R0 vals summarized in data frame
 if("incidence"%in%out.opts){
   #print("Summarizing incidence")
@@ -184,7 +181,6 @@ if("incidence"%in%out.opts){
 ###############################
 ### Append optional outputs ###
 ###############################
-
 if("sounderlocs"%in%out.opts){
   templist=vector(mode="list",length=1)
   templist[[1]]=locs.df

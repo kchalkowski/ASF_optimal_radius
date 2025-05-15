@@ -86,15 +86,13 @@ for(j in 1:length(id)){
   
 }
 
-
 ##############################################################
 ######## Determine disease state change probabilities ######## 
 ##############################################################
 
 #Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2) #force of infection #R version
-Pse<-FOI_R(pop,centroids,cells,B1,B2,F1,F2,F2i) #cpp parallel version, 22x faster than R version
+Pse<-FOI_R(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B) #cpp parallel version, 22x faster than R version
 #Pse<-FOIParallelFull(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B) #cpp parallel version, 22x faster than R version
-
 
 Pei=1-exp(-1/(rpois(cells,4)/7)) #transitions exposure to infected
 Pic=1-exp(-1/(rpois(cells,5)/7)) #transitions infected to either dead or recovered

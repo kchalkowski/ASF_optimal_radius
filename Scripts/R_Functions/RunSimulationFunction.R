@@ -16,7 +16,8 @@
             #creates a neutral random landscape model with X lc variables
     #Value
       #a nested list of grid parameters
-RunSimulationReplicates<-function(land_grid_list, parameters){
+RunSimulationReplicates<-function(land_grid_list, parameters, cpp_functions){
+	
 	
 	#Pull needed parms from parameters for initialize sounders
 			len=parameters$len
@@ -30,11 +31,22 @@ RunSimulationReplicates<-function(land_grid_list, parameters){
 			km_len=len*inc
 			area=len^2
 			N0=parameters$density*area
+			K=N0*1.5
 
 pop=InitializeSounders(centroids,grid,c(N0,ss),pop_init_type="init_pop",pop_init_grid_opts="ras")
+outputs=Initialize_Outputs(parameters)
+pop=InitializeInfection(pop,centroids,grid,parameters)
+out.list=SimulateOneRun(outputs,pop,centroids,grid,parameters,cpp_functions,K)
 
-return(pop)
-#out.list=SimulateOneRun(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop,out.opts,"homogeneous",rep,DetP)
-#return(out.list)
+return(out.list)
 }
+
+
+
+
+
+
+
+
+
 

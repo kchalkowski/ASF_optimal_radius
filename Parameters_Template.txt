@@ -50,7 +50,7 @@ If using movement parameters fed in from landscapes, remove the ~
   1=abundance-avoidance movement preference
   2=rsf preference (only works when pop_init_grid_opts="heterogeneous" and grid_opts!="homogeneous")
   
-~ mv_pref=0
+~ mv_pref=3
 
 ###########################
 #### Contact parameters ###
@@ -67,6 +67,12 @@ If using movement parameters fed in from landscapes, remove the ~
 Originally, these were all pulled into model with 'ModelStateSwitch.R' by reading in pairwise contact data from field studies
 
 ~ F1 = 0.7380952
+
+# just subbing in these values for now
+~ F2_int = 0.7380952
+~ F2_B = 0.015 
+~ F2i_int = 0.7380952
+~ F2i_B = 0.015
 
 ##################################
 #### Pig population parameters ###
@@ -135,7 +141,7 @@ These two parameters only need to be set if manually creating heterogeneous or h
 * sample, option to include specific sampling scheme for a county. Sample format for this file can be found here: "Input/sampling_scheme_template.csv"
 * This feature currently requires a county landclass preference file to construct grid. Initial implementation required county shapefile but this is deprecated.
 
-~ sample = 0
+~ sampling = 0
 
 #############################
 #### Culling parameters #####

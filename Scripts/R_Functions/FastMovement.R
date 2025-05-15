@@ -1,5 +1,5 @@
-FastMovement=function(pop,centroids,shift,inc,mv_pref,RSF_mat,RSF_mat0){
-  
+FastMovement=function(pop,centroids,shape,rate,inc,mv_pref,RSF_mat=NULL,RSF_mat0=NULL){
+
   #run checks to make sure objects input correctly
   if(mv_pref!=3){
     if(!missing(RSF_mat0)|!missing(RSF_mat)){
@@ -15,7 +15,7 @@ FastMovement=function(pop,centroids,shift,inc,mv_pref,RSF_mat,RSF_mat0){
   
   
   #get distances from gamma distribution
-  pop[,4]=rgamma(nrow(pop),shape=shift[1],scale=shift[2])
+  pop[,4]=rgamma(nrow(pop),shape=shape,rate=rate)
   
   #set those less than inc to 0
   pop[pop[,4]<inc,][,4]=0 

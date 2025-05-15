@@ -93,6 +93,11 @@ list(
   tar_target(SpatialZones_fast_script,
              file.path("Scripts","cpp_Functions","SpatialZones_fast.cpp"),
              format="file"),
+	
+	
+	## Source cpp files -----  
+	#tar_target(a,sourceCPP_target(Fast_FOI_Matrix_script),, force=TRUE)
+
   
   ## Initialize model -----
   ### Initialize grid(s): ---------------
@@ -120,9 +125,20 @@ list(
   ## Run Model: ---------------
   #Use tar_force format here because otherwise will only run if code has been updated
   #initialize output objects
-  tar_force(x,RunSimulationReplicates(land_grid_list, parameters), force=TRUE)
+  tar_force(x,
+  	RunSimulationReplicates(
+  		land_grid_list, 
+  		parameters,
+  		cpp_functions=
+  			list(Fast_FOI_Matrix_script,
+  			#FindCellfromCentroid_script,
+  			Movement_Fast_Generalized_script
+  			#Movement_Fast_RSFavail_script
+  			#SpatialZones_fast_script
+  				)
+  		), 
+  	force=TRUE)
       #add nrep
-
   )
 
 

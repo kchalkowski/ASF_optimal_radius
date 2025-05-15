@@ -1,5 +1,4 @@
-#FOI_NEW
-FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2,F2i){
+FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B){
   #Create I/C matrices. Just want vector with locations of I/C, with nums of I/C in right place
   I=matrix(0,nrow=cells,ncol=1)
   C=matrix(0,nrow=cells,ncol=1)
@@ -26,8 +25,10 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2,F2i){
   dist=sqrt((centroids[,1]-X1)^2+(centroids[,2]-Y1)^2)
   dist=as.data.frame(dist)
   colnames(dist)="X"
-  prob=predict(F2,dist,type="response")
-  probi=predict(F2i,dist,type="response")
+  #prob=predict(F2,dist,type="response")
+  prob=F2_int+F2_B*dist
+  #probi=predict(F2i,dist,type="response")
+  probi=F2i_int+F2i_B*dist
   prob[dist==0]=0
   probi[dist==0]=0
   
