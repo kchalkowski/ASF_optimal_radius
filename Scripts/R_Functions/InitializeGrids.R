@@ -10,21 +10,19 @@
 #object=c(parameters$len,parameters$inc)
 #grid.opt=parameters$grid.opts
 InitializeGrids<-function(object,grid.opt="homogeneous"){
-
+	
     if(class(object)=="SpatRaster"){
-      object<-raster(object)
       tar.grid.list=vector(mode="list",length=1)
+      
       grid.list=Make_Grid(object,grid.opt)
       tar.grid.list[[1]]=grid.list
     }
   
     if(class(object)=="SpatRasterCollection"){
-      
       tar.grid.list=vector(mode="list",length=length(object))
       
       for(g in 1:length(object)){
-        ras=object[g]
-        ras<-raster(ras)
+      ras=object[g]
       grid.list=Make_Grid(ras,grid.opt)
       tar.grid.list[[g]]=grid.list
       }

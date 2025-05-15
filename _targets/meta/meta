@@ -7,10 +7,12 @@ FindCellfromCentroid_script|stem|ea987b2b992c558b|6e65597d94c0b0a2|2c530c1562a7f
 landmat_path|stem|6a2a7da78d7f135a|4f3f0929634fdcba|2c530c1562a7fbd1|-1391031860|Input/ldsel.rds|t20172.8969745283s|s656b|656|file|local|vector|||1.105|package RcppArmadillo was built under R version 4.3.3. package terra was built under R version 4.3.3|
 landmat|stem|6a2a7da78d7f135a|79797f820c3a45f4|7466afde2d3fc6f7|-1324774644||t20174.6433921349s|s656b|656|rds|local|vector|||0.001||
 plands_sprc|stem|2158b0645c2119b5|0f4c7beba53c9170|bf7fda0ca8b4e6e5|-100196756||t20174.6438994955s|s1593471b|1593471|format_custom&read=dGVycmE6OnNwcmMocGF0aCk&write=ewogICAgZm9yIChpIGluIHNlcShvYmplY3QpKSB7CiAgICAgICAgaWYgKGkgPiAxKSB7CiAgICAgICAgICAgIG9wdCA8LSAiQVBQRU5EX1NVQkRBVEFTRVQ9WUVTIgogICAgICAgIH0KICAgICAgICBlbHNlIHsKICAgICAgICAgICAgb3B0IDwtICIiCiAgICAgICAgfQogICAgICAgIHdpdGhDYWxsaW5nSGFuZGxlcnMod2FybmluZyA9IGZ1bmN0aW9uKGNuZCkgewogICAgICAgICAgICBpZiAoZ3JlcGwoIlxcW3Jhc3RcXF0gc2tpcHBlZCBzdWItZGF0YXNldHMiLCBjbmQkbWVzc2FnZSkpIHsKICAgICAgICAgICAgICAgIHJsYW5nOjpjbmRfbXVmZmxlKGNuZCkKICAgICAgICAgICAgfQogICAgICAgIH0sIHRlcnJhOjp3cml0ZVJhc3Rlcih4ID0gb2JqZWN0W2ldLCBmaWxlbmFtZSA9IHBhdGgsIAogICAgICAgICAgICBmaWxldHlwZSA9ICJHVGlmZiIsIG92ZXJ3cml0ZSA9IChpID09IDEpLCBnZGFsID0gYyhvcHQsIAogICAgICAgICAgICAgICAgY2hhcmFjdGVyKDApKSkpCiAgICB9Cn0&marshal=dGVycmE6OndyYXAob2JqZWN0KQ&unmarshal=dGVycmE6OnVud3JhcChvYmplY3Qp&convert=&copy=&repository=|local|list|||0.048||
-lands_path|stem|06457d19126d84d9|eebccffab0c7fb79|2c530c1562a7fbd1|2029096636|Input/lands|t20173.8276003205s|s384b|384|file|local|vector|||0.621|package RcppArmadillo was built under R version 4.3.3. package terra was built under R version 4.3.3|
+parameters_txt|stem|acf9b929fb6fa07f|7819435b722306c6|2c530c1562a7fbd1|635298774|Parameters.txt|t20174.723469783s|s7906b|7906|file|local|vector|||2.15|package RcppArmadillo was built under R version 4.3.3. package terra was built under R version 4.3.3|
+parameters|stem|c9b9477317176762|f34f0abe4633c9b8|ba5eb354d74e4b80|105499064||t20174.7632543148s|s411b|411|rds|local|vector|||0.023||
+sampling|stem||a4ef452e09983ec5|2c530c1562a7fbd1|-187234094|Input/sampling_scheme.csv|t20221.7161080353s||0|file|local|vector|||||_paths_ [31mmissing files: Input/sampling_scheme.csv[39m
 FOI_R|function|b22c24efcef26d35
 InitializeSounders|function|9c237b7d78e2869b
-Make_Grid|function|535bc1f1b6f99bb4
+Make_Grid|function|501d405d344dffac
 areaOfinfection|function|f347333e6ae15c4e
 ReadRDS|function|1488b3e90c397bca
 FastMovement|function|f218cb2bf2f848ae
@@ -20,16 +22,16 @@ GetOutputs|function|861e2bcdab403efe
 Surveillance|function|5b8b0c0e77e91f8b
 sounderlocsZone|function|8bca5b72870114fc
 ReadLands|function|39b0f2d18c2dc36d
-.Random.seed|object|1613bc6c0ac56711
+.Random.seed|object|00dac889e8d5ad8f
 FormatSetParameters|function|5cdb5a744c0157e6
+PrepSurveillance|function|0a2ffe9a77d74e60
 SampleIndividuals|function|738344ed8f7091c9
 doQuartileSummary|function|e1d235faa3338972
 StateChanges|function|eb9598391fc34740
-InitializeGrids|function|96da1ff45a55924c
+InitializeGrids|function|246bde8e37f81c2e
 ExtApparentPrev|function|4bb80555a83b34a1
 SimulateOneRun|function|0b3ae9c4bb52d97d
 sounderlocsSummarize|function|31e4bbf41e7e3b2f
 RunSimulationModel|function|558145b41801a270
-parameters_txt|stem|acf9b929fb6fa07f|7819435b722306c6|2c530c1562a7fbd1|635298774|Parameters.txt|t20174.723469783s|s7906b|7906|file|local|vector|||2.15|package RcppArmadillo was built under R version 4.3.3. package terra was built under R version 4.3.3|
-parameters|stem|c9b9477317176762|f34f0abe4633c9b8|ba5eb354d74e4b80|105499064||t20174.7632543148s|s411b|411|rds|local|vector|||0.023||
-land_grid_list|stem|77d83daba3e88268|04b953733bfd6f54|213712a7978a55df|-900014022||t20174.718873414s||1186448|rds|local|vector|||0.29||object grid.list not found
+lands_path|stem|06457d19126d84d9|eebccffab0c7fb79|2c530c1562a7fbd1|2029096636|Input/lands|t20208.5556134259s|s384b|384|file|local|vector|||0.621|package RcppArmadillo was built under R version 4.3.3. package terra was built under R version 4.3.3|
+land_grid_list|stem|aafa97f1432822e3|04b953733bfd6f54|1d1c771dafd81300|-900014022||t20223.7890968497s|s2004252b|2004252|rds|local|vector|||0.548||
