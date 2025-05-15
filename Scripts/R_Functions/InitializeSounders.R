@@ -1,15 +1,10 @@
-
-#########################
-######## Purpose ######## 
-#########################
+# Purpose ------
 
 #Initializes the population matrix for spatial meta-population model
 #Also includes option to initialize individual/group in single location on grid
 #Option to incorporate heterogeneous landscape preference is in progress
 
-##########################
-######## Function ######## 
-##########################
+# Function ------
 
 #Inputs: 
 #centroids: numeric matrix, x y coordinates of centroids of every cell in grid
@@ -20,21 +15,10 @@
   #for pop_init_type="init_single", need a vector with init_loc (cell number to initialize group/individual) and n (number of individuals to initialize)
 #pop_init_type: string, "init_pop" or "init_single"
 #pop_init_grid_opts: string, "homogeneous" or "ras" or "heterogeneous"
-InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init_grid_opts,RSF0_lc){
-
-  #########################################################################
-  ############## Parse input args and check input formatting ############## 
-  #########################################################################  
-  
-  
-  if(missing(pop_init_type)){
-    pop_init_type="init_pop"
-  }
-  
-  if(missing(pop_init_grid_opts)){
-    pop_init_grid_opts="homogeneous"
-  }
-  
+InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type="init_pop",pop_init_grid_opts="homogeneous",RSF0_lc=NULL){
+	
+	## Parse input args and check input formatting ------------
+	
   #Check main input args
   if(pop_init_type=="init_pop"){
     if(length(pop_init_args)<2){
@@ -42,6 +26,7 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
     }
     N0=pop_init_args[1]
     ss=pop_init_args[2]
+    
   } else{
     
     #for init_pop, init_args needs to be vector with init_locs, n
@@ -57,7 +42,7 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
     }
     
   }
-  
+	
   #Check grid input args
     if(pop_init_grid_opts=="heterogeneous"&ncol(grid)<8){
       stop("Specified heterogeneous land class preference option, but land class values missing in grid.")
@@ -67,11 +52,9 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
        pop_init_grid_opts!="ras"){
       stop("Unrecognized grid input option")
     }
-  
 
-  ###################################################
-  ############## Initialize Population ############## 
-  ###################################################
+
+	## Initialize population ----------------------
 
   if(pop_init_type=="init_pop"){ 
   
@@ -88,6 +71,7 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
     } else{
 
     if(pop_init_grid_opts=="heterogeneous"){
+    	
       #use this to weight preference so that still end up with N0 size population
       pref.wt=sum(grid[,8])/cells 
       #assign to cells with weighted preference according to column 8 values
@@ -126,14 +110,15 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
     stop("agents initialized off the grid")
   }
   
+  ## Deal with raster placements, keep realistic ------------
+  #RSF0_lc value is lc with 0 probability to move to (e.g., water body)
+
   if((pop_init_grid_opts == "heterogeneous" | 
       pop_init_grid_opts == "ras") & !missing(RSF0_lc)){
-    #RSF0_lc value is lc with 0 probability to move to (e.g., water body)
-    #if(centroids[init_locs,3]==RSF0_lc){
       #stop condition. will need to do some checking before runs to look at center of each lc 
       #for initializing infected individual.
       #stop("individual initialized in unsuitable location (RSF probability = 0)")
-    #while loop-- 
+    
       #check if any initialized in lc=0
       #while any initialized in lc=0
         #subset those and randomly sample new location not already occupied by another sounder
@@ -149,8 +134,6 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
           cellsq=cellsq[-which(centroids[cellsq,3]==RSF0lc)]
           new.cell=sample(cellsq,1)
           pop[RSF0.r[r],3]=new.cell
-          #pop[,5]=centroids[pop[,3],1] #present location X 
-          #pop[,6]=centroids[pop[,3],2] 
           pop[RSF0.r[r],5]=centroids[new.cell,1] #x
           pop[RSF0.r[r],6]=centroids[new.cell,2] #y
           pop[RSF0.r[r],2]=centroids[new.cell,3] #lc
@@ -162,15 +145,15 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
 
   }
 
-  ################################################################
-  ############## Initialize Single Group/Individual ############## 
-  ################################################################
-  
+	
+	## Initialize single group/individual ---------------------
+
   if(pop_init_type=="init_single"){
    
     if((pop_init_grid_opts == "heterogeneous" | 
         pop_init_grid_opts == "ras") & !missing(RSF0_lc)){
-      #RSF0_lc value is lc with 0 probability to move to (e.g., water body)
+      
+    	#RSF0_lc value is lc with 0 probability to move to (e.g., water body)
       if(centroids[init_locs,3]==RSF0_lc){
         #stop condition. will need to do some checking before runs to look at center of each lc 
         #for initializing infected individual.
@@ -178,9 +161,7 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
       }
       
     }
-    #check that initialization location is not in a zero-RSF prob area 
-  #init_locs  
-    
+
   #for initializing initial infected individual introduction
   pop<-matrix(nrow=1,ncol=13)
   pop[,1]=n #sounder size with avg as lambda in a poisson
@@ -199,11 +180,9 @@ InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type,pop_init
   
   	}
 
-  
-  #############################################
-  ############## Tidying outputs ############## 
-  #############################################
-  
+	
+	## Tidying outputs -----------
+	
   #add column names
   colnames(pop)=c("Nlive","pref","cell","dist","ctrx","ctry","pcell","S","E","I","R","C","Z")
   

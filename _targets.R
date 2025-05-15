@@ -113,14 +113,14 @@ list(
             #creates a neutral random landscape model with X lc variables
     #Value
       #a nested list of grid parameters
-  tar_target(land_grid_list,InitializeGrids(plands_sprc,"heterogeneous"))#,
+  tar_target(land_grid_list,InitializeGrids(plands_sprc,"heterogeneous")),
   #tar_target(land_grid_list,InitializeGrids(plands_sprc[1],"heterogeneous"))#,
   #tar_target(land_grid_list,InitializeGrids(c(parameters$len,parameters$inc),parameters$grid.opt))#,
   
   ## Run Model: ---------------
   #Use tar_force format here because otherwise will only run if code has been updated
-  #iniitalize output objects
-  #tar_force(x,RunSimulation(land_grid_list, parameters, movement), force=TRUE)
+  #initialize output objects
+  tar_force(x,RunSimulationReplicates(land_grid_list, parameters), force=TRUE)
       #add nrep
 
   )

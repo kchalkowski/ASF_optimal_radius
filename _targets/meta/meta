@@ -10,8 +10,9 @@ plands_sprc|stem|2158b0645c2119b5|0f4c7beba53c9170|bf7fda0ca8b4e6e5|-100196756||
 parameters_txt|stem|acf9b929fb6fa07f|7819435b722306c6|2c530c1562a7fbd1|635298774|Parameters.txt|t20174.723469783s|s7906b|7906|file|local|vector|||2.15|package RcppArmadillo was built under R version 4.3.3. package terra was built under R version 4.3.3|
 parameters|stem|c9b9477317176762|f34f0abe4633c9b8|ba5eb354d74e4b80|105499064||t20174.7632543148s|s411b|411|rds|local|vector|||0.023||
 sampling|stem||a4ef452e09983ec5|2c530c1562a7fbd1|-187234094|Input/sampling_scheme.csv|t20221.7161080353s||0|file|local|vector|||||_paths_ [31mmissing files: Input/sampling_scheme.csv[39m
+land_grid_list|stem|aafa97f1432822e3|04b953733bfd6f54|1d1c771dafd81300|-900014022||t20223.7890968497s|s2004252b|2004252|rds|local|vector|||0.548||
 FOI_R|function|b22c24efcef26d35
-InitializeSounders|function|9c237b7d78e2869b
+InitializeSounders|function|771d267290d21e1e
 Make_Grid|function|501d405d344dffac
 areaOfinfection|function|f347333e6ae15c4e
 ReadRDS|function|1488b3e90c397bca
@@ -22,16 +23,18 @@ GetOutputs|function|861e2bcdab403efe
 Surveillance|function|5b8b0c0e77e91f8b
 sounderlocsZone|function|8bca5b72870114fc
 ReadLands|function|39b0f2d18c2dc36d
-.Random.seed|object|00dac889e8d5ad8f
+.Random.seed|object|6883c543aab7aeeb
 FormatSetParameters|function|5cdb5a744c0157e6
 PrepSurveillance|function|0a2ffe9a77d74e60
 SampleIndividuals|function|738344ed8f7091c9
 doQuartileSummary|function|e1d235faa3338972
 StateChanges|function|eb9598391fc34740
+RunSimulationReplicates|function|6882ff26bea0dd3c
 InitializeGrids|function|246bde8e37f81c2e
 ExtApparentPrev|function|4bb80555a83b34a1
-SimulateOneRun|function|0b3ae9c4bb52d97d
+SimulateOneRun|function|62c719fea6c821ac
 sounderlocsSummarize|function|31e4bbf41e7e3b2f
-RunSimulationModel|function|558145b41801a270
+RunSimulationModel|function|7adb26cfe9b6379e
+x_change|stem|bdcfeeea2c8bd56f|aac3973607b53863|2c530c1562a7fbd1|-89212188||t20223.8218549826s|s63b|63|rds|local|vector|||2.259||
 lands_path|stem|06457d19126d84d9|eebccffab0c7fb79|2c530c1562a7fbd1|2029096636|Input/lands|t20208.5556134259s|s384b|384|file|local|vector|||0.621|package RcppArmadillo was built under R version 4.3.3. package terra was built under R version 4.3.3|
-land_grid_list|stem|aafa97f1432822e3|04b953733bfd6f54|1d1c771dafd81300|-900014022||t20223.7890968497s|s2004252b|2004252|rds|local|vector|||0.548||
+x|stem|5499d66de10444e6|f3a087fdf17e7ec0|09186221e29e212e|-1813454154||t20223.8218613585s|s154670b|154670|rds|local|vector|||0.321||
