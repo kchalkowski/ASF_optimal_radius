@@ -98,29 +98,29 @@ FormatSetParameters<-function(parameters_txt){
     }
   
   #Now, use vals in list.all to auto-set certain parameters
-  dens=list.all$density
+  #dens=list.all$density
     #ss
     #B2?? automatically calculated as B1*0.5
   
-  if(dens==1.5){
-    ss=2
-    B1=0.9
-  }
-  if(dens==3){
-    ss=4
-    B1=0.4
-  }
-  if(dens==5){
-    ss=2
-    B1=0.2
-  }
+  #if(dens==1.5){
+  #  ss=2
+  #  B1=0.9
+  #}
+  #if(dens==3){
+  #  ss=4
+  #  B1=0.4
+  #}
+  #if(dens==5){
+  #  ss=2
+  #  B1=0.2
+  #}
   
-  B2=B1*0.5
+  #B2=B1*0.5
   
   #add addl calc'd parameters to list
-  templist=list(ss,B1,B2)
-  names(templist)=c("ss","B1","B2")
-  list.all=append(list.all,templist)
+  #templist=list(ss,B1,B2)
+  #names(templist)=c("ss","B1","B2")
+  #list.all=append(list.all,templist)
   
   return(list.all)
     

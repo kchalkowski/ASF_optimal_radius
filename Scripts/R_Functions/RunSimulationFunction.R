@@ -16,27 +16,41 @@
             #creates a neutral random landscape model with X lc variables
     #Value
       #a nested list of grid parameters
-RunSimulationReplicates<-function(land_grid_list, parameters, cpp_functions){
+RunSimulationReplicates<-function(land_grid_list, 
+																	parameters, 
+																	variables,
+																	cpp_functions,
+																	reps){
 	
+	#Pull needed parms from parameters for all reps
+			list2env(parameters, .GlobalEnv)
 	
-	#Pull needed parms from parameters for initialize sounders
-			len=parameters$len
-			inc=parameters$inc
-			density=parameters$density
-			centroids=land_grid_list[[1]]$centroids
-			grid=land_grid_list[[1]]$grid
-			ss=parameters$ss
-			
-	#calc implicit parameters from input parameters
-			km_len=len*inc
-			area=len^2
-			N0=parameters$density*area
-			K=N0*1.5
+#Need nested loops:
+	#1, loop through all landscapes
+	#2, loop through all parameter settings
 
-pop=InitializeSounders(centroids,grid,c(N0,ss),pop_init_type="init_pop",pop_init_grid_opts="ras")
-outputs=Initialize_Outputs(parameters)
-pop=InitializeInfection(pop,centroids,grid,parameters)
-out.list=SimulateOneRun(outputs,pop,centroids,grid,parameters,cpp_functions,K)
+		#later, loop through this
+		centroids=land_grid_list[[1]]$centroids
+		grid=land_grid_list[[1]]$grid
+
+		#later, loop through this
+		vars=variables[1,]
+		names(vars)[3]="dens"
+		vars=as.list(vars)
+		list2env(vars, .GlobalEnv)
+
+		#calc vals based on variables
+		N0=dens*area
+		K=N0*1.5
+
+	pop=InitializeSounders(centroids,grid,c(N0,ss),pop_init_type="init_pop",pop_init_grid_opts="ras")
+	outputs=Initialize_Outputs(parameters)
+	pop=InitializeInfection(pop,centroids,grid,parameters)
+	
+	for(r in 1:reps){
+	out.list=SimulateOneRun(outputs,pop,centroids,grid,parameters,cpp_functions,K)
+	
+	}
 
 return(out.list)
 }
