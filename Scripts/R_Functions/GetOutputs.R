@@ -1,5 +1,5 @@
 
-GetOutputs<-function(pop,centroids,BB,Incidence,Tculled,ICtrue,out,detectday,out.opts,input.opts){
+GetOutputs<-function(pop,centroids,BB,Incidence,Tculled,ICtrue,out,detectday,Ct,out.opts,input.opts){
   #print("Entering GetOutputs")
   
   #List of outputs created here:	
@@ -72,7 +72,8 @@ list.all=list("Tinc"=Tinc,
               "ICatEnd"=ICatEnd,
               "TincToDD"=TincToDD,
               "TincFromDD"=TincFromDD,
-              "DET"=DET)
+              "DET"=DET,
+							"Ct"=Ct)
 
 #############################################################
 

@@ -327,7 +327,7 @@ if("incidence"%in%out.opts){
 
 	print("get outputs")
 
-list.all<-GetOutputs(pop,centroids,BB,Incidence,Tculled,ICtrue,out,detectday,out.opts,input.opts)
+list.all<-GetOutputs(pop,centroids,BB,Incidence,Tculled,ICtrue,out,detectday,Ct,out.opts,input.opts)
 
 
 return(list.all)
