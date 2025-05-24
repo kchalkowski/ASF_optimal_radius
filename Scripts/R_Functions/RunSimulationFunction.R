@@ -28,13 +28,11 @@ RunSimulationReplicates<-function(land_grid_list,
 #Need nested loops:
 	#1, loop through all landscapes
 	#2, loop through all parameter settings
-
+for(v in 1:nrow(variables)){
+	#v=1
+		print(paste0("variable ",v))
 		#later, loop through this
-		centroids=land_grid_list[[1]]$centroids
-		grid=land_grid_list[[1]]$grid
-
-		#later, loop through this
-		vars=variables[1,]
+		vars=variables[v,]
 		names(vars)[3]="dens"
 		vars=as.list(vars)
 		list2env(vars, .GlobalEnv)
@@ -42,17 +40,38 @@ RunSimulationReplicates<-function(land_grid_list,
 		#calc vals based on variables
 		N0=dens*area
 		K=N0*1.5
+		
+		#loop through landscapes
+		for(l in 1:length(land_grid_list)){
+		#l=1
+		print(paste0("landscape: ",l))
+		centroids=land_grid_list[[l]]$centroids
+		grid=land_grid_list[[l]]$grid
 
 	pop=InitializeSounders(centroids,grid,c(N0,ss),pop_init_type="init_pop",pop_init_grid_opts="ras")
 	outputs=Initialize_Outputs(parameters)
 	pop=InitializeInfection(pop,centroids,grid,parameters)
 	
+	kurt_mat=matrix(nrow=reps,ncol=thyme+1)
+	colnames(kurt_mat)[ncol(kurt_mat)]="rep"
 	for(r in 1:reps){
 	out.list=SimulateOneRun(outputs,pop,centroids,grid,parameters,cpp_functions,K)
-	
+	print("test")
+	solocs.r=sounderlocsSummarize(out.list$sounderlocs,1)
+	solocs.r=solocs.r$SEIRCZ_total
+	solocs.r=cbind(rep(l,times=nrow(solocs.r)),solocs.r)
+	solocs.r=cbind(rep(v,times=nrow(solocs.r)),solocs.r)
+	colnames(solocs.r)[c(1,2)]=c("var","land")
+	if(r==1&l==1&v==1){
+		solocs=solocs.r
+	} else{
+		solocs=rbind(solocs,solocs.r)
 	}
-
-return(out.list)
+	}
+		
+		}
+}
+		return(solocs)
 }
 
 

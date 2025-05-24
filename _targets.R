@@ -27,6 +27,9 @@ tar_config_set(
 #Source functions in pipeline
 lapply(list.files(file.path("Scripts","R_Functions"), full.names = TRUE, recursive = TRUE), source)
 
+#set options
+options(clustermq.scheduler="multicore")
+
 #Load packages
 tar_option_set(packages = c("Rcpp",
                             "pracma",
@@ -39,7 +42,9 @@ tar_option_set(packages = c("Rcpp",
                             "sf",
                             "raster",
                             "terra",
-														"NLMR"))
+														"NLMR",
+														"EnvStats",
+														"clustermq"))
 
 # Pipeline ---------------------------------------------------------
 
@@ -133,7 +138,9 @@ list(
 	
   ## Run Model ---------------
   #Use tar_force format here because otherwise will only run if code has been updated
-  tar_force(out.list,
+  #tar_force(
+	tar_target(
+  	out.list,
   	RunSimulationReplicates(
   		land_grid_list=land_grid_list, 
   		parameters=parameters,
@@ -141,10 +148,12 @@ list(
   		cpp_functions=
   			list(Fast_FOI_Matrix_script,
   			Movement_Fast_Generalized_script),
-  		reps=1
-  		), 
-  	force=TRUE)
+  		reps=100
+  		)#, force=TRUE
+  	)
   )
 
+  ## Process Kurtosis output ---------------
+		#average 
 
 

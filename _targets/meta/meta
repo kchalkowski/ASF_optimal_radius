@@ -12,13 +12,15 @@ land_grid_list|stem|aafa97f1432822e3|04b953733bfd6f54|1d1c771dafd81300|-90001402
 PartDeux|function|7bf86de02b49d4f3
 x_change|stem|1b311f16e27b203f|aac3973607b53863|2c530c1562a7fbd1|-89212188||t20223.9658700103s|s64b|64|rds|local|vector|||2.338||
 x|stem|bc303f7226d089e7|fb56e4066fc57755|9e29012513b69327|-1813454154||t20223.9660701349s|s178290b|178290|rds|local|vector|||17.078||
-parameters_txt|stem|6cdc8ea58728fdc4|7819435b722306c6|2c530c1562a7fbd1|635298774|Parameters.txt|t20224.6490084409s|s8161b|8161|file|local|vector|||0.001||
-parameters0|stem|c61d0ab8e51584b8|f34f0abe4633c9b8|a039ab5ccbb4aef3|123991315||t20224.6757680555s|s412b|412|rds|local|vector|||0.059||
-variables|stem|c72a80a8ae22c196|0bcbd35aa4feb5a3|c2bbb174f712f8a6|-1580994253||t20224.6757686845s|s205b|205|rds|local|vector|||0.031||
-parameters00|stem|4ee8e878fb82febe|a31c799309c20b05|6df1be71914874cd|278874858||t20224.6757689244s|s383b|383|rds|local|vector|||0||
-parameters|stem|da1a52287f18239f|26ea26851d8dfb8a|5b2f111c496f4256|105499064||t20224.6809452781s|s411b|411|rds|local|vector|||0.027||
+out.list_change|stem|5c6616cad2008746|aac3973607b53863|2c530c1562a7fbd1|-1444133849||t20224.7980872334s|s63b|63|rds|local|vector|||2.748||
+fx|function|6b0491b3d6cda6b6
+parameters_txt|stem|73ea4a2f8debadd6|7819435b722306c6|2c530c1562a7fbd1|635298774|Parameters.txt|t20224.8808440361s|s8161b|8161|file|local|vector|||10.783||
+parameters0|stem|d90c4702d49c7015|f34f0abe4633c9b8|592dfe0acc17b9f7|123991315||t20231.9491182027s|s411b|411|rds|local|vector|||0.063||
+variables|stem|c72a80a8ae22c196|0bcbd35aa4feb5a3|2331cdfa019f0f6c|-1580994253||t20231.9491192133s|s205b|205|rds|local|vector|||0.033||
+parameters00|stem|355637820beec681|a31c799309c20b05|0bead6c87e50e040|278874858||t20231.9491194454s|s383b|383|rds|local|vector|||0||
+parameters|stem|c86f5f03ddce3bfb|26ea26851d8dfb8a|57ca4a29e043635c|105499064||t20231.9491215458s|s411b|411|rds|local|vector|||0.03||
 PrepSurveillance|function|0a2ffe9a77d74e60
-.Random.seed|object|b2c25db52e0efdab
+.Random.seed|object|e71ede94da7fafc4
 GetOutputs|function|ed2f086205f5b607
 FirstDetect|function|54d5d098b39eacf3
 sounderlocsZone|function|8bca5b72870114fc
@@ -33,6 +35,8 @@ Make_Grid|function|501d405d344dffac
 RemoveRedundantParms|function|8678fbb5ce153d8a
 ReadRDS|function|1488b3e90c397bca
 sourceCPP_target|function|1824979ca26799cc
+Summarize_Kurtosis|function|d757bacad8288292
+Infect_Kurtosis|function|6468d470a170dcf6
 cpp_path|object|b7371b69f79f523c
 SampleIndividuals|function|738344ed8f7091c9
 doQuartileSummary|function|e1d235faa3338972
@@ -44,10 +48,9 @@ InitializeInfection|function|d524917dbb668e11
 InitializeGrids|function|246bde8e37f81c2e
 ExtApparentPrev|function|4bb80555a83b34a1
 StateChanges|function|c92eea547bcbb0c6
-sounderlocsSummarize|function|31e4bbf41e7e3b2f
+sounderlocsSummarize|function|7a5df08340d957fe
 SimulateOneRun|function|649748c65f39e7bc
 RunSimulationModel|function|0f00a2dcaf70ab0f
-RunSimulationReplicates|function|bc563bc08cd67f8b
-out.list_change|stem|a84e3abef3aaed7b|aac3973607b53863|2c530c1562a7fbd1|-1444133849||t20224.6880190194s|s63b|63|rds|local|vector|||2.114||
+RunSimulationReplicates|function|1c132009120d7d45
 lands_path|stem|06457d19126d84d9|eebccffab0c7fb79|2c530c1562a7fbd1|2029096636|Input/lands|t20208.5556134259s|s384b|384|file|local|vector|||0.621|package RcppArmadillo was built under R version 4.3.3. package terra was built under R version 4.3.3|
-out.list|stem|64e91605cebfd89d|a11da3390ca8849a|ea3d255573c72aec|-403986134||t20224.6882515296s|s23032b|23032|rds|local|vector|||19.957||
+out.list|stem|8e2d92b9e327dce0|426a890e8db06afd|ba5b3b2b42b81458|-403986134||t20232.3846822257s|s147203b|147203|rds|local|vector|||2223.351||

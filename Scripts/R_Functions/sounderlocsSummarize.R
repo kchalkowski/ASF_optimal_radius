@@ -9,16 +9,19 @@
 #Updates needed:
   #currently zone gets calc'd twice if ask for both zone and zonecells outputs, need to compress if statements so that only done once
 
-sounderlocsSummarize<-function(sounderlocs,rep,sl.summary.opts,DetP,N){
+sounderlocsSummarize<-function(sounderlocs,r,sl.summary.opts=NULL,DetP=NULL,N=NULL){
   if(missing(sl.summary.opts)){
     #default will be just basic SEIRCZ summary per timestep
-    SEIRCZ.only=sounderlocs[,3:9]
+    SEIRCZ.only=sounderlocs[,4:10]
+    print("test2")
     SEIRCZ.rep=SEIRCZ.only %>% 
       dplyr::group_by(timestep) %>% 
       dplyr::summarise(S=sum(S),E=sum(E),I=sum(I),R=sum(R),C=sum(C),Z=sum(Z)) %>% as.data.frame()
-    SEIRCZ.rep$rep=rep
+    SEIRCZ.rep$rep=r
+    print("test2")
+    print(head(SEIRCZ.rep))
     SEIRCZ_total=SEIRCZ.rep[,c(8,1:7)] #want rep in front
-    
+    print("test2")
     list.out=list("SEIRCZ_total"=SEIRCZ_total)
     
   } else{

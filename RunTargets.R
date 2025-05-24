@@ -10,4 +10,5 @@ source("_targets.R")
 tar_manifest()
 
 #Make pipeline
-tar_make()
+#tar_make()
+tar_make_clustermq(workers = 4)
