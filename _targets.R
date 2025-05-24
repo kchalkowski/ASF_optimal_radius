@@ -148,12 +148,11 @@ list(
   		cpp_functions=
   			list(Fast_FOI_Matrix_script,
   			Movement_Fast_Generalized_script),
-  		reps=100
-  		)#, force=TRUE
+  		reps=10
+  		)
   	)
   )
 
-  ## Process Kurtosis output ---------------
-		#average 
+  
 
 

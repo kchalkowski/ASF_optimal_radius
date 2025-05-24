@@ -52,11 +52,19 @@ for(v in 1:nrow(variables)){
 	outputs=Initialize_Outputs(parameters)
 	pop=InitializeInfection(pop,centroids,grid,parameters)
 	
-	kurt_mat=matrix(nrow=reps,ncol=thyme+1)
-	colnames(kurt_mat)[ncol(kurt_mat)]="rep"
 	for(r in 1:reps){
+	#Do simulations
 	out.list=SimulateOneRun(outputs,pop,centroids,grid,parameters,cpp_functions,K)
-	print("test")
+
+	#Handle outputs
+		#Handle effective removal rate
+	Ct.r=out.list$Ct
+	Ct.r=cbind(1:thyme,Ct.r)
+	Ct.r=cbind(rep(l,times=nrow(Ct.r)),Ct.r)
+	Ct.r=cbind(rep(v,times=nrow(Ct.r)),Ct.r)
+	colnames(Ct.r)[1:3]=c("var","land","thyme")
+	
+		#Handle sounderlocs
 	solocs.r=sounderlocsSummarize(out.list$sounderlocs,1)
 	solocs.r=solocs.r$SEIRCZ_total
 	solocs.r=cbind(rep(l,times=nrow(solocs.r)),solocs.r)
@@ -64,8 +72,10 @@ for(v in 1:nrow(variables)){
 	colnames(solocs.r)[c(1,2)]=c("var","land")
 	if(r==1&l==1&v==1){
 		solocs=solocs.r
+		Cto=Ct.r
 	} else{
 		solocs=rbind(solocs,solocs.r)
+		Cto=rbind(Cto,Ct.r)
 	}
 	}
 		
