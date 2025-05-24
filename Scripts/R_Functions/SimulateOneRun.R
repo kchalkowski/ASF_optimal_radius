@@ -202,6 +202,7 @@ if(sampling != 1 & i > detectday & Rad > 0) {
 	culled<-output.list[[9]]
 	ZONEkm2[i,]<-output.list[[10]]
 	pop<-output.list[[11]]
+	Ct[i,1]<-output.list[[12]]
 	#Total number culled at each timestep
 	Tculled[i]=culled
 	
@@ -225,7 +226,10 @@ if(sampling != 1 & i > detectday & Rad > 0) {
 	}
 	
 	
-} #if greater than detectday closing bracket
+} else{ #if greater than detectday closing bracket
+	Ct[i,1]=0
+	
+	} #else if not greater than detect day
 
 
 #############################

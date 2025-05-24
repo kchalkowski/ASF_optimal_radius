@@ -17,6 +17,7 @@ POSdead=as.list(rep(0,thyme))#Positive carcasses observed and removed from lands
 NEGlive=as.list(rep(0,thyme)) #Negative tests of detected carcasses that are removed from landscape
 NEGdead=as.list(rep(0,thyme)) #Negative tests of carcasses that are removed from landscape
 pigs_sampled_timestep=as.list(rep(0,thyme))  # Initialize an empty list to hold the number of pigs sampled at each timestep
+Ct=matrix(nrow=thyme,ncol=1) #effective removal rate
 
 POSlive_locs<-as.list(rep(0,thyme))
 POSdead_locs<-as.list(rep(0,thyme))
