@@ -53,17 +53,22 @@ for(v in 1:nrow(variables)){
 	pop=InitializeInfection(pop,centroids,grid,parameters)
 	
 	for(r in 1:reps){
+	print(r)
 	#Do simulations
 	out.list=SimulateOneRun(outputs,pop,centroids,grid,parameters,cpp_functions,K)
-
+	#print("test")
 	#Handle outputs
 		#Handle effective removal rate
+	print(names(out.list))
 	Ct.r=out.list$Ct
 	Ct.r=cbind(1:thyme,Ct.r)
+	print(head(Ct.r))
 	Ct.r=cbind(rep(l,times=nrow(Ct.r)),Ct.r)
+	print(head(Ct.r))
 	Ct.r=cbind(rep(v,times=nrow(Ct.r)),Ct.r)
-	colnames(Ct.r)[1:3]=c("var","land","thyme")
-	
+	print(head(Ct.r))
+	colnames(Ct.r)=c("var","land","thyme","Ct")
+	#print("test2")
 		#Handle sounderlocs
 	solocs.r=sounderlocsSummarize(out.list$sounderlocs,1)
 	solocs.r=solocs.r$SEIRCZ_total

@@ -148,7 +148,7 @@ list(
   		cpp_functions=
   			list(Fast_FOI_Matrix_script,
   			Movement_Fast_Generalized_script),
-  		reps=10
+  		reps=3
   		)
   	)
   )
