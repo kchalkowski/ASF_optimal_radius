@@ -1,6 +1,5 @@
 CullingOneRun<-function(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead,DetP){
 
-  #profvis({
 ######################
 ###### Get Zone ######
 ######################
@@ -48,19 +47,9 @@ if(length(idNEW)>0){
 	} 
 
 #remove NAs
-#idZONE_i <- idZONE[!is.na(idZONE)]
 
 #fullZONE contains all grid cells with detected infections, from last time step and all before	
-#if(nrow(idZONE)>1){
-#idZONE_i=do.call(rbind,idZONE_i)	
 fullZONE=rbind(idZONE,idout)
-#} else{
-#		if(length(idZONE_i)==1){
-#			fullZONE=rbind(idZONE_i[[1]],idout)	
-#			} else{
-#				fullZONE=idout #this happens for first detection
-#	}
-#	}
 
 #get all unique grid cells in the zone		
 allINzone=unique(fullZONE[,2])
@@ -76,7 +65,6 @@ ZONEkm2=Uall*inc^2
 soundINzone<-which(pop[,3]%in%allINzone) 
 
 #get total number of pigs in zone
-#(col 1 abundance of all live, plus num carcasses in 12, 13)
 pigsinzone<-sum(pop[soundINzone,1],pop[soundINzone,12],pop[soundINzone,13])
 
 #total number of infected pigs in zone
@@ -93,6 +81,9 @@ totalpigs=sum(pop[,1],pop[,10],pop[,12])
 
 #get total number of infected individuals (inside and outside zone)	
 totalEIC=EICinzone+EICoutzone
+
+#For output to get landscape-level effective removal rate
+Ct=pigsinzone/totalpigs
 
 #####################################
 ###### Begin Culling Algorithm ######
@@ -269,7 +260,7 @@ removalrows<-which(pop[,3] %in% removalcells)
 removedpop<-pop[-removalrows,,drop=FALSE]
 
 #send updated objects to output list
-output.list<-vector(mode="list",length=11)
+output.list<-vector(mode="list",length=12)
 output.list[[1]]<-POSlive_i
 output.list[[2]]<-POSdead_i
 output.list[[3]]<-POSlive_locs_i
@@ -281,8 +272,9 @@ output.list[[8]]<-removalcells
 output.list[[9]]<-culled
 output.list[[10]]<-ZONEkm2
 output.list[[11]]<-removedpop
+output.list[[12]]<-Ct
 } else{
-output.list<-vector(mode="list",length=11)
+output.list<-vector(mode="list",length=12)
 output.list[[1]]<-0
 output.list[[2]]<-0
 output.list[[3]]<-0
@@ -294,9 +286,9 @@ output.list[[8]]<-0
 output.list[[9]]<-0
 output.list[[10]]<-0
 output.list[[11]]<-pop	
+output.list[[12]]<-0
 	
 	}
-#}) #profvis closer
   
 return(output.list)
 
