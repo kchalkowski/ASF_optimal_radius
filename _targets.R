@@ -44,7 +44,8 @@ tar_option_set(packages = c("Rcpp",
                             "terra",
 														"NLMR",
 														"EnvStats",
-														"clustermq"))
+														"clustermq",
+														"deSolve"))
 
 # Pipeline ---------------------------------------------------------
 
@@ -84,7 +85,11 @@ list(
 		"ss"=c(2,4,6),
 		"B1"=c(0.009,0.009,0.009),
 		"B2"=c(0.009*2,0.009*2,0.009*2)
-		))
+		)#,
+	#"Radius"=data.frame(
+	#	"Rad"=c(5,10,15,20)
+	#	)		
+			)
 		)),
 	tar_target(parameters00,RemoveRedundantParms(parameters0)),
   
@@ -148,9 +153,21 @@ list(
   		cpp_functions=
   			list(Fast_FOI_Matrix_script,
   			Movement_Fast_Generalized_script),
-  		reps=3
+  		reps=2
   		)
-  	)
+  	)#,
+	
+	## Run MF Model ---------------
+	#tar_target(
+ # 	out.list,
+ # 	RunMFModel(
+ # 		Ct=Ct, 
+#			Beta=Beta,	
+# 		parameters=parameters,
+#			variables=variables		
+#  		)
+# 	)
+	
   )
 
   

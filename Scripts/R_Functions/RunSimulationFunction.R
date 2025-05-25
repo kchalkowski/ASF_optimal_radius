@@ -24,7 +24,6 @@ RunSimulationReplicates<-function(land_grid_list,
 	
 	#Pull needed parms from parameters for all reps
 			list2env(parameters, .GlobalEnv)
-	
 #Need nested loops:
 	#1, loop through all landscapes
 	#2, loop through all parameter settings
@@ -43,7 +42,6 @@ for(v in 1:nrow(variables)){
 		
 		#loop through landscapes
 		for(l in 1:length(land_grid_list)){
-		#l=1
 		print(paste0("landscape: ",l))
 		centroids=land_grid_list[[l]]$centroids
 		grid=land_grid_list[[l]]$grid
@@ -58,17 +56,14 @@ for(v in 1:nrow(variables)){
 	out.list=SimulateOneRun(outputs,pop,centroids,grid,parameters,cpp_functions,K)
 	#print("test")
 	#Handle outputs
+	
 		#Handle effective removal rate
-	print(names(out.list))
 	Ct.r=out.list$Ct
 	Ct.r=cbind(1:thyme,Ct.r)
-	print(head(Ct.r))
 	Ct.r=cbind(rep(l,times=nrow(Ct.r)),Ct.r)
-	print(head(Ct.r))
 	Ct.r=cbind(rep(v,times=nrow(Ct.r)),Ct.r)
-	print(head(Ct.r))
 	colnames(Ct.r)=c("var","land","thyme","Ct")
-	#print("test2")
+
 		#Handle sounderlocs
 	solocs.r=sounderlocsSummarize(out.list$sounderlocs,1)
 	solocs.r=solocs.r$SEIRCZ_total
@@ -86,7 +81,7 @@ for(v in 1:nrow(variables)){
 		
 		}
 }
-		return(solocs)
+		return(list("solocs"=solocs,"Cto"=Cto))
 }
 
 

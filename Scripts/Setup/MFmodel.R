@@ -1,5 +1,5 @@
 # Load package
-library(deSolve)
+#library(deSolve)
 
 # Define the SEIR model with control
 seir_model <- function(thyme, state, parameters) {

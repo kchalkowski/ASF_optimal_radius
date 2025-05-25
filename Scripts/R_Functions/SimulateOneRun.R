@@ -4,8 +4,7 @@
 #SimulateOneRun<-function(Pcr,Pir,Pbd,death,F1,F2_int,F2_B,F2i_int,F2i_B,B1,B2,thyme,cells,N0,K,detectday,Rad,Intensity,alphaC,shift,centroids,cullstyle,inc,ss,gridlen,midpoint,pop,out.opts,grid.opts,rep,DetP){
 SimulateOneRun<-function(outputs,pop,centroids,grid,parameters,cpp_functions,K){
 require(dplyr)
-	
-	print("sourcing cpp functions")
+
 	for(i in 1:length(cpp_functions)){
 		print(paste0("sourcing ",cpp_functions[[i]]))
 		Rcpp::sourceCpp(cpp_functions[[i]])
@@ -59,7 +58,6 @@ C_locs[[i]]<-pop[pop[,12]>0,3]
 ######## Movement ######## 
 ##########################
 
-	print("move")
 
 pop<-FastMovement(pop,centroids,shape,rate,inc,mv_pref)
 
@@ -68,7 +66,6 @@ pop<-FastMovement(pop,centroids,shape,rate,inc,mv_pref)
 ######## State Changes ######## 
 ###############################
 #births, natural deaths, disease state changes (exposure, infection, recovery, death), carcass decay
-	print("state changes")
 
 st.list<-StateChanges(pop,centroids,nrow(centroids),Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i)
 
@@ -100,8 +97,7 @@ if("incidence"%in%out.opts){
   }
   
   if(length(exp.locs)!=0){
-    #print((inf.num+1):((inf.num+1)+exp.num))
-    #print(exp.locs)
+
     inc.mat.i[(inf.num+1):((inf.num)+exp.num),3]=exp.locs
     inc.mat.i[(inf.num+1):((inf.num)+exp.num),2]=9 #code 9 for exp, same as pop colnum
   }
@@ -133,8 +129,6 @@ BB<-st.list[[3]]
 ######## Initiate Response ######## 
 ###################################
 
-	print("response")
-
 # If sampling turned on, run surveillance scheme based on user's input
 # for the current week
 if(sampling == 1){
@@ -145,13 +139,11 @@ if(sampling == 1){
   POSlive_locs=surv.list[[4]]
   POSdead_locs=surv.list[[5]]
   pigs_sampled_timestep=surv.list[[6]]
-  #print(paste0("Printing pigs_sampled_timestep: ", pigs_sampled_timestep))
 }
 
 # If sampling turned off and it's detect day based on user input,
 # run FirstDetect because there are infected pigs to detect, and Rad>0
 if(sampling != 1 & i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
-  #print("First detection")
   fd.list<-FirstDetect(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs)
   pop=fd.list[[1]]
   POSlive=fd.list[[2]]
@@ -166,7 +158,6 @@ if(sampling != 1 & i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
 #######################################
 ######## Initiate Culling Zone ######## 
 #######################################
-	print("init culling")
 
 #if it is at least day after detect day, and Rad>0
 if(sampling != 1 & i > detectday & Rad > 0) {
@@ -175,22 +166,17 @@ if(sampling != 1 & i > detectday & Rad > 0) {
 	#(either from initial detection or last culling period)
 	#get locations in grid for detections
 	idNEW=c(POSlive_locs[[i-1]],POSdead_locs[[i-1]])
-	
 	#remove NA/0 (may get NAs/zeroes if no live/dead detected)
 	idNEW<-idNEW[idNEW>0&!is.na(idNEW)]
-
 	idZONE_t=idZONE
-
 	#if there were detections in previous time steps, only get newly detected infected grid cells
 	#"infected grid cell"=grid cell where there was an infected pig or carcass
 	if(length(idZONE_t[,1])>0){
 	uniqueidNEW<-which(!(idNEW %in% idZONE_t))
 	idNEW<-idNEW[uniqueidNEW]
 	} else{idNEW=idNEW}
-
 	#Culling process
 	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead,DetP)
-
 	POSlive[[i]]<-output.list[[1]]
 	POSdead[[i]]<-output.list[[2]]
 	POSlive_locs[[i]]<-output.list[[3]]
@@ -208,8 +194,7 @@ if(sampling != 1 & i > detectday & Rad > 0) {
 	
 	#compile optional outputs
 	if("idzone"%in%out.opts){
-	  #print("Adding to idzone")
-	  
+
 	  #get list index
 	  idz=(detectday-i)
 	  if(idz==1){
@@ -235,19 +220,14 @@ if(sampling != 1 & i > detectday & Rad > 0) {
 #############################
 ####Track true spatial spread
 #############################
-	print("track spread")
-
 #if any infected individuals
 if(nrow(pop[pop[,9,drop=FALSE]>0|pop[,10,drop=FALSE]>0|pop[,12,drop=FALSE]>0,,drop=FALSE])>0){
-  #print("Tracking true spatial spread")
   out[i,]<-areaOfinfection(pop,centroids,inc)
 } else{out[i,]=c(0,0,0)}
 
 #############################
 ####Summarize infections
 #############################
-	print("summarize infections")
-
 #sum all infectious cases (I,C,E) at each timestep
 #ICtrue = sum(I + C,2); sum of all infectious cases over time
 if(i==detectday){
@@ -271,8 +251,6 @@ pop=pop[which(rowSums(pop[,pigcols])!=0),]
 
 #############################
 #############################
-
-	print("finalize outputs")
 if(length(out.opts)>0){
 input.opts=vector(mode="list",length=1)
 input.opts[[1]]=out.opts
@@ -324,8 +302,6 @@ if("incidence"%in%out.opts){
   
 }
 }
-
-	print("get outputs")
 
 list.all<-GetOutputs(pop,centroids,BB,Incidence,Tculled,ICtrue,out,detectday,Ct,out.opts,input.opts)
 

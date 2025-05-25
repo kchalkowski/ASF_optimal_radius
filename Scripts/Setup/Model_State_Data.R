@@ -59,7 +59,7 @@
 ######
 
 #1-read in data
-contact.dat=list.files(paste0(home,"/Input"),full.names=TRUE)
+contact.dat=list.files(paste0(home,"/Old_Inputs"),full.names=TRUE)
 contact.dat=contact.dat[grep("csv",contact.dat)]
 
 pig.contact=contact.dat[grep("/direct",contact.dat)]
@@ -157,8 +157,6 @@ for(i in 1:length(pig.contact)){
 
   } #FL/SC loop
 
-#W.list
-#M.list
 
 #FL=
 #results spot on for both types of contact
