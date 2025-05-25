@@ -49,7 +49,7 @@ arma::mat dist = sqrt(((X2-X1) % (X2-X1))+((Y2-Y1) % (Y2-Y1)));
 arma::mat B = zeros(dist.n_rows,dist.n_cols);
 
 //cols in the outer loop is slightly faster
-//for(std::size_t c = 0; c < dist.n_cols; c++){
+//Note: below loop is structured this way to make use of loop unrolling optimization
 for(std::size_t c = 0; c < dist.n_cols-2; c+=2){
 for(std::size_t r = 0; r < dist.n_rows; r++){
 
@@ -58,17 +58,17 @@ for(std::size_t r = 0; r < dist.n_rows; r++){
 //also beyond likely pig movement distances
 if(dist(r,c)<5 && dist(r,c)!=0){
 double dval = dist(r,c);
-double prob = exp(F2_int + (F2_B*dval))/(1+exp(F2_int + (F2_B*dval)));
-double probi = exp(F2_int + (F2i_B*dval))/(1+exp(F2i_int + (F2i_B*dval)));
+double prob = exp(F2_int + (F2_B*dval));
+double probi = exp(F2_int + (F2i_B*dval));
 
-B(r,c) = B1*(I_cells(r,c)*prob)+B2*(I_cells(r,c)*probi);
+B(r,c) = B1*(I_cells(r,c)*prob)+B2*(C_cells(r,c)*probi);
 }
 
 if(dist(r,c+1)<5 && dist(r,c+1)!=0){
 double dval1 = dist(r,c+1);
-double prob1 = exp(F2_int + (F2_B*dval1))/(1+exp(F2_int + (F2_B*dval1)));
-double probi1 = exp(F2_int + (F2i_B*dval1))/(1+exp(F2i_int + (F2i_B*dval1)));
-B(r,c+1) = B1*(I_cells(r,c+1)*prob1)+B2*(I_cells(r,c+1)*probi1);
+double prob1 = exp(F2_int + (F2_B*dval1));
+double probi1 = exp(F2_int + (F2i_B*dval1));
+B(r,c+1) = B1*(I_cells(r,c+1)*prob1)+B2*(C_cells(r,c+1)*probi1);
 }
 
 }
