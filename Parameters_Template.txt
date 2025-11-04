@@ -111,16 +111,6 @@ These two parameters only need to be set if manually creating heterogeneous or h
 ~ grid.opts = "homogenous"
 ~ pop_init_grid_opts = "homogenous"
   
-##################################
-#### Movement option settings ####
-##################################
-* mv_pref, movement preference switch
-  0=random movement preference (distance-only)
-  1=abundance-avoidance movement preference
-  2=rsf preference (only works when pop_init_grid_opts="heterogeneous" and grid_opts!="homogeneous")
-  
-~ mv_pref=0
-  
 #################################
 #### Surveillance parameters ####
 #################################
