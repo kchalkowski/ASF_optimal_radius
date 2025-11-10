@@ -96,7 +96,8 @@ for(i in 1:length(input.opts$loc.list)){
   if(length(loc.list[[i]])!=0){
   #print(loc.list[[i]][,1])
 
-  locs.i=as.data.frame(centroids[loc.list[[i]][,1],])
+  locs.i=as.data.frame(centroids[matrix(loc.list[[i]],ncol=7)[,1],,drop=FALSE])
+
   colnames(locs.i)=c("x","y","unknown")
   locs.i$timestep=i
   locs.i$S=loc.list[[i]][,2]

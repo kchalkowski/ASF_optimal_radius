@@ -16,10 +16,13 @@ FastMovement=function(pop,centroids,shape,rate,inc,mv_pref,RSF_mat=NULL,RSF_mat0
   
   #get distances from gamma distribution
   pop[,4]=rgamma(nrow(pop),shape=shape,rate=rate)
+  ## to fix the zombies (pig corpses with a movement distance; see note in last error catches below)
+  pop[,4][pop[,1]==0] <- 0
   
   #set those less than inc to 0
-  pop[pop[,4]<inc,][,4]=0 
-  
+#   pop[pop[,4]<inc,][,4]=0
+  pop[,4][pop[,4] < inc] = 0 # need to do it this way to deal with the single row matrix case (drop=FALSE doesn't work for assigning values)
+
   #set present locations to previous locations
   pop[,7]=pop[,3]
   
@@ -55,7 +58,6 @@ FastMovement=function(pop,centroids,shape,rate,inc,mv_pref,RSF_mat=NULL,RSF_mat0
   #warning("all old locs same as new locs")
   #}
   
-  #if spop
   #if stop function here.. if no cells to move to
   #any(pop[,3]==nrow(centroids)+1000)
   if(any(pop[,3]==nrow(centroids)+1000)) {

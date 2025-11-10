@@ -15,6 +15,7 @@ setwd(this.path::this.dir())
 library(targets)
 library(tarchetypes)
 library(geotargets)
+library(crew)
 
 # This hardcodes the absolute path in _targets.yaml, so to make this more
 # portable, we rewrite it every time this pipeline is run (and we don't track
@@ -45,7 +46,8 @@ tar_option_set(packages = c("Rcpp",
 														"NLMR",
 														"EnvStats",
 														"clustermq",
-														"deSolve"))
+														"deSolve"),
+														error = 'stop') # for troubleshooting
 
 # Pipeline ---------------------------------------------------------
 

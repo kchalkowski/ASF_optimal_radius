@@ -15,12 +15,14 @@
 #		))
 
 SetVarParms<-function(parameters, inputs){
-	variable=parameters[which(parameters=="input")]
-	for(i in 1:length(names(variable))){
-	if(length(grep(names(variable)[i],names(inputs)))<1){
-		stop(paste0("Missing parameter: ",names(variable)[i]))
-		}
-	}
+
+## this doesn't work -- no "input" parameter? commenting out lets the model run
+# 	variable=parameters[which(parameters=="input")]
+# 	for(i in 1:length(names(variable))){
+# 	if(length(grep(names(variable)[i],names(inputs)))<1){
+# 		stop(paste0("Missing parameter: ",names(variable)[i]))
+# 		}
+# 	}
 	
 	for(i in 1:(length(inputs)-1)){
 		
