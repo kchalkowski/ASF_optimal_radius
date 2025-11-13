@@ -50,7 +50,7 @@ If using movement parameters fed in from landscapes, remove the ~
   1=abundance-avoidance movement preference
   2=rsf preference (only works when pop_init_grid_opts="heterogeneous" and grid_opts!="homogeneous")
   
-~ mv_pref=0
+~ mv_pref = 0
 
 ###########################
 #### Contact parameters ###
@@ -69,12 +69,15 @@ Originally, these were all pulled into model with 'ModelStateSwitch.R' by readin
 ~ F1 = 0.7380952
 
 ### Added to allow StateChanges and downstream functions to run
-### (not sure on converting these from 2022 paper; I don't have the data, but might function temporarily?)
-~ F2_int = -0.8
-~ F2_B = -1.91
-~ F2i_int = 2.32
-~ F2i_B = -6.37
-~ K = 1500 ## carrying capacity; currently hard-coded in RunSimulationFunction.R
+~ F2_int = 10.800939073371641
+## fudged to let more test runs have positive transmission from initial infection
+F2_int = -0.800939073371641
+~ F2_B = -1.91283149755244
+~ F2i_int = 2.32150593181132
+~ F2i_B = -6.3722548347205
+
+~ K = 1500
+## carrying capacity; currently hard-coded in RunSimulationFunction.R
 ## could go with K_factor = 1.5 or something like that
 
 
@@ -109,8 +112,8 @@ These two parameters only need to be set if manually creating heterogeneous or h
 * inc, resolution of the grid in kilometers
 ## Note that in the model some of these dimensions are hard-coded (e.g. 40K cells)
 
-~ len=200
-~ inc=0.4 
+~ len = 200
+~ inc = 0.4
 
 * grid.opts, character, grid option for input type and whether to incorporate land class if creating grid from scratch. If using a raster input, you can ignore this input. If inputting a raster to the InitializeGrids function, this value defaults to 'ras'. If making a grid by inputting len/inc, default is homogeneous.
 	ras- use input raster to create grid
@@ -119,8 +122,11 @@ These two parameters only need to be set if manually creating heterogeneous or h
 * pop_init_grid_opts = how to initialize sounders on the grid-- do it with biased preference according to lscape vals or just randomly
 
 
-~ grid.opts = "homogenous"
-~ pop_init_grid_opts = "homogenous"
+grid.opts = "homogeneous"
+grid.opts = "heterogeneous"
+~ grid.opts = "ras"
+~ pop_init_grid_opts = "homogeneous"
+pop_init_grid_opts = "heterogeneous"
 
   
 #################################
@@ -128,11 +134,11 @@ These two parameters only need to be set if manually creating heterogeneous or h
 #################################
 * detectday, Timestep of simulation to start surveillance. Yes it's named 'detectday' even though timesteps are in weeks.
 
-~ detectday=73
+~ detectday = 21
   
 * DetP, probability of infected pigs sampled as positive. for now, is just used as an input in some of the sounderlocs output processing steps. later, may be integrated into culling/surveillance process within simulation.
 
-~ DetP=1 
+~ DetP = 1
 
 * sample, option to include specific sampling scheme for a county. Sample format for this file can be found here: "Input/sampling_scheme_template.csv"
 * This feature currently requires a county landclass preference file to construct grid. Initial implementation required county shapefile but this is deprecated.
@@ -149,7 +155,7 @@ These two parameters only need to be set if manually creating heterogeneous or h
 * Intensity = 0.05, proportion of population targeted for removal per day based on capabilities
 
 ~ alphaC = 1.1
-~ Rad = 0
+~ Rad = 20
  intensity = 0.05
 ~ cullstyle = "startOUT"
 ~ Intensity = 0.05

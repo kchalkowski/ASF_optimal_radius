@@ -46,7 +46,8 @@ for(v in 1:nrow(variables)){
 		centroids=land_grid_list[[l]]$centroids
 		grid=land_grid_list[[l]]$grid
 
-	pop=InitializeSounders(centroids,grid,c(N0,ss),pop_init_type="init_pop",pop_init_grid_opts="ras")
+	pop=InitializeSounders(centroids,grid,c(N0,ss),pop_init_grid_opts)
+# 	pop=InitializeSounders(centroids,grid,c(N0,ss),pop_init_type="init_pop",pop_init_grid_opts="ras")
 	outputs=Initialize_Outputs(parameters)
 	pop=InitializeInfection(pop,centroids,grid,parameters)
 	
@@ -54,7 +55,6 @@ for(v in 1:nrow(variables)){
 	print(r)
 	#Do simulations
 	out.list=SimulateOneRun(outputs,pop,centroids,grid,parameters,cpp_functions,K)
-	#print("test")
 	#Handle outputs
 	
 		#Handle effective removal rate

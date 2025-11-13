@@ -132,13 +132,37 @@ list(
     #Value
       #a nested list of grid parameters
 	#multiple landscapes:
-  tar_target(land_grid_list,InitializeGrids(plands_sprc,"heterogeneous")),
-	
+#   tar_target(land_grid_list,InitializeGrids(plands_sprc,"heterogeneous")),
+
 	#single landscape:
 	#tar_target(land_grid_list,InitializeGrids(plands_sprc[1],"heterogeneous"))#,
   
 	#homogenous grid:
-	#tar_target(land_grid_list,InitializeGrids(c(parameters$len,parameters$inc),parameters$grid.opt))#,
+# 	tar_target(land_grid_list,InitializeGrids(c(parameters00$len,parameters00$inc),parameters00$grid.opt)),
+
+    ## makes the grid.opt parameters functional to choose lands variation... shifted grid.opts = "heterogeneous" to be randomized landscape (was "random" before, but unlisted)
+    ## ugly, but functional:
+	tar_target(land_grid_list, {if (parameters00$pop_init_grid_opts == 'homogeneous'){
+                                  if(parameters00$grid.opts != 'ras'){ ## if grid.opts is homogeneous or heterogeneous
+                                    ## make a grid either uniform or random with even initial pig locations
+                                    InitializeGrids(c(parameters00$len,parameters00$inc),parameters00$grid.opt)
+                                  } else if (parameters00$grid.opts == 'ras'){ ## if there is an input raster
+                                    InitializeGrids(plands_sprc, parameters00$grid.opts == 'ras')
+                                  }
+                                } else if (parameters00$pop_init_grid_opts == 'heterogeneous'){
+                                  ## make a grid with uneven pig initial locations...
+                                    if (parameters00$grid.opts == 'homogeneous') {
+                                      ## can't do neutral plane with random pig distribution
+                                      stop('Cannot run homogeneous grid.opts with heterogeneous pop_init_grid_opts')
+                                    } else if (parameters00$grid.opts == 'heterogeneous'){
+                                      ## random pig distribution with random landscape
+                                      InitializeGrids(c(parameters00$len,parameters00$inc),parameters00$grid.opt)
+                                    } else if (parameters00$grid.opts == 'ras'){
+                                      ## random pig distribution with raster landscape
+                                      InitializeGrids(plands_sprc, parameters00$grid.opts == 'ras')
+                                    }
+                                }
+                              }),
 	
 	### Get surface parameters: ---------------
 	tar_target(parameters,GetSurfaceParms(parameters00,plands_sprc[1])),
