@@ -15,7 +15,7 @@
   #for pop_init_type="init_single", need a vector with init_loc (cell number to initialize group/individual) and n (number of individuals to initialize)
 #pop_init_type: string, "init_pop" or "init_single"
 #pop_init_grid_opts: string, "homogeneous" or "ras" or "heterogeneous"
-InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_type="init_pop",pop_init_grid_opts="homogeneous",RSF0_lc=NULL){
+InitializeSounders<-function(centroids,grid,pop_init_args,pop_init_grid_opts="homogeneous",pop_init_type="init_pop",RSF0_lc=NULL){ ## changed argument order to allow easier pop_init_grid_opts without defining pop_init_type
 	
 	## Parse input args and check input formatting ------------
 	

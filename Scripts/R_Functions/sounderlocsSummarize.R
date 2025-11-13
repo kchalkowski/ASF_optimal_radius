@@ -12,8 +12,8 @@
 sounderlocsSummarize<-function(sounderlocs,r,sl.summary.opts=NULL,DetP=NULL,N=NULL){
   if(missing(sl.summary.opts)){
     #default will be just basic SEIRCZ summary per timestep
-    SEIRCZ.only=sounderlocs[,4:10]
-    print("test2")
+    SEIRCZ.only=sounderlocs[,c('timestep','S','E','I','R','C','Z')] ## to be compatible with homogeneous landscapes, have to choose by name b/c they skip a column in centroids
+#     SEIRCZ.only=sounderlocs[,4:10]
     SEIRCZ.rep=SEIRCZ.only %>% 
       dplyr::group_by(timestep) %>% 
       dplyr::summarise(S=sum(S),E=sum(E),I=sum(I),R=sum(R),C=sum(C),Z=sum(Z)) %>% as.data.frame()
@@ -21,7 +21,6 @@ sounderlocsSummarize<-function(sounderlocs,r,sl.summary.opts=NULL,DetP=NULL,N=NU
     print("test2")
     print(head(SEIRCZ.rep))
     SEIRCZ_total=SEIRCZ.rep[,c(8,1:7)] #want rep in front
-    print("test2")
     list.out=list("SEIRCZ_total"=SEIRCZ_total)
     
   } else{

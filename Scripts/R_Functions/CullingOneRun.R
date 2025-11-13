@@ -66,13 +66,16 @@ pigsinzone<-sum(pop[soundINzone,1],pop[soundINzone,12],pop[soundINzone,13])
 EICinzone<-sum(pop[soundINzone,9],pop[soundINzone,10],pop[soundINzone,12])
 
 #get total number of pigs outside the zone
-pigsoutzone<-sum(pop[-soundINzone,1],pop[-soundINzone,10],pop[-soundINzone,12])
+pigsoutzone<-sum(pop[-soundINzone,1],pop[-soundINzone,12],pop[-soundINzone,13]) ## I think this was an error -- total outsize of zone should be same operations as total in zone, but with -soundINzone
+## of course, this isn't used anywhere.
+# pigsoutzone<-sum(pop[-soundINzone,1],pop[-soundINzone,10],pop[-soundINzone,12])
 
 #get total number of infected pigs outside the zone
 EICoutzone<-sum(pop[-soundINzone,9],pop[-soundINzone,10],pop[-soundINzone,12]) 
 
 #get total number of  individuals (inside and outside zone)	
-totalpigs=sum(pop[,1],pop[,10],pop[,12])
+totalpigs=sum(pop[,1],pop[,12],pop[,13]) ## also an error, this one matters (slightly)
+# totalpigs=sum(pop[,1],pop[,10],pop[,12])
 
 #get total number of infected individuals (inside and outside zone)	
 totalEIC=EICinzone+EICoutzone

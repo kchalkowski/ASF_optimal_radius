@@ -98,35 +98,33 @@ Make_Grid<-function(object,grid.opt="homogeneous",sample=0,sample.design=NULL){
 
   #Center Y coordinate of each cell
   grid[,7]=rep(seq(((0+inc)/2),(((inc*len)-inc)+(inc*len))/2,inc),each=len)
-  
+
   #get centroids-only object
   centroids=grid[,c(6,7)]
-  
-  if(!("homogeneous"%in%grid.opt & sample != 1)){
-    
-    #simulates a spatially random neutral landscape model with values drawn from a uniform distribution
-    #values rescaled to range from 0-1
-    if("random"%in%grid.opt){
-    r=NLMR::nlm_random(len,len,inc,rescale=TRUE)
-    grid[,8]=round(values(r),2)
 
-    centroids=cbind(centroids,grid[,8])
-    grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids,"r"=r)
-    
-    }
-    
+  if(!("homogeneous"%in%grid.opt & sample != 1)){
     if(class(object)=="SpatRaster"){
       #need to get values from ras
       grid[,8]=round(values(ras),2)
       #assign to centroids
       centroids=cbind(centroids,grid[,8])
       grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids)
+#     } else if("random"%in%grid.opt){ ## added to test for random grid.opt only if there is not "SpatRaster" object
+    } else if("heterogeneous"%in%grid.opt){ ## instead of random? seems like this would be more updated
+
+    #simulates a spatially random neutral landscape model with values drawn from a uniform distribution
+    #values rescaled to range from 0-1
+      r=NLMR::nlm_random(len,len,inc,rescale=TRUE)
+      grid[,8]=round(values(r),2)
+      centroids=cbind(centroids,grid[,8])
+      grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids,"r"=r)
+
     }
-    
-  } else{
+
+  } else {
     grid.list=list("cells"=cells,"grid"=grid,"centroids"=centroids)
   }
-  
+
   return(grid.list)
   
 }

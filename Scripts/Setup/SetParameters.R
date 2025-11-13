@@ -17,10 +17,11 @@ ss=2 #sounder size
   #ML- use original grid made in ML by Kim-- is 80kmx80km, 400m resolution
   #DIY- make grid in R with preset options using Make_Grid.R
   #county - make grid that is proportional to county size and extends just beyond
-  grid.type="County"
+  #grid.type="County"
   len=200 #nrow/ncol of grid
   inc=0.4 #resolution of grid (km)
   #grid.type="ML"
+	grid.type='DIY'
 
 #grid.opt: "homogeneous" or "random", optional input  
   #default is "homogeneous"
@@ -65,10 +66,10 @@ DetP=1
 sample=1
   
 # path to sampling design file
-sample.design <- read.csv(paste0(home,"/Input/Bladen_county_updated.csv")) # maybe make this more generic so user doesn't have to put in path?
+#sample.design <- read.csv(paste0(home,"/Input/Bladen_county_updated.csv")) # maybe make this more generic so user doesn't have to put in path?
   
 # path to county shape file
-county_shapefile <- st_read(paste0(home,"/Input/pvs_batch_form_37/partnership_shapefiles_24v2_37017/PVS_24_v2_county_37017.shp"))
+#county_shapefile <- st_read(paste0(home,"/Input/pvs_batch_form_37/partnership_shapefiles_24v2_37017/PVS_24_v2_county_37017.shp"))
 
 #########################
 ####Load fixed parameters

@@ -67,7 +67,8 @@ pop<-FastMovement(pop,centroids,shape,rate,inc,mv_pref)
 ###############################
 #births, natural deaths, disease state changes (exposure, infection, recovery, death), carcass decay
 
-st.list<-StateChanges(pop,centroids,nrow(centroids),Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i)
+## many of these parameters are missing; looks like they are leftover from the pre-targets era
+st.list<-StateChanges(pop, centroids, nrow(centroids), Pbd, B1, B2, F1, F2_int, F2_B, F2i_int, F2i_B, K, death, Pcr, Pir, Incidence, BB, i)
 
 Eep_mat[i,]=st.list$Eep
 Sdpb_mat[i,]=st.list$Sdpb
@@ -131,8 +132,10 @@ BB<-st.list[[3]]
 
 # If sampling turned on, run surveillance scheme based on user's input
 # for the current week
-if(sampling == 1){
-  surv.list<-Surveillance(pop,i,sample.design,grid.list,inc,POSlive,POSdead,POSlive_locs,POSdead_locs,pigs_sampled_timestep) # Madison
+if(sample == 1){ ## I think this is supposed to be the 'sample' paramemter?
+# if(sampling == 1){
+  sample.design <- PrepSurveillance(sample) ## this is the only place sample.design is defined (sample doesn't do anything, but it's in the function definition)
+  surv.list<-Surveillance(pop, i, sample.design, grid.list, inc, POSlive, POSdead, POSlive_locs, POSdead_locs, pigs_sampled_timestep) # Madison
   pop=surv.list[[1]]
   POSlive=surv.list[[2]]
   POSdead=surv.list[[3]]
@@ -142,9 +145,10 @@ if(sampling == 1){
 }
 
 # If sampling turned off and it's detect day based on user input,
-# run FirstDetect because there are infected pigs to detect, and Rad>0
-if(sampling != 1 & i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
-  fd.list<-FirstDetect(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs)
+# run FirstDetect because there are infected pigs to detect,  and Rad>0
+if(sample != 1 & i==detectday&sum(pop[, c(9, 10, 12)])>0&Rad>0){
+# if(sampling != 1 & i==detectday&sum(pop[, c(9, 10, 12)])>0&Rad>0){
+  fd.list<-FirstDetect(pop, i, POSlive, POSdead, POSlive_locs, POSdead_locs)
   pop=fd.list[[1]]
   POSlive=fd.list[[2]]
   POSdead=fd.list[[3]]
@@ -159,8 +163,9 @@ if(sampling != 1 & i==detectday&sum(pop[,c(9,10,12)])>0&Rad>0){
 ######## Initiate Culling Zone ######## 
 #######################################
 
-#if it is at least day after detect day, and Rad>0
-if(sampling != 1 & i > detectday & Rad > 0) {
+#if it is at least day after detect day,  and Rad>0
+if(sample != 1 & i > detectday & Rad > 0) {
+# if(sampling != 1 & i > detectday & Rad > 0) {
 
 	#new detections from last step, bc day lag 
 	#(either from initial detection or last culling period)
@@ -240,9 +245,8 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 
 ####Update population matrix
 #Remove rows in pop with 0 pigs
-pigcols=c(1,8:13)
-pop=pop[which(rowSums(pop[,pigcols])!=0),]
-
+pigcols=c(1, 8:13)
+pop=pop[which(rowSums(pop[, pigcols, drop=FALSE])!=0), , drop=FALSE] ## needs drop=FALSE here to keep single row pop matrix as a matrix and not a vector of values
 
 } else{
   #print("Exiting loop, no infections")
@@ -286,7 +290,8 @@ if("alldetections"%in%out.opts){
   input.opts = append(input.opts, templist)
   names(input.opts)[length(input.opts)] = "POSdead_locs"
   
-  if(sampling == 1){
+#   if(sampling == 1){
+  if(sample == 1){
     templist = list(pigs_sampled_timestep)  # directly create a list with pigs_sampled_timestep
     input.opts=append(input.opts,templist)
     names(input.opts)[length(input.opts)]="pigs_sampled_timestep"
