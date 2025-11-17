@@ -18,8 +18,6 @@ sounderlocsSummarize<-function(sounderlocs,r,sl.summary.opts=NULL,DetP=NULL,N=NU
       dplyr::group_by(timestep) %>% 
       dplyr::summarise(S=sum(S),E=sum(E),I=sum(I),R=sum(R),C=sum(C),Z=sum(Z)) %>% as.data.frame()
     SEIRCZ.rep$rep=r
-    print("test2")
-    print(head(SEIRCZ.rep))
     SEIRCZ_total=SEIRCZ.rep[,c(8,1:7)] #want rep in front
     list.out=list("SEIRCZ_total"=SEIRCZ_total)
     

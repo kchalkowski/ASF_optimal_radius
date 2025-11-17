@@ -63,12 +63,13 @@ pop<-FastMovement(pop,centroids,shape,rate,inc,mv_pref)
 
 
 ###############################
-######## State Changes ######## 
+######## State Changes ########
 ###############################
 #births, natural deaths, disease state changes (exposure, infection, recovery, death), carcass decay
 
 ## many of these parameters are missing; looks like they are leftover from the pre-targets era
-st.list<-StateChanges(pop, centroids, nrow(centroids), Pbd, B1, B2, F1, F2_int, F2_B, F2i_int, F2i_B, K, death, Pcr, Pir, Incidence, BB, i)
+st.list<-StateChanges(pop,centroids,nrow(centroids),parameters, i)
+# st.list<-StateChanges(pop,centroids,nrow(centroids),Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i)
 
 Eep_mat[i,]=st.list$Eep
 Sdpb_mat[i,]=st.list$Sdpb
@@ -81,44 +82,57 @@ Zcd_mat[i,]=st.list$Zcd
 Iep_mat[i,]=st.list$Iep
 
 if("incidence"%in%out.opts){
-  inf.locs=rep(pop[(pop[,10]>0),3],pop[(pop[,10]>0),10]) #locs infected
-  inf.num=sum(pop[(pop[,10]>0),10]) #num infected
-  exp.locs=rep(pop[st.list[[4]]>0,3],st.list[[4]][st.list[[4]]>0]) #locs exposed
-  exp.num=sum(st.list[[4]][st.list[[4]]>0]) #num exposed
-  c.locs=rep(pop[(pop[,12]>0),3],pop[(pop[,12]>0),12]) #locs infected
-  c.num=sum(pop[(pop[,12]>0),12]) #num infected
-  
-  if(inf.num+exp.num>0){
-  inc.mat.i=matrix(nrow=(inf.num+exp.num+c.num),ncol=3)
-  inc.mat.i[,1]=i
-  
-  if(length(inf.locs)!=0){
-    inc.mat.i[1:inf.num,3]=inf.locs
-    inc.mat.i[1:inf.num,2]=10 #code 10 for inf, same as pop colnum
-  }
-  
-  if(length(exp.locs)!=0){
+## is there a reason this is counting from the pre-state changes list instead of st.list[[1]]?
+  inf.locs=rep(pop[(pop[,10]>0),3], pop[(pop[,10]>0),10]) #locs infected
+#   inf.locs=pop[,3][pop[,10]>0] #locs infected
+#   inf.num=sum(pop[(pop[,10]>0),10]) #num infected
+  inf.num=sum(pop[,10]) #num infected
+#   exp.locs=rep(pop[st.list[[4]]>0,3],st.list[[4]][st.list[[4]]>0]) #locs exposed
+  ## is that what we want? pop[st.list[[4]]>0,3] gives all the rows because the row arg = TRUE
+  ## so we end up repeating the entire pop's cell numbers a zillion times?
+  ## I think it might be old, because it seems to expect a vector for st.list[[4]] where it is now a sum()
+  exp.locs=rep(st.list[[1]][st.list[[1]][,9]>0,3], st.list[[1]][,9][st.list[[1]][,9]>0]) #locs exposed
+  ## st.list[[4]] is not what we want (not a vector), but pop and st.list[[1]] have different number of rows, so have to use st.list[[1]] instead of pop I guess
+#   exp.locs=st.list[[1]][,3][st.list[[1]][,9]>0] #locs exposed (E)
+#   exp.num=sum(st.list[[4]][st.list[[4]]>0]) #num exposed
+  exp.num=sum(st.list[[1]][,9]) #num exposed
+#   c.locs=rep(pop[(pop[,12]>0),3],pop[(pop[,12]>0),12]) #locs infected
+#   c.locs=st.list[[1]][,3][st.list[[1]]][,12]>0] #locs infected (C)
+  c.locs=rep(st.list[[1]][st.list[[1]][,12]>0,3], st.list[[1]][,12][st.list[[1]][,12]>0]) #locs exposed
+#   c.num=sum(pop[(pop[,12]>0),12]) #num infected
+  c.num= sum(st.list[[1]][,12])#num infected
 
-    inc.mat.i[(inf.num+1):((inf.num)+exp.num),3]=exp.locs
-    inc.mat.i[(inf.num+1):((inf.num)+exp.num),2]=9 #code 9 for exp, same as pop colnum
-  }
-  
-  if(length(c.locs)!=0){
-    inc.mat.i[(((inf.num)+exp.num)+1):nrow(inc.mat.i),3]=c.locs
-    inc.mat.i[(((inf.num)+exp.num)+1):nrow(inc.mat.i),2]=12 #code 12 for exp, same as pop colnum
-  }
-  
-  if(i==1){
-    inc.mat=inc.mat.i
-  } else{
-    inc.mat=rbind(inc.mat, inc.mat.i)
-  }
+  if(inf.num+exp.num>0){
+    inc.mat.i=matrix(nrow=(inf.num+exp.num+c.num),ncol=3)
+    inc.mat.i[,1]=i
+
+    if(length(inf.locs)!=0){
+      inc.mat.i[1:inf.num,3]=inf.locs
+      inc.mat.i[1:inf.num,2]=10 #code 10 for inf, same as pop colnum
+    }
+
+    if(length(exp.locs)!=0){
+
+      inc.mat.i[(inf.num+1):((inf.num)+exp.num),3]=exp.locs
+      inc.mat.i[(inf.num+1):((inf.num)+exp.num),2]=9 #code 9 for exp, same as pop colnum
+    }
+
+    if(length(c.locs)!=0){
+      inc.mat.i[(inf.num+exp.num+1):nrow(inc.mat.i),3]=c.locs
+      inc.mat.i[(inf.num+exp.num+1):nrow(inc.mat.i),2]=12 #code 12 for exp, same as pop colnum
+    }
+
+    if(i==1){
+      inc.mat=inc.mat.i
+    } else{
+      inc.mat=rbind(inc.mat, inc.mat.i)
+    }
   } else{
     if(i==1){
       inc.mat=matrix(nrow=0,ncol=3)
     }
   }
-  
+
 }
 
 pop<-st.list[[1]]
@@ -127,15 +141,15 @@ BB<-st.list[[3]]
 
 ###**start on day of first detection
 ###################################
-######## Initiate Response ######## 
+######## Initiate Response ########
 ###################################
 
 # If sampling turned on, run surveillance scheme based on user's input
 # for the current week
-if(sample == 1){ ## I think this is supposed to be the 'sample' paramemter?
+if(sample == 1){ ## I think this is supposed to be the 'sample' parameter?
 # if(sampling == 1){
-  sample.design <- PrepSurveillance(sample) ## this is the only place sample.design is defined (sample doesn't do anything, but it's in the function definition)
-  surv.list<-Surveillance(pop, i, sample.design, grid.list, inc, POSlive, POSdead, POSlive_locs, POSdead_locs, pigs_sampled_timestep) # Madison
+  sample.design <- PrepSurveillance(sample) ## this is the only place sample.design is defined (sample doesn't do anything,but it's in the function definition)
+  surv.list<-Surveillance(pop,i,sample.design,grid.list,inc,POSlive,POSdead,POSlive_locs,POSdead_locs,pigs_sampled_timestep) # Madison
   pop=surv.list[[1]]
   POSlive=surv.list[[2]]
   POSdead=surv.list[[3]]
@@ -180,8 +194,10 @@ if(sample != 1 & i > detectday & Rad > 0) {
 	uniqueidNEW<-which(!(idNEW %in% idZONE_t))
 	idNEW<-idNEW[uniqueidNEW]
 	} else{idNEW=idNEW}
+
 	#Culling process
-	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead,DetP)
+	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead,DetP,cullstyle)
+# 	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead,DetP)
 	POSlive[[i]]<-output.list[[1]]
 	POSdead[[i]]<-output.list[[2]]
 	POSlive_locs[[i]]<-output.list[[3]]
@@ -245,13 +261,14 @@ ICtrue[i]<-(sum(colSums(pop)[c(9,10,12)])+1) #account for having removed that fi
 
 ####Update population matrix
 #Remove rows in pop with 0 pigs
-pigcols=c(1, 8:13)
-pop=pop[which(rowSums(pop[, pigcols, drop=FALSE])!=0), , drop=FALSE] ## needs drop=FALSE here to keep single row pop matrix as a matrix and not a vector of values
+pigcols=c(1,8:13)
+pop=pop[which(rowSums(pop[,pigcols,drop=FALSE])!=0),,drop=FALSE]
 
-} else{
-  #print("Exiting loop, no infections")
-  } #if any infected closing bracket/else
-	} #for timestep closing bracket
+}}
+# } else{
+#   #print("Exiting loop, no infections")
+#   } #if any infected closing bracket/else
+# 	} #for timestep closing bracket
 
 #############################
 #############################

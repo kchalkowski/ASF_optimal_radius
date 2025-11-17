@@ -66,16 +66,13 @@ pigsinzone<-sum(pop[soundINzone,1],pop[soundINzone,12],pop[soundINzone,13])
 EICinzone<-sum(pop[soundINzone,9],pop[soundINzone,10],pop[soundINzone,12])
 
 #get total number of pigs outside the zone
-pigsoutzone<-sum(pop[-soundINzone,1],pop[-soundINzone,12],pop[-soundINzone,13]) ## I think this was an error -- total outsize of zone should be same operations as total in zone, but with -soundINzone
-## of course, this isn't used anywhere.
-# pigsoutzone<-sum(pop[-soundINzone,1],pop[-soundINzone,10],pop[-soundINzone,12])
+pigsoutzone<-sum(pop[-soundINzone,1],pop[-soundINzone,12],pop[-soundINzone,13])
 
 #get total number of infected pigs outside the zone
 EICoutzone<-sum(pop[-soundINzone,9],pop[-soundINzone,10],pop[-soundINzone,12]) 
 
 #get total number of  individuals (inside and outside zone)	
-totalpigs=sum(pop[,1],pop[,12],pop[,13]) ## also an error, this one matters (slightly)
-# totalpigs=sum(pop[,1],pop[,10],pop[,12])
+totalpigs=sum(pop[,1],pop[,12],pop[,13])
 
 #get total number of infected individuals (inside and outside zone)	
 totalEIC=EICinzone+EICoutzone
@@ -98,23 +95,29 @@ SEIRCZpigs<-matrix(0,nrow=nrow(fullZONE),ncol=7)
 fullZONEpigs<-cbind(fullZONE,SEIRCZpigs)
 popINzone<-pop[soundINzone,,drop=FALSE]
 for(u in 1:nrow(popINzone)){
-u_row<-which(fullZONEpigs[,2]==popINzone[u,3])
-fullZONEpigs[u_row,4]<-popINzone[u,1] #total number of pigs
-fullZONEpigs[u_row,5]<-popINzone[u,8] #total number susceptible pigs
-fullZONEpigs[u_row,6]<-popINzone[u,9] #total number exposted pigs
-fullZONEpigs[u_row,7]<-popINzone[u,10] #total number infected pigs
-fullZONEpigs[u_row,8]<-popINzone[u,11] #total number recovered pigs
-fullZONEpigs[u_row,9]<-popINzone[u,12] #total number infected carcasses
-fullZONEpigs[u_row,10]<-popINzone[u,13] #total number uninfected carcasses
+	u_row<-which(fullZONEpigs[,2]==popINzone[u,3])
+	fullZONEpigs[u_row,4]<-popINzone[u,1] #total number of pigs
+	fullZONEpigs[u_row,5]<-popINzone[u,8] #total number susceptible pigs
+	fullZONEpigs[u_row,6]<-popINzone[u,9] #total number exposted pigs
+	fullZONEpigs[u_row,7]<-popINzone[u,10] #total number infected pigs
+	fullZONEpigs[u_row,8]<-popINzone[u,11] #total number recovered pigs
+	fullZONEpigs[u_row,9]<-popINzone[u,12] #total number infected carcasses
+	fullZONEpigs[u_row,10]<-popINzone[u,13] #total number uninfected carcasses
 }
 
 
 #remove rows from fullZONEpigs without pigs
 fullZONEpigs<-fullZONEpigs[fullZONEpigs[,4]>0,,drop=FALSE]
 
-#Cullstyle start in, start with closest pigs from detections
-fullZONEpigs<-as.matrix(arrange(as.data.frame(fullZONEpigs),fullZONEpigs[,3]))
-fullZONEpigs<-fullZONEpigs[complete.cases(fullZONEpigs),,drop=FALSE]
+if (cullstyle == "startIN"){
+	#Cullstyle start in, start with closest pigs from detections
+# 	fullZONEpigs<-as.matrix(arrange(as.data.frame(fullZONEpigs),fullZONEpigs[,3]))
+	fullZONEpigs <- fullZONEpigs[order(fullZONEpigs[,3]),,drop=FALSE] ## avoids copying dataframe
+} else if (cullstyle == "startOUT"){
+	#Cullstyle start out, start with furthest pigs from detections
+	fullZONEpigs <- fullZONEpigs[order(-fullZONEpigs[,3]),,drop=FALSE]
+}
+fullZONEpigs<-fullZONEpigs[complete.cases(fullZONEpigs),,drop=FALSE] ## probably don't need this unless bugs are making NA's somewhere
 
 #%density of all live and dead pigs in the zone
 Dr=pigsinzone/ZONEkm2
@@ -128,23 +131,27 @@ numb=rbinom(pigsinzone,1,cprob*Intensity)
 cpigs=sum(numb)
 
 #determine how far down the list to remove pigs from cells
-removals=0 #total number of removals, go through loop until first time it is equal to or greater than cpigs
-incr=1 #row number where culling stops
-if(cpigs>0&nrow(fullZONEpigs)>0){
-while(removals<cpigs&incr<nrow(fullZONEpigs)){
-
-
-removals<-removals+fullZONEpigs[incr,4]
-incr=incr+1
-}
-
+# removals=0 #total number of removals, go through loop until first time it is equal to or greater than cpigs
+## This adds an additional row (because incr=incr+1 is at the end of the loop)
+# incr=1 #row number where culling stops
+# incr=0 ## if we use cumsum structure below, this doesn't matter
+# if(cpigs>0&nrow(fullZONEpigs)>0){
+# 	while(removals<cpigs&incr<nrow(fullZONEpigs)){
+# 		removals<-removals+fullZONEpigs[incr,4]
+# 		incr=incr+1
+# 	}
+if (cpigs > 0 & nrow(fullZONEpigs) > 0){
+	cull.index <- c(1L, which(cumsum(fullZONEpigs[,4]) < cpigs) + 1L) ## go to the next row b/c that's when they would stop
+	## use < instead of <= so if they hit cpigs exactly, they will stop there
+	cull.index <- cull.index[seq(min(length(cull.index), nrow(fullZONEpigs)))] ## handles cases with more culling than pigs
+	culled <- sum(fullZONEpigs[cull.index,4])
 #determine which pigs culled
-culled=removals[[1]]
+# 	culled=removals[[1]] ## ??? shouldn't be a list...
 #% list of cells that pigs will be eliminated from (column index was 1 in old version)
 
-removalcells<-fullZONEpigs[1:incr,2]
+	removalcells<-fullZONEpigs[cull.index,2]
 #get which pigs culled
-removalpigs<-fullZONEpigs[1:incr,,drop=FALSE]
+	removalpigs<-fullZONEpigs[cull.index,,drop=FALSE]
 
 ######################################
 ###### Update surveillance data ######
@@ -153,64 +160,63 @@ removalpigs<-fullZONEpigs[1:incr,,drop=FALSE]
 #POSlive_i is a matrix with a row for each timestep
 #column one of poslive is the number of exposed/infected pigs detected at that timestep
 #sum removalpigs column 6,7
-POSlive_i<-sum(removalpigs[,7],removalpigs[,6])
-if(!is.null(DetP)){
-  POSlive_i_sel=rbinom(POSlive_i,1,DetP)
-  POSlive_i<-sum(POSlive_i_sel)
-}
+	POSlive_i<-sum(removalpigs[,7],removalpigs[,6])
+	if(!is.null(DetP)){
+		POSlive_i_sel=rbinom(POSlive_i,1,DetP)
+		POSlive_i<-sum(POSlive_i_sel)
+	}
 #POSdead
 #POSdead is a matrix with a row for each timestep
 #column one of poslive is the number of infected carcasses detected at that timestep
 #sum removalpigs column 9
-POSdead_i<-sum(removalpigs[,9])
-if(!is.null(DetP)){
-  POSdead_i_sel=rbinom(POSdead_i,1,DetP)
-  POSdead_i<-sum(POSdead_i_sel)
-}
+	POSdead_i<-sum(removalpigs[,9])
+	if(!is.null(DetP)){
+		POSdead_i_sel=rbinom(POSdead_i,1,DetP)
+		POSdead_i<-sum(POSdead_i_sel)
+	}
 #list of length thyme, each timestep is vector of grid cell locations where liive infected pigs detected at that ts
 #removalpigs col 2 where column 6 or 7 >0 (need check that should be E Ior just I)
-if(POSlive_i>0){
-lll<-length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])
+	if(POSlive_i>0){
+		lll<-length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])
 #POSlive_locs_i=vector(mode="integer",length=lll)
 #POSlive_locs[[i]]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
-POSlive_locs_i<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
-if(!is.null(DetP)){
-  POSlive_locs_i=POSlive_locs_i[POSlive_i_sel==1]
-}
+		POSlive_locs_i<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
+		if(!is.null(DetP)){
+			POSlive_locs_i=POSlive_locs_i[POSlive_i_sel==1]
+		}
 
-} else {POSlive_locs_i<-0}
+	} else {POSlive_locs_i<-0}
 
+	if(POSdead_i>0){
+		POSdead_locs_i<-removalpigs[removalpigs[,9]>0,2]
 
-if(POSdead_i>0){
-POSdead_locs_i<-removalpigs[removalpigs[,9]>0,2]
+		if(!is.null(DetP)){
+			POSdead_locs_i=POSdead_locs_i[POSdead_i_sel==1]
+		}
 
-if(!is.null(DetP)){
-  POSdead_locs_i=POSdead_locs_i[POSdead_i_sel==1]
-}
+	} else {POSdead_locs_i<-0}
 
-} else {POSdead_locs_i<-0}
+	#vector of nrow timestop, count of total SR removed
+	#sum removalpigs column 5,8
+	NEGlive_i<-sum(removalpigs[,5],removalpigs[,8])
+	if(!is.null(DetP)){
+		NEGlive_i_missed=length(POSlive_i_sel[POSlive_i_sel==0])
+		NEGlive_i=NEGlive_i+NEGlive_i_missed
+	}
+	#vector of nrow timestep, count of total Z removed
+	#sum removalpigs column 10
+	NEGdead_i<-sum(removalpigs[,10])
+	if(!is.null(DetP)){
+		NEGdead_i_missed=length(POSdead_i_sel[POSdead_i_sel==0])
+		NEGdead_i=NEGdead_i+NEGdead_i_missed
+	}
+	#idZONE:
+	#grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
+	idZONE=fullZONE
 
-#vector of nrow timestop, count of total SR removed
-#sum removalpigs column 5,8
-NEGlive_i<-sum(removalpigs[,5],removalpigs[,8])
-if(!is.null(DetP)){
-  NEGlive_i_missed=length(POSlive_i_sel[POSlive_i_sel==0])
-  NEGlive_i=NEGlive_i+NEGlive_i_missed
-}
-#vector of nrow timestep, count of total Z removed
-#sum removalpigs column 10
-NEGdead_i<-sum(removalpigs[,10])
-if(!is.null(DetP)){
-  NEGdead_i_missed=length(POSdead_i_sel[POSdead_i_sel==0])
-  NEGdead_i=NEGdead_i+NEGdead_i_missed
-}
-#idZONE:
-#grid cell ids that had a positive detection, grid cell ids that are within the zone, distance
-idZONE=fullZONE 
-
-#remove removed sounders from pop
-removalrows<-which(pop[,3] %in% removalcells)
-removedpop<-pop[-removalrows,,drop=FALSE]
+	#remove removed sounders from pop
+	removalrows<-which(pop[,3] %in% removalcells)
+	removedpop<-pop[-removalrows,,drop=FALSE]
 
 } else{
 	POSlive_i=0

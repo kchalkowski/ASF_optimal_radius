@@ -1,9 +1,14 @@
 #outputs: pop,Incidence,BB
-StateChanges<-function(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i){
+StateChanges<-function(pop,centroids,cells,parameters,i){
+# StateChanges<-function(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i){
 ####################################################################
 ########### Initialize state change probability matrices ########### 
 ####################################################################
 
+list2env(parameters, .GlobalEnv)
+
+
+# should have list2env for parameters/outputs here for consistency (instead of 1K+ inputs)
 #births
 Sdpb=matrix(nrow=nrow(pop),ncol=1)
 Sdpb[,1]=0

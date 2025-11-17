@@ -76,25 +76,22 @@ list(
   
   ### Read and format parameters file: -----------
   tar_target(parameters0,FormatSetParameters(parameters_txt)),
-	tar_target(variables,SetVarParms(parameters0,
-		inputs=list(
-	"shape_rate"=data.frame(
-		"shape"=c(0.7515,0.5657),
-		"rate"=c(0.3550,1.9082)
-		),
-	"density_ss_B1_B2"=data.frame(
-		"density"=c(0.1,0.3,0.5),
-		"ss"=c(2,4,6),
-		"B1"=c(0.009,0.009,0.009),
-		"B2"=c(0.009*2,0.009*2,0.009*2)
-		)#,
-	#"Radius"=data.frame(
-	#	"Rad"=c(5,10,15,20)
-	#	)		
-			)
+
+  tar_target(variables,SetVarParms(parameters0,
+		inputs=list() ## changed to align parameter values with states (they were mixed)
+#     "state_basis" = data.frame("state"=c("FL","SC")),
+# 	"density_ss"=data.frame(
+# 		"density"=c(1.5,3,5), ## were these the wrong values? different from what's in Parameters.txt
+# 		"ss"=c(2,4,6)#,
+#         "B1"=c(0.9,0.4,0.2,0.009,0.004,0.002) ## B2 is calculated afterwards according to "B2_B1_factor" parameter
+# 		),
+# 	,"Radius"=data.frame( # comma at the beginning allows easy commenting out of pieces you don't want to use
+# 		"Rad"=c(5,10,15,20)
+# 		)
+# 			)
 		)),
 	tar_target(parameters00,RemoveRedundantParms(parameters0)),
-  
+
   ## Input cpp scripts as files to enable tracking -----  
   tar_target(Fast_FOI_Matrix_script,
             file.path("Scripts","cpp_Functions","Fast_FOI_Matrix.cpp"),
@@ -131,12 +128,13 @@ list(
             #creates a neutral random landscape model with X lc variables
     #Value
       #a nested list of grid parameters
+
 	#multiple landscapes:
 #   tar_target(land_grid_list,InitializeGrids(plands_sprc,"heterogeneous")),
 
 	#single landscape:
 	#tar_target(land_grid_list,InitializeGrids(plands_sprc[1],"heterogeneous"))#,
-  
+
 	#homogenous grid:
 # 	tar_target(land_grid_list,InitializeGrids(c(parameters00$len,parameters00$inc),parameters00$grid.opt)),
 
