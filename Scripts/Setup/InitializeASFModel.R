@@ -7,7 +7,7 @@
 ####Load libraries
 #####################
 library(Rcpp)
-library(profvis)
+#library(profvis)
 library(R.matlab)
 library(pracma)
 library(rdist)
@@ -56,7 +56,7 @@ midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
 } 
 
 if(grid.type=="DIY"){
-  result=Make_Grid(len,inc,grid.opt)
+  result=Make_Grid(c(len,inc),grid.opt) # did we mean to do this twice? see if statement below
   grid.list <- result$grid.list
   sample.design <- result$sample.design
   cells=grid.list$cells
@@ -66,12 +66,14 @@ if(grid.type=="DIY"){
   midpoint=c(max(centroids[,1]/2),max(centroids[,2]/2))
   
   if(grid.opt=="homogeneous"|grid.opt=="heterogeneous"){
-  grid.list=Make_Grid(len,inc,grid.opt)
+  grid.list=Make_Grid(c(len,inc),grid.opt)
   } else{
     if(grid.opt=="ras"){
-      grid.list=Make_Grid(len,inc,"ras",ras)
+      grid.list=Make_Grid(c(len,inc),"ras",ras)
     }
   }
+  grid=grid.list$grid # maybe disappeared somewhere in the things above?
+  centroids=grid.list$centroids
 
   #grid-dependent parms
   area=len^2*inc #total area of grid

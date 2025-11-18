@@ -16,10 +16,12 @@ FastMovement=function(pop,centroids,shape,rate,inc,mv_pref,RSF_mat=NULL,RSF_mat0
   
   #get distances from gamma distribution
   pop[,4]=rgamma(nrow(pop),shape=shape,rate=rate)
+  # if nobody is alive, movement distance should be 0 (generates error if not)
+  pop[,4][pop[,1]==0] <- 0
   
   #set those less than inc to 0
-  pop[pop[,4]<inc,][,4]=0 
-  
+  pop[,4][pop[,4] < inc] = 0
+
   #set present locations to previous locations
   pop[,7]=pop[,3]
   
@@ -36,26 +38,21 @@ FastMovement=function(pop,centroids,shape,rate,inc,mv_pref,RSF_mat=NULL,RSF_mat0
   #mv_pref=3 in separate function because not sure how to use Nullify class input to rcpp parallel for optional args. 
   if(mv_pref!=3){
     m1=parallelMovementRcpp_portion(pop,abund.mat[,1,drop=FALSE],pop[,3,drop=FALSE],centroids,mv_pref)
-  } else{
-    if(mv_pref==3){
-      m1=parallelMovement_RSFavail(pop,abund.mat[,1,drop=FALSE],pop[,3,drop=FALSE],centroids,RSF_mat0,RSF_mat,mv_pref)
-    }
+  } else if (mv_pref == 3){
+    m1=parallelMovement_RSFavail(pop,abund.mat[,1,drop=FALSE],pop[,3,drop=FALSE],centroids,RSF_mat0,RSF_mat,mv_pref)
   }
 
   pop[,3]=m1
-  
   
   if(mv_pref==2|mv_pref==3){
     #update lc vals of current new cell to pop
     pop[,2]=centroids[pop[,3],3]
   }
-  
   #if old locs same as new locs, print
   #if(all(pop[,3]==pop[,7])){
   #warning("all old locs same as new locs")
   #}
   
-  #if spop
   #if stop function here.. if no cells to move to
   #any(pop[,3]==nrow(centroids)+1000)
   if(any(pop[,3]==nrow(centroids)+1000)) {

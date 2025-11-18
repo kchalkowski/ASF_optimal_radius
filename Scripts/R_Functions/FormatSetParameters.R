@@ -46,9 +46,11 @@ FormatSetParameters<-function(parameters_txt){
     cv_varnames=pnames[grep("c\\(\\\"",vars)]
     
     #numeric
-    nvars=vars[-grep("\\\"",vars)]
+    nvars0=vars[-grep("\\\"",vars)]
+    nvars = nvars0[-grep("c\\(\\d", nvars0)] ## this was grabbing the numeric vectors as well
     nvarnames=pnames[-grep("\\\"",vars)]
-    
+    nvarnames = nvarnames[-grep("c\\(\\d", nvars0)] ## need a temporary object to transfer index
+
     #numeric vector
     nv_vars=vars[grep("c\\(\\d",vars)]
     nv_varnames=pnames[grep("c\\(\\d",vars)]
@@ -60,15 +62,23 @@ FormatSetParameters<-function(parameters_txt){
     nvars=as.numeric(nvars)
     
   #handle vectors
-    cv_vars=eval(parse(text=cv_vars))
-    nv_vars=eval(parse(text=nv_vars))
-    
+    if(length(cv_vars) > 1){
+      cv_vars=lapply(cv_vars[seq(cv_vars)], function(x) eval(parse(text=x))) # handles more than one character vector (i.e. if there are multiple out.opts AND multiple "input" names for variables)
+    } else {
+      cv_vars <- eval(parse(text=cv_vars)) # also handles single and missing vectors (as before; preserves the functionality of "is.null" statements for allvars below)
+    }
+    if(length(nv_vars) > 1){
+      nv_vars=lapply(nv_vars[seq(nv_vars)], function(x) eval(parse(text=x)))
+    } else {
+      nv_vars <- eval(parse(text=nv_vars))
+    }
+
   allvars=c("cvars","cv_vars","nvars","nv_vars")
   allvars=allvars[which(!(c(is.null(cvars),
                     is.null(cv_vars),
                     is.null(nvars),
                     is.null(nv_vars))))]
-  
+
   #initiate output list
   list.all=vector(mode="list",length=0)
   

@@ -18,10 +18,10 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B){
   if(length(id)==1){
   X1=matrix(nrow=length(id),ncol=1)
   Y1=matrix(nrow=length(id),ncol=1)
-  
+
   X1=centroids[id,1]
   Y1=centroids[id,2]
-  
+
   dist=sqrt((centroids[,1]-X1)^2+(centroids[,2]-Y1)^2)
   dist=as.data.frame(dist)
   colnames(dist)="X"
@@ -31,7 +31,7 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B){
   probi=F2i_int+F2i_B*dist
   prob[dist==0]=0
   probi[dist==0]=0
-  
+
   B=B1*I[id[1]]*prob + B2*C[id[1]]*probi
   }
   
@@ -49,11 +49,9 @@ FOI_R<-function(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B){
   #B[B<.Machine$double.eps]<-0
   
   if(length(id)==1){
-  Pse=1-exp(-W[,1]-W[,2]-t(B))
-  } else{
-    if(length(id)>1){
-      Pse=1-exp(-W[,1]-W[,2]-t(colSums(B)))
-    }
+    Pse=1-exp(-W[,1]-W[,2]-t(B))
+  } else if(length(id)>1){
+    Pse=1-exp(-W[,1]-W[,2]-t(colSums(B)))
   }
   
   
