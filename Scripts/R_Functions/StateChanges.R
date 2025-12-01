@@ -1,9 +1,14 @@
 #outputs: pop,Incidence,BB
-StateChanges<-function(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i){
+StateChanges<-function(pop,centroids,cells,parameters,i){
+# StateChanges<-function(pop,centroids,cells,Pbd,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B,K,death,Pcr,Pir,Incidence,BB,i){
 ####################################################################
 ########### Initialize state change probability matrices ########### 
 ####################################################################
 
+list2env(parameters, .GlobalEnv)
+
+
+# should have list2env for parameters/outputs here for consistency (instead of 1K+ inputs)
 #births
 Sdpb=matrix(nrow=nrow(pop),ncol=1)
 Sdpb[,1]=0
@@ -39,7 +44,8 @@ Zcd[,1]=0
 ########################################
 
 #subset sounder sets with live, uninfected individuals
-idN=pop[pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,11,drop=FALSE]>0,]
+idN=pop[pop[,8,drop=FALSE]>0|pop[,9,drop=FALSE]>0|pop[,11,drop=FALSE]>0,,drop=FALSE]
+# if (nrow(pop) == 1) browser()
 
 #Number of live, uninfected individuals
 liveind<-sum(colSums(pop)[c(8,9,11)])
@@ -93,6 +99,8 @@ for(j in 1:length(id)){
 #Pse<-FOI(pop,centroids,cells,B1,B2,F1,F2) #force of infection #R version
 Pse<-FOI_R(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B) #cpp parallel version, 22x faster than R version
 #Pse<-FOIParallelFull(pop,centroids,cells,B1,B2,F1,F2_int,F2_B,F2i_int,F2i_B) #cpp parallel version, 22x faster than R version
+## gives negative probabilities for cells without infected ? Might be because I have the wrong values for F2_int, etc.
+Pse[Pse < 0] <- 0 ## assuming these are actually probabilities
 
 Pei=1-exp(-1/(rpois(cells,4)/7)) #transitions exposure to infected
 Pic=1-exp(-1/(rpois(cells,5)/7)) #transitions infected to either dead or recovered
@@ -188,8 +196,10 @@ deadguys[,10]=0
 deadguys[,11]=0
 
 #set all deadguys in pop rows to zero
-pop[which(pop[,12]>0),12]<-0
-pop[which(pop[,13]>0),13]<-0
+# pop[which(pop[,12]>0),12]<-0
+pop[,12][pop[,12] > 0] <- 0 ## as in other places, this handles the 1 row matrix issue
+# pop[which(pop[,13]>0),13]<-0
+pop[,13][pop[,13] > 0] <- 0
 
 #add deadguys to pop matrix
 pop<-rbind(pop,deadguys)
@@ -197,7 +207,9 @@ pop<-rbind(pop,deadguys)
 }
 
 #Update abundance numbers (live individuals only count in abundance)
-pop[,1]=rowSums(pop[,8:11])
+pop[,1]=rowSums(pop[,8:11,drop=FALSE]) ## drop=FALSE to handle single row matrix case
+
+
 
 return(list(pop,Incidence,BB,"Eep"=sum(Eep),"Sdpb"=sum(Sdpb),"Sdpd"=sum(Sdpd),"Iep"=sum(Iep),"Edp"=sum(Edpd),"Rep"=sum(Rep),"Cep"=sum(Cep),"Rdpd"=sum(Rdpd),"Ccd"=sum(Ccd),"Zcd"=sum(Zcd)))
 

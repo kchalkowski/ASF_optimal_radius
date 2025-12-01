@@ -1,14 +1,18 @@
 FirstDetect<-function(pop,i,POSlive,POSdead,POSlive_locs,POSdead_locs){
 #randomly detects a single infected pig (carcass or live)
-	
 	#Randomly detect an E,I, or C pig
 	detection<-as.integer(sample(as.character(which(pop[,9]>0|pop[,10]>0|pop[,12]>0)),1))
+	found.choice <- c(9,10,12)[which(pop[detection,c(9,10,12)] > 0)]
 	
 	#If chose row with combination of E, I, C, pick one
-	if(sum(pop[detection,c(9,10,12)])>1){
-		found=sample(c(9:12),1)
+	if(length(found.choice)>1){
+# 	if(sum(pop[detection,c(9,10,12)])>1){ ## this messes up if a single column is discovered that has 2 or more individuals (i.e. E = I = 0 and C = 2 allows it to choose from any of the three to remove an individual, causing negatives in some cases)
+# 		found=sample(c(9,10,12),1) ## error unless this wasn't, but if we detect a recovered what happens?
+		found=sample(found.choice,1) ## fixed issue in if() statement above using found.choice binary
+# 		found=sample(c(9:12),1) ## original, multiple problems here
 	} else{ #else, found is just the one
-			found=c(9,10,12)[which(pop[detection,c(9,10,12)]>0)]
+			found=found.choice
+# 			found=c(9,10,12)[which(pop[detection,c(9,10,12)]>0)]
 		}
 	
 	##Set POSlive, POSdead

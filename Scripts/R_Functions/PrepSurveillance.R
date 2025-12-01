@@ -52,10 +52,10 @@ PrepSurveillance<-function(sampling){
   names(sample.design)[2] <- "latitude"
   names(sample.design)[3] <- "longitude"
   
-  sample_coords <- st_as_sf(sample.design, coords = c("longitude", "latitude"), crs=4269) # pull out x and y coords from sample.design, convert to sf object
-  sample_sf_transformed <- st_transform(sample_coords, crs = 26917) # transform coordinates to meter based CRS
-  sample_coords_transformed <- st_coordinates(sample_sf_transformed) # extract the coordinates only
-  sample_coords_transformed <- sample_coords_transformed / scale_factor
+#   sample_coords <- st_as_sf(sample.design, coords = c("longitude", "latitude"), crs=4269) # pull out x and y coords from sample.design, convert to sf object
+#   sample_sf_transformed <- st_transform(sample_coords, crs = 26917) # transform coordinates to meter based CRS
+#   sample_coords_transformed <- st_coordinates(sample_sf_transformed) # extract the coordinates only
+#   sample_coords_transformed <- sample_coords_transformed / scale_factor
       
   return(sample.design)
 }
