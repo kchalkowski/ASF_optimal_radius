@@ -200,7 +200,7 @@ if(pigsinzone>0){
 # 			lll<-length(removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2])
 	#POSlive_locs_i=vector(mode="integer",length=lll)
 	#POSlive_locs[[i]]<-removalpigs[removalpigs[,6]>0|removalpigs[,7]>0,2]
-			POSlive_locs_i<-removalpigs[POSlive_i_sel,2]
+			POSlive_locs_i<-removalpigs[POSlive_i_sel,1]
 # 			if(!is.null(DetP)){
 # 				POSlive_locs_i=removalpigs[POSlive_i_sel==1,2]
 # # 				POSlive_locs_i=POSlive_locs_i[POSlive_i_sel==1]
@@ -209,7 +209,7 @@ if(pigsinzone>0){
 		} else {POSlive_locs_i<-0}
 
 		if(POSdead_i>0){
-			POSdead_locs_i<-removalpigs[POSdead_i_sel,2]
+			POSdead_locs_i<-removalpigs[POSdead_i_sel,1]
 
 # 			if(!is.null(DetP)){
 # 				POSdead_locs_i=POSdead_locs_i[POSdead_i_sel==1]
