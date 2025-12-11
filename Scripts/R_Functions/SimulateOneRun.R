@@ -190,10 +190,12 @@ if(sample != 1 & i > detectday & Rad > 0) {
 	idZONE_t=idZONE
 	#if there were detections in previous time steps, only get newly detected infected grid cells
 	#"infected grid cell"=grid cell where there was an infected pig or carcass
-	if(length(idZONE_t[,1])>0){
-	uniqueidNEW<-which(!(idNEW %in% idZONE_t))
-	idNEW<-idNEW[uniqueidNEW]
-	} else{idNEW=idNEW}
+	if(length(idZONE_t[,1]) > 0){
+      uniqueidNEW <- which(!(idNEW %in% idZONE_t[,1])) ## because we are looking for only new detection locations, not locations anywhere in the zone
+      idNEW <- idNEW[uniqueidNEW]
+	} else {
+      idNEW <- idNEW
+    }
 
 	#Culling process
 	output.list<-CullingOneRun(pop,idNEW,idZONE,Intensity,alphaC,centroids,Rad,inc,i,detected,POSlive,POSdead,POSlive_locs,POSdead_locs,NEGlive,NEGdead,DetP,cullstyle)
@@ -219,12 +221,12 @@ if(sample != 1 & i > detectday & Rad > 0) {
 	  #get list index
 	  idz=(detectday-i)
 	  if(idz==1){
-	    idzone.mat.idz=idzone[,2]
+	    idzone.mat.idz=idZONE[,2]
 	    idzone.mat=cbind(idzone.mat.idz,rep(i,length=length(idzone.mat.idz)))
 	    colnames(idzone.mat)=c("cell","timestep")
 	  } else{
 	    #only store new locations
-	    idzone.mat.idz=idzone[,2](which(!(idzone[,2])%in%idzone.mat[,1]))
+	    idzone.mat.idz=idZONE[,2][which(!(idZONE[,2])%in%idzone.mat[,1])]
 	    idzone.mat.idz=cbind(idzone.mat.idz,rep(i,length=length(idzone.mat.idz)))
 	    colnames(idzone.mat.idz)=c("cell","timestep")
 	  }
